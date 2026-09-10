@@ -1,0 +1,5 @@
+data/images/gumb611.png|data/images/gumb611.png|data/images/gumb611.png|data/images/gumb721.png|data/images/gumb731.png|data/images/gumb721.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb721.png|data/images/gumb711.png|data/images/gumb721.png|data/images/gumb621.png|data/images/gumb611.png|
+data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/igrac22.png|data/images/igrac1.png|data/terrain_maps/images/terrain_map_20.png|data/images/tabla81.png|data/images/tabla81.png|
+1|1|2|3|2|1|1|2|1|2|1|-1|-1|1|-1|-1|-1|1|1|
+Ronaldo|Your name
+data/images/igrac22.png|data/images/igrac1.png
