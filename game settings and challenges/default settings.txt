@@ -1,5 +1,5 @@
-data/images/gumb611.png|data/images/gumb611.png|data/images/gumb611.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb611.png|data/images/gumb611.png|
+data/images/gumb611.png|data/images/gumb611.png|data/images/gumb611.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb711.png|data/images/gumb611.png|data/images/gumb621.png|
 data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/tabla81.png|data/images/igrac1.png|data/images/igrac1.png|data/terrain_maps/images/terrain_map_1.png|data/images/tabla81.png|data/images/tabla81.png|
-1|1|1|1|1|1|1|1|1|1|1|-1|-1|1|-1|-1|-1|1|1|
-Your name|Your name
+1|1|1|1|1|1|1|1|1|1|1|-1|-1|-1|-1|-1|-1|1|-1|
+ti|TitanSystem
 data/images/igrac1.png|data/images/igrac1.png
