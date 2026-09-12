@@ -26,3 +26,9 @@ desktop.ini
 
 # Pygame
 *.pyc
+
+data/info_files/cijeli_game.txt
+data/info_files/cijeligame*
+data/info_files/tren_igra_dat.txt
+data/info_files/tren_igra_postavke.txt
+data/replays/recent/*.txt
