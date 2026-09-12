@@ -8,6 +8,7 @@ from datetime import datetime
 import math
 
 import pygame
+import pygame.camera
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -27,7 +28,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 DARK_BG = (15, 15, 25)
 
-# Colores de paneles y marquesinas (inspirados en el banner azul "UNO")
+# Colores de paneles y marquesinas
 PANEL_BG = (14, 24, 40)
 PANEL_BORDER_LIGHT = (40, 105, 175)
 PANEL_BORDER_DARK = (6, 12, 22)
@@ -50,6 +51,8 @@ GRAY = (160, 160, 170)
 DARK_GRAY = (40, 40, 40)
 
 # Luces y Podio
+NEON_CYAN = (0, 240, 255)
+NEON_PINK = (255, 0, 128)
 ARCADE_GREEN = (50, 255, 60)
 ARCADE_GREEN_DIM = (15, 110, 25)
 GOLD = (255, 205, 20)
@@ -222,22 +225,14 @@ def launch_game(exe_name):
 # ==========================================
 
 def draw_arcade_panel(surface, rect, bg_color=PANEL_BG, border_color=BLACK, border_w=4, highlight_color=PANEL_BORDER_LIGHT, shadow_color=PANEL_BORDER_DARK):
-    """Dibuja una caja con estética retro-arcade con biselado de píxeles gruesos."""
-    # Sombra dura exterior
     pygame.draw.rect(surface, BLACK, rect.move(5, 5))
-    
-    # Borde grueso negro exterior
     pygame.draw.rect(surface, border_color, rect)
     
-    # Interior relleno
     inner = rect.inflate(-border_w * 2, -border_w * 2)
     pygame.draw.rect(surface, bg_color, inner)
     
-    # Biselado 3D superior e izquierdo (Luz)
     pygame.draw.line(surface, highlight_color, (inner.x, inner.y), (inner.right - 1, inner.y), 3)
     pygame.draw.line(surface, highlight_color, (inner.x, inner.y), (inner.x, inner.bottom - 1), 3)
-    
-    # Biselado 3D inferior y derecho (Sombra)
     pygame.draw.line(surface, shadow_color, (inner.x + 1, inner.bottom - 2), (inner.right - 1, inner.bottom - 2), 3)
     pygame.draw.line(surface, shadow_color, (inner.right - 2, inner.y + 1), (inner.right - 2, inner.bottom - 1), 3)
 
@@ -261,11 +256,8 @@ class Button:
 
         draw_arcade_panel(
             surface, self.rect,
-            bg_color=bg,
-            border_color=self.border_color,
-            border_w=self.border_w,
-            highlight_color=highlight,
-            shadow_color=shadow
+            bg_color=bg, border_color=self.border_color,
+            border_w=self.border_w, highlight_color=highlight, shadow_color=shadow
         )
 
         text_surface = self.font.render(self.text, True, self.color)
@@ -307,6 +299,13 @@ class Launcher:
     def __init__(self):
         init_db()
         pygame.init()
+
+        try:
+            pygame.camera.init()
+            self.cam_list = pygame.camera.list_cameras()
+        except Exception:
+            self.cam_list = []
+
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         pygame.display.set_caption("Expo Heads UNO")
         self.clock = pygame.time.Clock()
@@ -322,15 +321,20 @@ class Launcher:
 
         self.running = True
         self.state = "menu"
+        self.prev_state = "menu"
         self.game_mode = None
         self.p1_name = ""
         self.p2_name = ""
         self.active_input = 1
         self.finished_mode = ""
         self.status_message = ""
+        
+        self.cam = None
+        self.cam_surface = None
+        self.active_camera = 1
+        self.photo_p1 = None
+        self.photo_p2 = None
 
-        # Posicionamiento: Compacto en ancho (275px) anclado a la derecha (X=900)
-        # No interfiere con el logo que termina en x=870
         self.ranking_box_rect = pygame.Rect(900, 22, 275, 195)
 
         self.bg_image = self._load_background()
@@ -372,7 +376,6 @@ class Launcher:
             return None
 
     def _create_menu_buttons(self):
-        # BOTONERA ESTRICTAMENTE CENTRADA EN LA PANTALLA
         center_x = SCREEN_W // 2
         if BTN_TOP1_FILE.is_file() and BTN_1V1_FILE.is_file():
             self.btn_top1 = ImageButton(center_x, 430, BTN_TOP1_FILE)
@@ -401,10 +404,8 @@ class Launcher:
             self.screen.blit(title, title.get_rect(center=(SCREEN_W // 2, 100)))
 
     def _draw_ranking_hud(self):
-        """HUD de Ranking estilo arcade con borde grueso, luces y título verde animado."""
         r = self.ranking_box_rect
 
-        # Panel con biselado idéntico al estilo del juego
         draw_arcade_panel(
             self.screen, r,
             bg_color=PANEL_BG,
@@ -414,7 +415,6 @@ class Launcher:
             shadow_color=PANEL_BORDER_DARK
         )
 
-        # Animación de luz neón para el título RANKING (pulso suave entre verde brillante y atenuado)
         time_ms = pygame.time.get_ticks()
         pulse = (math.sin(time_ms * 0.006) + 1) / 2
         r_g = int(ARCADE_GREEN_DIM[0] + (ARCADE_GREEN[0] - ARCADE_GREEN_DIM[0]) * pulse)
@@ -428,13 +428,12 @@ class Launcher:
         self.screen.blit(title_shadow, title_rect.move(2, 2))
         self.screen.blit(title_surf, title_rect)
 
-        # Barra separadora amarilla idéntica a la botonera
         line_y = r.y + 46
         pygame.draw.line(self.screen, BTN_YELLOW_DARK, (r.x + 14, line_y + 1), (r.right - 14, line_y + 1), 3)
         pygame.draw.line(self.screen, BTN_YELLOW, (r.x + 14, line_y), (r.right - 14, line_y), 2)
 
         top3 = get_top_ranking(3)
-        podium = [("#1", GOLD), ("#2", SILVER), ("#3", BRONZE)]
+        podium = [("1ST", GOLD), ("2ND", SILVER), ("3RD", BRONZE)]
 
         row_y = r.y + 60
         for i in range(3):
@@ -457,7 +456,6 @@ class Launcher:
             score_surf = self.font_hud_row.render(score_label, True, BTN_ORANGE_LIGHT)
             score_shadow = self.font_hud_row.render(score_label, True, BLACK)
 
-            # Posición de cada columna
             self.screen.blit(pos_shadow, (r.x + 16, row_y + 1))
             self.screen.blit(pos_surf, (r.x + 15, row_y))
 
@@ -470,10 +468,301 @@ class Launcher:
 
             row_y += 36
 
-        # Subtexto inferior
         if (time_ms // 500) % 2 == 0:
             click_surf = self.font_mini.render("CLICK VER TOP 10", True, GRAY)
             self.screen.blit(click_surf, click_surf.get_rect(center=(r.centerx, r.bottom - 13)))
+
+    def _screen_menu(self, events):
+        self._draw_bg()
+        self._draw_title()
+        self._draw_ranking_hud()
+
+        mouse = pygame.mouse.get_pos()
+        for button in (self.btn_top1, self.btn_1v1, self.btn_exit):
+            button.update(mouse)
+            button.draw(self.screen)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.btn_1v1.clicked(mouse):
+                    self.game_mode = "1v1"
+                    self.p1_name = ""
+                    self.p2_name = ""
+                    self.photo_p1 = None
+                    self.photo_p2 = None
+                    self.active_input = 1
+                    self.status_message = ""
+                    self.state = "input_1v1"
+                elif self.btn_top1.clicked(mouse):
+                    self.game_mode = "top1"
+                    self.p1_name = ""
+                    self.photo_p1 = None
+                    self.status_message = ""
+                    self.state = "input_top1"
+                elif self.ranking_box_rect.collidepoint(mouse):
+                    self.state = "ranking"
+                elif self.btn_exit.clicked(mouse):
+                    self.state = "confirm_exit"
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                self.state = "confirm_exit"
+
+    def _draw_silhouette(self, rect, color, photo=None):
+        draw_arcade_panel(self.screen, rect, bg_color=PANEL_BG, border_color=color, border_w=4)
+        
+        if photo:
+            photo_rect = photo.get_rect(center=rect.center)
+            self.screen.blit(photo, photo_rect)
+            pygame.draw.rect(self.screen, color, photo_rect, 2)
+        else:
+            cx, cy = rect.center
+            pygame.draw.circle(self.screen, GRAY, (cx, cy - 25), 35, 4)
+            pygame.draw.arc(self.screen, GRAY, (cx - 55, cy + 10, 110, 80), 0, math.pi, 4)
+            
+            time_ms = pygame.time.get_ticks()
+            if (time_ms // 500) % 2 == 0:
+                text = self.font_mini.render("CLICK FOTO", True, WHITE)
+                self.screen.blit(text, text.get_rect(center=(cx, rect.bottom - 20)))
+
+    def _open_camera(self, player_num):
+        if not self.cam_list:
+            self.status_message = "NO SE DETECTÓ CÁMARA WEB."
+            return
+        try:
+            self.cam = pygame.camera.Camera(self.cam_list[0], (640, 480))
+            self.cam.start()
+            self.active_camera = player_num
+            self.prev_state = self.state
+            self.state = "camera"
+        except Exception as e:
+            self.status_message = f"ERROR CÁMARA: {e}"
+
+    def _screen_camera(self, events):
+        self.screen.fill(BLACK)
+        if self.cam and self.cam.query_image():
+            self.cam_surface = self.cam.get_image()
+
+        if self.cam_surface:
+            mirrored = pygame.transform.flip(self.cam_surface, True, False)
+            rect = mirrored.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2))
+            self.screen.blit(mirrored, rect)
+
+            crop_size = min(rect.width, rect.height)
+            target_rect = pygame.Rect(0, 0, crop_size, crop_size)
+            target_rect.center = rect.center
+            pygame.draw.rect(self.screen, ARCADE_GREEN, target_rect, 4)
+
+        title = self.font_title.render(f"FOTO JUGADOR {self.active_camera}", True, ACCENT)
+        title_shadow = self.font_title.render(f"FOTO JUGADOR {self.active_camera}", True, DARK_GRAY)
+        t_rect = title.get_rect(center=(SCREEN_W // 2, 60))
+        self.screen.blit(title_shadow, t_rect.move(3, 3))
+        self.screen.blit(title, t_rect)
+        
+        inst = self.font_button.render("ESPACIO: CAPTURAR   |   ESC: CANCELAR", True, WHITE)
+        self.screen.blit(inst, inst.get_rect(center=(SCREEN_W // 2, SCREEN_H - 60)))
+
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and self.cam_surface:
+                    mirrored = pygame.transform.flip(self.cam_surface, True, False)
+                    w, h = mirrored.get_size()
+                    size = min(w, h)
+                    crop_rect = pygame.Rect((w - size) // 2, (h - size) // 2, size, size)
+                    cropped = mirrored.subsurface(crop_rect).copy()
+                    
+                    final_img = pygame.transform.smoothscale(cropped, (128, 128))
+                    
+                    filename = f"igrac{self.active_camera}.png"
+                    filepath = BASE_DIR / "data" / "images" / filename
+                    filepath.parent.mkdir(parents=True, exist_ok=True)
+                    pygame.image.save(final_img, str(filepath))
+                    
+                    if self.active_camera == 1:
+                        self.photo_p1 = pygame.transform.smoothscale(final_img, (140, 140))
+                    else:
+                        self.photo_p2 = pygame.transform.smoothscale(final_img, (140, 140))
+                        
+                    self.cam.stop()
+                    self.cam = None
+                    self.state = self.prev_state
+                elif event.key == pygame.K_ESCAPE:
+                    self.cam.stop()
+                    self.cam = None
+                    self.state = self.prev_state
+            elif event.type == pygame.QUIT:
+                if self.cam:
+                    self.cam.stop()
+                self.running = False
+
+    def _draw_input_box(self, label, name, x, y, active, color):
+        label_surface = self.font_small.render(label, True, color)
+        label_shadow = self.font_small.render(label, True, BLACK)
+        self.screen.blit(label_shadow, (x + 2, y + 2))
+        self.screen.blit(label_surface, (x, y))
+
+        rect = pygame.Rect(x, y + 28, 450, 52)
+        highlight = color if active else (50, 60, 80)
+        shadow = tuple(max(c - 80, 0) for c in color) if active else (10, 15, 25)
+        
+        draw_arcade_panel(
+            self.screen, rect, bg_color=(10, 15, 25), border_color=BLACK, 
+            border_w=3, highlight_color=highlight, shadow_color=shadow
+        )
+
+        time_ms = pygame.time.get_ticks()
+        cursor = "_" if active and (time_ms // 400) % 2 == 0 else ""
+        text_surface = self.font_button.render(name + cursor, True, WHITE)
+        self.screen.blit(text_surface, (rect.x + 18, rect.y + 12))
+        return rect
+
+    def _draw_status(self, x, y):
+        if self.status_message:
+            text = self.font_small.render(self.status_message[:82], True, ACCENT_2)
+            self.screen.blit(text, text.get_rect(center=(x, y)))
+
+    @staticmethod
+    def _valid_input_character(event):
+        return bool(event.unicode) and len(event.unicode) == 1 and event.unicode.isprintable() and event.unicode != "|"
+
+    def _screen_input_1v1(self, events):
+        self._draw_bg()
+
+        left_panel = pygame.Rect(80, 120, 560, 430)
+        cam1_rect = pygame.Rect(700, 120, 400, 195)
+        cam2_rect = pygame.Rect(700, 345, 400, 195)
+
+        draw_arcade_panel(self.screen, left_panel, bg_color=PANEL_BG, border_color=BLACK)
+        
+        t_surf = self.font_button.render("1 VS 1", True, BTN_YELLOW)
+        t_shadow = self.font_button.render("1 VS 1", True, BLACK)
+        t_pos = t_surf.get_rect(center=(left_panel.centerx, left_panel.y + 35))
+        self.screen.blit(t_shadow, t_pos.move(2, 2))
+        self.screen.blit(t_surf, t_pos)
+
+        sub_surf = self.font_small.render("INGRESA LOS NOMBRES", True, WHITE)
+        self.screen.blit(sub_surf, sub_surf.get_rect(center=(left_panel.centerx, left_panel.y + 70)))
+
+        box_1 = self._draw_input_box("JUGADOR 1:", self.p1_name, left_panel.x + 55, left_panel.y + 95, self.active_input == 1, ACCENT)
+        box_2 = self._draw_input_box("JUGADOR 2:", self.p2_name, left_panel.x + 55, left_panel.y + 205, self.active_input == 2, BTN_ORANGE_LIGHT)
+        
+        self._draw_status(left_panel.centerx, left_panel.y + 325)
+
+        # VOLVER a la izquierda, JUGAR a la derecha
+        btn_back = Button(
+            left_panel.centerx - 165, left_panel.bottom - 65, 150, 45, "VOLVER", self.font_small, 
+            color=GRAY, bg=BTN_GRAY_BG, hover_bg=BTN_GRAY_HOVER
+        )
+        can_play = bool(self.p1_name.strip() and self.p2_name.strip())
+        btn_play = Button(
+            left_panel.centerx + 15, left_panel.bottom - 65, 150, 45, "JUGAR", self.font_button, 
+            color=WHITE if can_play else GRAY, 
+            bg=(35, 140, 65) if can_play else (40, 40, 50), 
+            hover_bg=(45, 175, 80) if can_play else (40, 40, 50)
+        )
+
+        self._draw_silhouette(cam1_rect, ACCENT, self.photo_p1)
+        self._draw_silhouette(cam2_rect, BTN_ORANGE_LIGHT, self.photo_p2)
+
+        mouse = pygame.mouse.get_pos()
+        for button in (btn_play, btn_back):
+            button.update(mouse)
+            button.draw(self.screen)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                can_play = bool(self.p1_name.strip() and self.p2_name.strip())
+                if btn_play.clicked(mouse) and can_play:
+                    self._start_match_1v1()
+                elif btn_back.clicked(mouse):
+                    self.state = "menu"
+                elif box_1.collidepoint(mouse):
+                    self.active_input = 1
+                elif box_2.collidepoint(mouse):
+                    self.active_input = 2
+                elif cam1_rect.collidepoint(mouse):
+                    self._open_camera(1)
+                elif cam2_rect.collidepoint(mouse):
+                    self._open_camera(2)
+            elif event.type == pygame.KEYDOWN:
+                can_play = bool(self.p1_name.strip() and self.p2_name.strip())
+                if event.key == pygame.K_TAB:
+                    self.active_input = 2 if self.active_input == 1 else 1
+                elif event.key == pygame.K_RETURN and can_play:
+                    self._start_match_1v1()
+                elif event.key == pygame.K_ESCAPE:
+                    self.state = "menu"
+                elif event.key == pygame.K_BACKSPACE:
+                    if self.active_input == 1:
+                        self.p1_name = self.p1_name[:-1]
+                    else:
+                        self.p2_name = self.p2_name[:-1]
+                elif self._valid_input_character(event):
+                    if self.active_input == 1 and len(self.p1_name) < MAX_NAME_LENGTH:
+                        self.p1_name += event.unicode
+                    elif self.active_input == 2 and len(self.p2_name) < MAX_NAME_LENGTH:
+                        self.p2_name += event.unicode
+
+    def _screen_input_top1(self, events):
+        self._draw_bg()
+
+        left_panel = pygame.Rect(80, 150, 560, 380)
+        cam1_rect = pygame.Rect(700, 150, 400, 380)
+
+        draw_arcade_panel(self.screen, left_panel, bg_color=PANEL_BG, border_color=BLACK)
+        self._draw_silhouette(cam1_rect, ACCENT, self.photo_p1)
+        
+        t_surf = self.font_button.render("1 VS TOP #1", True, BTN_ORANGE_LIGHT)
+        t_shadow = self.font_button.render("1 VS TOP #1", True, BLACK)
+        t_pos = t_surf.get_rect(center=(left_panel.centerx, left_panel.y + 40))
+        self.screen.blit(t_shadow, t_pos.move(2, 2))
+        self.screen.blit(t_surf, t_pos)
+
+        box_1 = self._draw_input_box("TU NOMBRE:", self.p1_name, left_panel.x + 55, left_panel.y + 105, True, ACCENT)
+        
+        rival_surf = self.font_button.render(f"RIVAL: {TOP1_NAME}", True, BTN_YELLOW)
+        r_pos = rival_surf.get_rect(center=(left_panel.centerx, left_panel.y + 245))
+        self.screen.blit(rival_surf, r_pos)
+        
+        self._draw_status(left_panel.centerx, left_panel.y + 280)
+
+        # VOLVER a la izquierda, DESAFIAR a la derecha
+        btn_back = Button(
+            left_panel.centerx - 165, left_panel.bottom - 65, 150, 45, "VOLVER", self.font_small, 
+            color=GRAY, bg=BTN_GRAY_BG, hover_bg=BTN_GRAY_HOVER
+        )
+        can_play = bool(self.p1_name.strip())
+        btn_play = Button(
+            left_panel.centerx + 15, left_panel.bottom - 65, 150, 45, "DESAFIAR", self.font_small, 
+            color=WHITE if can_play else GRAY, 
+            bg=BTN_ORANGE if can_play else (40, 40, 50), 
+            hover_bg=BTN_ORANGE_HOVER if can_play else (40, 40, 50)
+        )
+        
+        mouse = pygame.mouse.get_pos()
+        for button in (btn_play, btn_back):
+            button.update(mouse)
+            button.draw(self.screen)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                can_play = bool(self.p1_name.strip())
+                if btn_play.clicked(mouse) and can_play:
+                    self._start_match_top1()
+                elif btn_back.clicked(mouse):
+                    self.state = "menu"
+                elif box_1.collidepoint(mouse):
+                    self.active_input = 1
+                elif cam1_rect.collidepoint(mouse):
+                    self._open_camera(1)
+            elif event.type == pygame.KEYDOWN:
+                can_play = bool(self.p1_name.strip())
+                if event.key == pygame.K_RETURN and can_play:
+                    self._start_match_top1()
+                elif event.key == pygame.K_ESCAPE:
+                    self.state = "menu"
+                elif event.key == pygame.K_BACKSPACE:
+                    self.p1_name = self.p1_name[:-1]
+                elif self._valid_input_character(event) and len(self.p1_name) < MAX_NAME_LENGTH:
+                    self.p1_name += event.unicode
 
     def _draw_center_panel(self, title, subtitle="", height=350):
         self._draw_bg()
@@ -497,229 +786,83 @@ class Launcher:
             subtitle_surface = self.font_subtitle.render(subtitle, True, GRAY)
             self.screen.blit(subtitle_surface, subtitle_surface.get_rect(center=(SCREEN_W // 2, panel.top + 85)))
 
-    def _screen_menu(self, events):
-        self._draw_bg()
-        self._draw_title()
-        self._draw_ranking_hud()
+    def _screen_finished(self, events):
+        self._draw_center_panel("MATCH OVER", self.finished_mode)
+        info = self.font_subtitle.render(self.status_message[:86], True, WHITE)
+        self.screen.blit(info, info.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 + 10)))
+        
+        saved_info = self.font_small.render("PUNTAJE ENVIADO AL LEADERBOARD", True, NEON_CYAN)
+        self.screen.blit(saved_info, saved_info.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 + 45)))
 
+        btn_menu = Button(SCREEN_W // 2 - 250, SCREEN_H // 2 + 92, 220, 58, "MENU", self.font_button)
+        btn_exit = Button(SCREEN_W // 2 + 30, SCREEN_H // 2 + 92, 220, 58, "QUIT", self.font_button, bg=ACCENT_2, hover_bg=(245, 55, 95))
         mouse = pygame.mouse.get_pos()
-        for button in (self.btn_top1, self.btn_1v1, self.btn_exit):
+        for button in (btn_menu, btn_exit):
             button.update(mouse)
             button.draw(self.screen)
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if self.btn_1v1.clicked(mouse):
-                    self.game_mode = "1v1"
-                    self.p1_name = ""
-                    self.p2_name = ""
-                    self.active_input = 1
-                    self.status_message = ""
-                    self.state = "input_1v1"
-                elif self.btn_top1.clicked(mouse):
-                    self.game_mode = "top1"
-                    self.p1_name = ""
-                    self.status_message = ""
-                    self.state = "input_top1"
-                elif self.ranking_box_rect.collidepoint(mouse):
-                    self.state = "ranking"
-                elif self.btn_exit.clicked(mouse):
-                    self.state = "confirm_exit"
+                if btn_menu.clicked(mouse):
+                    self.state = "menu"
+                elif btn_exit.clicked(mouse):
+                    self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_RETURN, pygame.K_ESCAPE):
+                    self.state = "menu"
+
+    def _screen_ranking(self, events):
+        self._draw_center_panel("TOP 10 HIGH SCORES", height=500)
+        
+        headers = self.font_small.render(f"{'RANK':<5} {'JUGADOR':<16} {'MODO':<14} {'GOLES':<6} FECHA", True, NEON_PINK)
+        self.screen.blit(headers, (SCREEN_W // 2 - 320, 185))
+        pygame.draw.line(self.screen, NEON_CYAN, (SCREEN_W // 2 - 320, 210), (SCREEN_W // 2 + 320, 210), 3)
+
+        records = get_top_ranking(10)
+        y_pos = 225
+        for i, (name, mode, gf, gc, m_date) in enumerate(records):
+            dt_obj = datetime.strptime(m_date, "%Y-%m-%d %H:%M:%S.%f")
+            date_str = dt_obj.strftime("%d/%m %H:%M")
+            row_text = f"#{i+1:02d}   {name.upper()[:15]:<16} {mode[:12]:<14} {gf:<6} {date_str}"
+            
+            color = GOLD if i == 0 else SILVER if i == 1 else BRONZE if i == 2 else NEON_CYAN
+            
+            row_surf = self.font_small.render(row_text, True, color)
+            self.screen.blit(row_surf, (SCREEN_W // 2 - 320, y_pos))
+            y_pos += 28
+
+        btn_back = Button(SCREEN_W // 2 - 100, 520, 200, 45, "VOLVER", self.font_small, color=GRAY, bg=BTN_GRAY_BG, hover_bg=BTN_GRAY_HOVER)
+        mouse = pygame.mouse.get_pos()
+        btn_back.update(mouse)
+        btn_back.draw(self.screen)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if btn_back.clicked(mouse):
+                    self.state = "menu"
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                self.state = "confirm_exit"
+                self.state = "menu"
 
-    def _draw_input_box(self, label, name, y, active, color):
-        # Etiqueta
-        label_surface = self.font_small.render(label, True, color)
-        label_shadow = self.font_small.render(label, True, BLACK)
-        self.screen.blit(label_shadow, (SCREEN_W // 2 - 250 + 2, y + 2))
-        self.screen.blit(label_surface, (SCREEN_W // 2 - 250, y))
-
-        rect = pygame.Rect(SCREEN_W // 2 - 250, y + 28, 500, 52)
-        
-        # Estética de caja de input arcade biselada
-        highlight = BTN_YELLOW if active else (50, 60, 80)
-        shadow = BTN_YELLOW_DARK if active else (10, 15, 25)
-        
-        draw_arcade_panel(
-            self.screen, rect,
-            bg_color=(10, 15, 25),
-            border_color=BLACK,
-            border_w=3,
-            highlight_color=highlight,
-            shadow_color=shadow
-        )
-
-        time_ms = pygame.time.get_ticks()
-        cursor = "_" if active and (time_ms // 400) % 2 == 0 else ""
-        text_surface = self.font_button.render(name + cursor, True, WHITE)
-        self.screen.blit(text_surface, (rect.x + 18, rect.y + 12))
-        return rect
-
-    def _draw_status(self, y=455):
-        if self.status_message:
-            text = self.font_small.render(self.status_message[:82], True, ACCENT_2)
-            self.screen.blit(text, text.get_rect(center=(SCREEN_W // 2, y)))
-
-    def _screen_input_1v1(self, events):
-        self._draw_bg()
-
-        # Marco del Título estilo marquesina arcade
-        title_rect = pygame.Rect(SCREEN_W // 2 - 340, 45, 680, 80)
-        draw_arcade_panel(
-            self.screen, title_rect,
-            bg_color=PANEL_BG,
-            border_color=BLACK,
-            border_w=4,
-            highlight_color=PANEL_BORDER_LIGHT,
-            shadow_color=PANEL_BORDER_DARK
-        )
-        title_surf = self.font_button.render("1 VS 1 - INGRESA LOS NOMBRES", True, BTN_YELLOW)
-        title_shadow = self.font_button.render("1 VS 1 - INGRESA LOS NOMBRES", True, BLACK)
-        t_pos = title_surf.get_rect(center=title_rect.center)
-        self.screen.blit(title_shadow, t_pos.move(2, 2))
-        self.screen.blit(title_surf, t_pos)
-
-        # Marco contenedor de inputs
-        input_container = pygame.Rect(SCREEN_W // 2 - 340, 150, 680, 290)
-        draw_arcade_panel(
-            self.screen, input_container,
-            bg_color=(8, 14, 24),
-            border_color=BLACK,
-            border_w=4,
-            highlight_color=PANEL_BORDER_LIGHT,
-            shadow_color=PANEL_BORDER_DARK
-        )
-
-        box_1 = self._draw_input_box("JUGADOR 1:", self.p1_name, 180, self.active_input == 1, ACCENT)
-        box_2 = self._draw_input_box("JUGADOR 2:", self.p2_name, 290, self.active_input == 2, BTN_ORANGE_LIGHT)
-        
-        self._draw_status(410)
-
-        can_play = bool(self.p1_name.strip() and self.p2_name.strip())
-        btn_play = Button(
-            SCREEN_W // 2 - 160, 475, 320, 60, "JUGAR", self.font_button, 
-            color=WHITE if can_play else GRAY, 
-            bg=(35, 140, 65) if can_play else (40, 40, 50), 
-            hover_bg=(45, 175, 80) if can_play else (40, 40, 50)
-        )
-        btn_back = Button(
-            SCREEN_W // 2 - 100, 560, 200, 46, "VOLVER", self.font_small, 
-            color=GRAY, bg=BTN_GRAY_BG, hover_bg=BTN_GRAY_HOVER
-        )
-        
+    def _screen_confirm_exit(self, events):
+        self._draw_center_panel("INSERT COIN TO CONTINUE?", "O QUIERES SALIR DEL JUEGO?")
+        btn_yes = Button(SCREEN_W // 2 - 260, SCREEN_H // 2 + 60, 220, 58, "SALIR", self.font_button, bg=ACCENT_2, hover_bg=(245, 55, 95))
+        btn_no = Button(SCREEN_W // 2 + 40, SCREEN_H // 2 + 60, 220, 58, "VOLVER", self.font_button)
         mouse = pygame.mouse.get_pos()
-        for button in (btn_play, btn_back):
+        for button in (btn_yes, btn_no):
             button.update(mouse)
             button.draw(self.screen)
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if btn_play.clicked(mouse) and can_play:
-                    self._start_match_1v1()
-                elif btn_back.clicked(mouse):
-                    self.state = "menu"
-                elif box_1.collidepoint(mouse):
-                    self.active_input = 1
-                elif box_2.collidepoint(mouse):
-                    self.active_input = 2
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_TAB:
-                    self.active_input = 2 if self.active_input == 1 else 1
-                elif event.key == pygame.K_RETURN and can_play:
-                    self._start_match_1v1()
-                elif event.key == pygame.K_ESCAPE:
-                    self.state = "menu"
-                elif event.key == pygame.K_BACKSPACE:
-                    if self.active_input == 1:
-                        self.p1_name = self.p1_name[:-1]
-                    else:
-                        self.p2_name = self.p2_name[:-1]
-                elif self._valid_input_character(event):
-                    if self.active_input == 1 and len(self.p1_name) < MAX_NAME_LENGTH:
-                        self.p1_name += event.unicode
-                    elif self.active_input == 2 and len(self.p2_name) < MAX_NAME_LENGTH:
-                        self.p2_name += event.unicode
-
-    def _screen_input_top1(self, events):
-        self._draw_bg()
-
-        # Marco del Título
-        title_rect = pygame.Rect(SCREEN_W // 2 - 340, 45, 680, 95)
-        draw_arcade_panel(
-            self.screen, title_rect,
-            bg_color=PANEL_BG,
-            border_color=BLACK,
-            border_w=4,
-            highlight_color=PANEL_BORDER_LIGHT,
-            shadow_color=PANEL_BORDER_DARK
-        )
-        title_surf = self.font_button.render("1 VS TOP #1", True, BTN_ORANGE_LIGHT)
-        title_shadow = self.font_button.render("1 VS TOP #1", True, BLACK)
-        t_pos = title_surf.get_rect(center=(SCREEN_W // 2, 75))
-        self.screen.blit(title_shadow, t_pos.move(2, 2))
-        self.screen.blit(title_surf, t_pos)
-
-        sub_surf = self.font_small.render("LA IA JUEGA COMO JUGADOR 2", True, WHITE)
-        self.screen.blit(sub_surf, sub_surf.get_rect(center=(SCREEN_W // 2, 112)))
-
-        # Marco contenedor de inputs
-        input_container = pygame.Rect(SCREEN_W // 2 - 340, 160, 680, 240)
-        draw_arcade_panel(
-            self.screen, input_container,
-            bg_color=(8, 14, 24),
-            border_color=BLACK,
-            border_w=4,
-            highlight_color=PANEL_BORDER_LIGHT,
-            shadow_color=PANEL_BORDER_DARK
-        )
-
-        self._draw_input_box("TU NOMBRE:", self.p1_name, 195, True, ACCENT)
-
-        rival_surf = self.font_button.render(f"RIVAL: {TOP1_NAME}", True, BTN_YELLOW)
-        rival_shadow = self.font_button.render(f"RIVAL: {TOP1_NAME}", True, BLACK)
-        r_pos = rival_surf.get_rect(center=(SCREEN_W // 2, 340))
-        self.screen.blit(rival_shadow, r_pos.move(2, 2))
-        self.screen.blit(rival_surf, r_pos)
-
-        self._draw_status(380)
-
-        can_play = bool(self.p1_name.strip())
-        btn_play = Button(
-            SCREEN_W // 2 - 160, 440, 320, 60, "DESAFIAR", self.font_button, 
-            color=WHITE if can_play else GRAY, 
-            bg=BTN_ORANGE if can_play else (40, 40, 50), 
-            hover_bg=BTN_ORANGE_HOVER if can_play else (40, 40, 50)
-        )
-        btn_back = Button(
-            SCREEN_W // 2 - 100, 530, 200, 46, "VOLVER", self.font_small, 
-            color=GRAY, bg=BTN_GRAY_BG, hover_bg=BTN_GRAY_HOVER
-        )
-        
-        mouse = pygame.mouse.get_pos()
-        for button in (btn_play, btn_back):
-            button.update(mouse)
-            button.draw(self.screen)
-
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if btn_play.clicked(mouse) and can_play:
-                    self._start_match_top1()
-                elif btn_back.clicked(mouse):
+                if btn_yes.clicked(mouse):
+                    self.running = False
+                elif btn_no.clicked(mouse):
                     self.state = "menu"
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and can_play:
-                    self._start_match_top1()
-                elif event.key == pygame.K_ESCAPE:
+                if event.key in (pygame.K_ESCAPE, pygame.K_n):
                     self.state = "menu"
-                elif event.key == pygame.K_BACKSPACE:
-                    self.p1_name = self.p1_name[:-1]
-                elif self._valid_input_character(event) and len(self.p1_name) < MAX_NAME_LENGTH:
-                    self.p1_name += event.unicode
-
-    @staticmethod
-    def _valid_input_character(event):
-        return bool(event.unicode) and len(event.unicode) == 1 and event.unicode.isprintable() and event.unicode != "|"
+                elif event.key in (pygame.K_RETURN, pygame.K_y, pygame.K_s):
+                    self.running = False
 
     def _run_match(self, mode_label, exe_name, player_1, player_2):
         try:
@@ -761,85 +904,6 @@ class Launcher:
         pygame.display.set_caption("Expo Heads UNO")
         pygame.event.clear()
 
-    def _screen_finished(self, events):
-        self._draw_center_panel("PARTIDO TERMINADO", self.finished_mode)
-        info = self.font_subtitle.render(self.status_message[:86], True, WHITE)
-        self.screen.blit(info, info.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 + 10)))
-        
-        saved_info = self.font_small.render("PUNTAJE ENVIADO AL RANKING", True, BTN_YELLOW)
-        self.screen.blit(saved_info, saved_info.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 + 45)))
-
-        btn_menu = Button(SCREEN_W // 2 - 250, SCREEN_H // 2 + 92, 220, 58, "MENU", self.font_button)
-        btn_exit = Button(SCREEN_W // 2 + 30, SCREEN_H // 2 + 92, 220, 58, "SALIR", self.font_button, bg=ACCENT_2, hover_bg=(245, 55, 95))
-        mouse = pygame.mouse.get_pos()
-        for button in (btn_menu, btn_exit):
-            button.update(mouse)
-            button.draw(self.screen)
-
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if btn_menu.clicked(mouse):
-                    self.state = "menu"
-                elif btn_exit.clicked(mouse):
-                    self.running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_RETURN, pygame.K_ESCAPE):
-                    self.state = "menu"
-
-    def _screen_ranking(self, events):
-        """Vista extendida estilo Arcade para el Top 10."""
-        self._draw_center_panel("TOP 10 RANKING", height=500)
-        
-        headers = self.font_small.render(f"{'POS':<5} {'JUGADOR':<16} {'MODO':<14} {'GOLES':<6} FECHA", True, BTN_YELLOW)
-        self.screen.blit(headers, (SCREEN_W // 2 - 320, 185))
-        pygame.draw.line(self.screen, PANEL_BORDER_LIGHT, (SCREEN_W // 2 - 320, 210), (SCREEN_W // 2 + 320, 210), 3)
-
-        records = get_top_ranking(10)
-        y_pos = 225
-        for i, (name, mode, gf, gc, m_date) in enumerate(records):
-            dt_obj = datetime.strptime(m_date, "%Y-%m-%d %H:%M:%S.%f")
-            date_str = dt_obj.strftime("%d/%m %H:%M")
-            row_text = f"#{i+1:02d}   {name.upper()[:15]:<16} {mode[:12]:<14} {gf:<6} {date_str}"
-            
-            color = GOLD if i == 0 else SILVER if i == 1 else BRONZE if i == 2 else WHITE
-            
-            row_surf = self.font_small.render(row_text, True, color)
-            self.screen.blit(row_surf, (SCREEN_W // 2 - 320, y_pos))
-            y_pos += 28
-
-        btn_back = Button(SCREEN_W // 2 - 100, 520, 200, 45, "VOLVER", self.font_small, color=GRAY, bg=BTN_GRAY_BG, hover_bg=BTN_GRAY_HOVER)
-        mouse = pygame.mouse.get_pos()
-        btn_back.update(mouse)
-        btn_back.draw(self.screen)
-
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if btn_back.clicked(mouse):
-                    self.state = "menu"
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                self.state = "menu"
-
-    def _screen_confirm_exit(self, events):
-        self._draw_center_panel("SALIR", "QUIERES CERRAR EXPO HEADS?")
-        btn_yes = Button(SCREEN_W // 2 - 260, SCREEN_H // 2 + 60, 220, 58, "SALIR", self.font_button, bg=ACCENT_2, hover_bg=(245, 55, 95))
-        btn_no = Button(SCREEN_W // 2 + 40, SCREEN_H // 2 + 60, 220, 58, "VOLVER", self.font_button)
-        mouse = pygame.mouse.get_pos()
-        for button in (btn_yes, btn_no):
-            button.update(mouse)
-            button.draw(self.screen)
-
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if btn_yes.clicked(mouse):
-                    self.running = False
-                elif btn_no.clicked(mouse):
-                    self.state = "menu"
-            elif event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_ESCAPE, pygame.K_n):
-                    self.state = "menu"
-                elif event.key in (pygame.K_RETURN, pygame.K_y, pygame.K_s):
-                    self.running = False
-
     def run(self):
         while self.running:
             events = pygame.event.get()
@@ -853,6 +917,8 @@ class Launcher:
                 self._screen_input_1v1(events)
             elif self.state == "input_top1":
                 self._screen_input_top1(events)
+            elif self.state == "camera":
+                self._screen_camera(events)
             elif self.state == "finished":
                 self._screen_finished(events)
             elif self.state == "ranking":
@@ -863,6 +929,8 @@ class Launcher:
             pygame.display.flip()
             self.clock.tick(FPS)
 
+        if self.cam:
+            self.cam.stop()
         pygame.quit()
 
 
