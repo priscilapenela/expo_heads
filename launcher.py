@@ -8,11 +8,16 @@ from datetime import datetime
 import math
 
 import pygame
-import pygame.camera
+
+try:
+    import cv2
+except ImportError:
+    cv2 = None
 
 import shutil
 
 from avatar_selector import AvatarSelector
+from face_analyzer import analyze_face
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -29,6 +34,19 @@ SCREEN_W, SCREEN_H = 1200, 700
 FPS = 60
 MAX_NAME_LENGTH = 15
 TOP1_NAME = "TOP #1"
+
+# Webcam comprobada en Windows con camera_diagnostic.py.
+CAMERA_INDEX = 0
+CAMERA_WIDTH = 640
+CAMERA_HEIGHT = 480
+
+# Guía facial estilo reconocimiento bancario.
+FACE_GUIDE_W = 250
+FACE_GUIDE_H = 340
+FACE_MIN_W = 60
+FACE_MAX_W = 300
+FACE_CENTER_TOL_X = 95
+FACE_CENTER_TOL_Y = 100
 
 # === PALETA RETRO ARCADE (A juego con los botones del juego) ===
 WHITE = (255, 255, 255)
@@ -317,11 +335,23 @@ class Launcher:
         self.avatar_match_p1 = None
         self.avatar_match_p2 = None
 
-        try:
-            pygame.camera.init()
-            self.cam_list = pygame.camera.list_cameras()
-        except Exception:
-            self.cam_list = []
+        self.face_cascades = []
+
+        if cv2 is not None:
+            cascade_files = [
+                "haarcascade_frontalface_default.xml",
+                "haarcascade_frontalface_alt2.xml",
+            ]
+
+            for cascade_file in cascade_files:
+                cascade_path = Path(cv2.data.haarcascades) / cascade_file
+                cascade = cv2.CascadeClassifier(str(cascade_path))
+
+                if not cascade.empty():
+                    self.face_cascades.append(cascade)
+
+        # Compatibilidad con código anterior.
+        self.face_cascade = self.face_cascades[0] if self.face_cascades else None
 
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
         pygame.display.set_caption("Expo Heads UNO")
@@ -348,6 +378,15 @@ class Launcher:
         
         self.cam = None
         self.cam_surface = None
+        self.cam_frame = None
+        self.camera_backend_name = ""
+        self.detected_face = None
+        self.face_ready = False
+        self.face_status = "CENTRA TU CARA EN EL OVALO"
+        self.face_cascade = None
+        self.detected_face = None
+        self.face_ready = False
+        self.face_status = "CENTRA TU CARA EN EL OVALO"
         self.active_camera = 1
         self.photo_p1 = None
         self.photo_p2 = None
@@ -507,6 +546,10 @@ class Launcher:
                     self.p2_name = ""
                     self.photo_p1 = None
                     self.photo_p2 = None
+                    self.avatar_p1 = None
+                    self.avatar_p2 = None
+                    self.avatar_match_p1 = None
+                    self.avatar_match_p2 = None
                     self.active_input = 1
                     self.status_message = ""
                     self.state = "input_1v1"
@@ -514,6 +557,8 @@ class Launcher:
                     self.game_mode = "top1"
                     self.p1_name = ""
                     self.photo_p1 = None
+                    self.avatar_p1 = None
+                    self.avatar_match_p1 = None
                     self.status_message = ""
                     self.state = "input_top1"
                 elif self.ranking_box_rect.collidepoint(mouse):
@@ -540,74 +585,588 @@ class Launcher:
                 text = self.font_mini.render("CLICK FOTO", True, WHITE)
                 self.screen.blit(text, text.get_rect(center=(cx, rect.bottom - 20)))
 
+    def _close_camera(self):
+        """Libera la webcam de OpenCV de forma segura."""
+        if self.cam is not None:
+            try:
+                self.cam.release()
+            except Exception:
+                pass
+        self.cam = None
+        self.cam_surface = None
+        self.cam_frame = None
+        self.camera_backend_name = ""
+
     def _open_camera(self, player_num):
-        if not self.cam_list:
-            self.status_message = "NO SE DETECTÓ CÁMARA WEB."
+        """
+        Abre la webcam usando OpenCV.
+
+        Primero intenta DirectShow, que fue el backend validado en esta notebook.
+        Si por algún motivo falla, prueba Media Foundation y luego AUTO.
+        """
+        if cv2 is None:
+            self.status_message = (
+                "OPENCV NO ESTA INSTALADO. EJECUTA: python -m pip install opencv-python"
+            )
             return
+
+        self._close_camera()
+
+        backends = [
+            ("DirectShow", cv2.CAP_DSHOW),
+            ("Media Foundation", cv2.CAP_MSMF),
+            ("AUTO", cv2.CAP_ANY),
+        ]
+
+        selected_cam = None
+        selected_backend = ""
+
+        for backend_name, backend in backends:
+            cam = cv2.VideoCapture(CAMERA_INDEX, backend)
+
+            if not cam.isOpened():
+                cam.release()
+                continue
+
+            cam.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+            cam.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+
+            # Confirmamos que no solo abra, sino que realmente entregue frames.
+            ok, frame = cam.read()
+            if not ok or frame is None:
+                cam.release()
+                continue
+
+            selected_cam = cam
+            selected_backend = backend_name
+            self.cam_frame = cv2.flip(frame, 1)
+            break
+
+        if selected_cam is None:
+            self.status_message = "NO SE PUDO ABRIR LA CAMARA 0 CON OPENCV."
+            return
+
+        self.cam = selected_cam
+        self.camera_backend_name = selected_backend
+        self.active_camera = player_num
+        self.prev_state = self.state
+        self.status_message = ""
+        self.state = "camera"
+
+    @staticmethod
+    def _opencv_frame_to_pygame(frame_bgr):
+        """Convierte BGR de OpenCV a Surface de Pygame."""
+        frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
+        h, w = frame_rgb.shape[:2]
+
+        # copy() desacopla la Surface del buffer temporal de NumPy/OpenCV.
+        return pygame.image.frombuffer(
+            frame_rgb.tobytes(),
+            (w, h),
+            "RGB"
+        ).copy()
+
+    def _detect_target_face(self, frame_bgr):
+        """
+        Detección facial tolerante para webcam de evento.
+
+        Estrategia:
+        - prueba dos Haar Cascades frontales;
+        - usa imagen normal y ecualizada;
+        - parámetros más permisivos;
+        - entre varias caras elige la más grande/cercana al centro;
+        - muestra estados separados para detección y alineación.
+        """
+        self.detected_face = None
+        self.face_ready = False
+
+        cascades = getattr(self, "face_cascades", [])
+        if not cascades:
+            self.face_status = "DETECTOR FACIAL NO DISPONIBLE"
+            return
+
+        gray = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY)
+
+        # Dos versiones de contraste ayudan mucho con webcams y luz variable.
+        equalized = cv2.equalizeHist(gray)
+
+        detected = []
+
+        for cascade in cascades:
+            for img in (gray, equalized):
+                faces = cascade.detectMultiScale(
+                    img,
+                    scaleFactor=1.05,
+                    minNeighbors=3,
+                    minSize=(45, 45),
+                    flags=cv2.CASCADE_SCALE_IMAGE,
+                )
+
+                for face in faces:
+                    x, y, w, h = [int(v) for v in face]
+                    detected.append((x, y, w, h))
+
+        if not detected:
+            self.face_status = "NO SE DETECTA ROSTRO - MIRA DE FRENTE"
+            return
+
+        frame_h, frame_w = frame_bgr.shape[:2]
+        guide_cx = frame_w // 2
+        guide_cy = frame_h // 2
+
+        # Priorizamos:
+        # 1) tamaño de la cara
+        # 2) cercanía al centro
+        def face_priority(face):
+            x, y, w, h = face
+            cx = x + w / 2
+            cy = y + h / 2
+
+            dist = (
+                (cx - guide_cx) ** 2 +
+                (cy - guide_cy) ** 2
+            ) ** 0.5
+
+            area = w * h
+
+            return area - (dist * 120)
+
+        x, y, w, h = max(detected, key=face_priority)
+
+        self.detected_face = (x, y, w, h)
+
+        face_cx = x + w // 2
+        face_cy = y + h // 2
+
+        dx = face_cx - guide_cx
+        dy = face_cy - guide_cy
+
+        # Primero informamos que efectivamente hay cara detectada.
+        if abs(dx) > FACE_CENTER_TOL_X:
+            self.face_status = "ROSTRO DETECTADO - CENTRATE"
+            return
+
+        if abs(dy) > FACE_CENTER_TOL_Y:
+            self.face_status = "ROSTRO DETECTADO - AJUSTA ALTURA"
+            return
+
+        if w < FACE_MIN_W:
+            self.face_status = "ROSTRO DETECTADO - ACERCATE"
+            return
+
+        if w > FACE_MAX_W:
+            self.face_status = "ROSTRO DETECTADO - ALEJATE"
+            return
+
+        self.face_ready = True
+        self.face_status = "ROSTRO OK - PRESIONA ESPACIO"
+
+    def _draw_face_guide(self, camera_rect):
+        """
+        Dibuja una máscara oscura exterior y un óvalo transparente,
+        similar a una interfaz de reconocimiento facial bancario.
+        """
+        # Coordenadas del óvalo en la Surface de cámara.
+        local_cx = camera_rect.width // 2
+        local_cy = camera_rect.height // 2
+
+        guide_rect_local = pygame.Rect(
+            local_cx - FACE_GUIDE_W // 2,
+            local_cy - FACE_GUIDE_H // 2,
+            FACE_GUIDE_W,
+            FACE_GUIDE_H,
+        )
+
+        # Máscara: oscurece todo, luego "perfora" el óvalo.
+        mask = pygame.Surface(
+            (camera_rect.width, camera_rect.height),
+            pygame.SRCALPHA
+        )
+        mask.fill((0, 0, 0, 145))
+        pygame.draw.ellipse(
+            mask,
+            (0, 0, 0, 0),
+            guide_rect_local
+        )
+
+        self.screen.blit(mask, camera_rect.topleft)
+
+        guide_rect_screen = guide_rect_local.move(
+            camera_rect.x,
+            camera_rect.y
+        )
+
+        color = ARCADE_GREEN if self.face_ready else BTN_ORANGE_LIGHT
+        pygame.draw.ellipse(self.screen, color, guide_rect_screen, 5)
+
+        # Pequeñas marcas laterales tipo UI de escaneo.
+        tick = 18
+        cx, cy = guide_rect_screen.center
+        pygame.draw.line(
+            self.screen, color,
+            (guide_rect_screen.left - 8, cy),
+            (guide_rect_screen.left + tick, cy), 3
+        )
+        pygame.draw.line(
+            self.screen, color,
+            (guide_rect_screen.right - tick, cy),
+            (guide_rect_screen.right + 8, cy), 3
+        )
+
+    def _extract_head_crop(self, frame_bgr):
+        """
+        Recorta únicamente la cabeza objetivo.
+
+        Se amplía la caja facial hacia arriba y los costados para conservar:
+        - pelo
+        - anteojos
+        - barba
+        - forma general de la cabeza
+
+        De esta forma, la multitud del fondo prácticamente desaparece
+        del material que utilizará face_analyzer.py.
+        """
+        if self.detected_face is None:
+            return None
+
+        x, y, w, h = self.detected_face
+        frame_h, frame_w = frame_bgr.shape[:2]
+
+        # Márgenes amplios para incluir cabello y barba.
+        left = int(x - 0.45 * w)
+        right = int(x + 1.45 * w)
+        top = int(y - 0.65 * h)
+        bottom = int(y + 1.45 * h)
+
+        left = max(0, left)
+        top = max(0, top)
+        right = min(frame_w, right)
+        bottom = min(frame_h, bottom)
+
+        crop = frame_bgr[top:bottom, left:right].copy()
+        if crop.size == 0:
+            return None
+
+        # Convertimos a cuadrado agregando borde negro solo si hace falta.
+        ch, cw = crop.shape[:2]
+        size = max(ch, cw)
+
+        canvas = cv2.copyMakeBorder(
+            crop,
+            top=(size - ch) // 2,
+            bottom=size - ch - (size - ch) // 2,
+            left=(size - cw) // 2,
+            right=size - cw - (size - cw) // 2,
+            borderType=cv2.BORDER_CONSTANT,
+            value=(0, 0, 0),
+        )
+
+        return canvas
+
+    def _capture_current_player(self):
+        """
+        Flujo completo de Expo Heads:
+
+        1. Guarda captura RAW.
+        2. Extrae/normaliza la cabeza objetivo.
+        3. Guarda player_X_scan.png.
+        4. Analiza rasgos con face_analyzer.py.
+        5. Busca el mejor avatar con avatar_selector.py.
+        6. Copia el avatar ganador a data/images/igracX.png.
+        7. Muestra ese avatar como preview en el launcher.
+        """
+        if self.cam_frame is None:
+            self.status_message = "NO HAY FRAME DE CAMARA."
+            return False
+
+        if not self.face_ready or self.detected_face is None:
+            self.status_message = self.face_status
+            return False
+
+        frame = self.cam_frame.copy()
+
+        CAPTURES_DIR.mkdir(parents=True, exist_ok=True)
+        AVATARS_DIR.mkdir(parents=True, exist_ok=True)
+
+        # --------------------------------------------------
+        # 1) RAW para diagnóstico
+        # --------------------------------------------------
+        raw_path = CAPTURES_DIR / f"player_{self.active_camera}_raw.png"
+        cv2.imwrite(str(raw_path), frame)
+
+        # --------------------------------------------------
+        # 2) Recorte de cabeza
+        # --------------------------------------------------
+        head_crop = self._extract_head_crop(frame)
+
+        if head_crop is None:
+            self.status_message = "NO SE PUDO RECORTAR LA CABEZA."
+            return False
+
+        # --------------------------------------------------
+        # 3) Scan normalizado para análisis
+        # --------------------------------------------------
+        scan_path = CAPTURES_DIR / f"player_{self.active_camera}_scan.png"
+
+        scan_img = cv2.resize(
+            head_crop,
+            (320, 320),
+            interpolation=cv2.INTER_AREA
+        )
+
+        if not cv2.imwrite(str(scan_path), scan_img):
+            self.status_message = "NO SE PUDO GUARDAR EL ESCANEO."
+            return False
+
+        # --------------------------------------------------
+        # 4) Analizar rasgos
+        # --------------------------------------------------
         try:
-            self.cam = pygame.camera.Camera(self.cam_list[0], (640, 480))
-            self.cam.start()
-            self.active_camera = player_num
-            self.prev_state = self.state
-            self.state = "camera"
-        except Exception as e:
-            self.status_message = f"ERROR CÁMARA: {e}"
+            detected_traits = analyze_face(scan_path)
+        except Exception as exc:
+            print(f"[Expo Heads] Error face_analyzer: {exc}")
+            self.status_message = f"ERROR ANALIZANDO ROSTRO: {exc}"
+            return False
+
+        print()
+        print("=" * 60)
+        print(f"[JUGADOR {self.active_camera}] RASGOS DETECTADOS")
+        for key, value in detected_traits.items():
+            print(f"  {key}: {value}")
+
+        # --------------------------------------------------
+        # 5) Ranking / selección
+        # --------------------------------------------------
+        try:
+            top_matches = self.avatar_selector.rank(
+                detected_traits,
+                top_k=3
+            )
+        except Exception as exc:
+            print(f"[Expo Heads] Error avatar_selector: {exc}")
+            self.status_message = f"ERROR SELECCIONANDO AVATAR: {exc}"
+            return False
+
+        if not top_matches:
+            self.status_message = "NO HAY AVATARES COMPATIBLES EN EL CATALOGO."
+            return False
+
+        best = top_matches[0]
+
+        print()
+        print("TOP MATCHES:")
+        for pos, candidate in enumerate(top_matches, 1):
+            print(
+                f"  #{pos} {candidate.avatar_id} "
+                f"score={candidate.score:.2f} "
+                f"confidence={candidate.confidence:.1%} "
+                f"file={candidate.file}"
+            )
+            print(
+                "      "
+                f"piel={candidate.breakdown.get('skin', 0):.1f}/40  "
+                f"pelo={candidate.breakdown.get('hair', 0):.1f}/30  "
+                f"anteojos={candidate.breakdown.get('glasses', 0):.1f}/20  "
+                f"barba={candidate.breakdown.get('facial_hair', 0):.1f}/10"
+            )
+        print("=" * 60)
+        print()
+
+        # --------------------------------------------------
+        # 6) Resolver path del avatar
+        # --------------------------------------------------
+        catalog_path_value = Path(best.file)
+
+        # Soportamos tanto:
+        # "avatars/avatar_0001.png"
+        # como:
+        # "data/avatars/avatar_0001.png"
+        # como paths absolutos.
+        candidate_paths = []
+
+        if catalog_path_value.is_absolute():
+            candidate_paths.append(catalog_path_value)
+        else:
+            candidate_paths.extend([
+                BASE_DIR / catalog_path_value,
+                BASE_DIR / "data" / catalog_path_value,
+                AVATARS_DIR / catalog_path_value.name,
+            ])
+
+        selected_avatar_path = next(
+            (p for p in candidate_paths if p.is_file()),
+            None
+        )
+
+        if selected_avatar_path is None:
+            print("[Expo Heads] Paths probados:")
+            for p in candidate_paths:
+                print(" ", p)
+
+            self.status_message = (
+                f"FALTA PNG DEL AVATAR: {best.avatar_id}"
+            )
+            return False
+
+        # --------------------------------------------------
+        # 7) Copiar avatar ganador al nombre que espera el EXE
+        # --------------------------------------------------
+        game_path = (
+            BASE_DIR /
+            "data" /
+            "images" /
+            f"igrac{self.active_camera}.png"
+        )
+        game_path.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            shutil.copy2(selected_avatar_path, game_path)
+        except Exception as exc:
+            self.status_message = f"ERROR COPIANDO AVATAR: {exc}"
+            return False
+
+        # --------------------------------------------------
+        # 8) Preview del avatar elegido
+        # --------------------------------------------------
+        try:
+            avatar_preview = pygame.image.load(
+                str(selected_avatar_path)
+            ).convert_alpha()
+
+            # NEAREST para respetar pixel art.
+            avatar_preview = pygame.transform.scale(
+                avatar_preview,
+                (140, 140)
+            )
+        except Exception as exc:
+            self.status_message = f"ERROR CARGANDO PREVIEW: {exc}"
+            return False
+
+        if self.active_camera == 1:
+            self.photo_p1 = avatar_preview
+            self.avatar_p1 = str(selected_avatar_path)
+            self.avatar_match_p1 = best
+        else:
+            self.photo_p2 = avatar_preview
+            self.avatar_p2 = str(selected_avatar_path)
+            self.avatar_match_p2 = best
+
+        self.status_message = (
+            f"AVATAR: {best.avatar_id} - "
+            f"{best.confidence:.0%} MATCH"
+        )
+
+        return True
 
     def _screen_camera(self, events):
         self.screen.fill(BLACK)
-        if self.cam and self.cam.query_image():
-            self.cam_surface = self.cam.get_image()
+
+        if self.cam is not None:
+            ok, frame = self.cam.read()
+            if ok and frame is not None:
+                self.cam_frame = cv2.flip(frame, 1)
+
+                # Analizamos únicamente cuál es la cara objetivo.
+                self._detect_target_face(self.cam_frame)
+
+                self.cam_surface = self._opencv_frame_to_pygame(
+                    self.cam_frame
+                )
+
+        camera_rect = None
 
         if self.cam_surface:
-            mirrored = pygame.transform.flip(self.cam_surface, True, False)
-            rect = mirrored.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2))
-            self.screen.blit(mirrored, rect)
+            camera_rect = self.cam_surface.get_rect(
+                center=(SCREEN_W // 2, SCREEN_H // 2)
+            )
+            self.screen.blit(self.cam_surface, camera_rect)
 
-            crop_size = min(rect.width, rect.height)
-            target_rect = pygame.Rect(0, 0, crop_size, crop_size)
-            target_rect.center = rect.center
-            pygame.draw.rect(self.screen, ARCADE_GREEN, target_rect, 4)
+            # DEBUG VISUAL:
+            # Si OpenCV detectó una cara, mostramos su caja.
+            # Verde = lista para capturar.
+            # Amarillo = detectada pero todavía mal posicionada.
+            if self.detected_face is not None:
+                fx, fy, fw, fh = self.detected_face
+                face_box = pygame.Rect(
+                    camera_rect.x + fx,
+                    camera_rect.y + fy,
+                    fw,
+                    fh,
+                )
+                debug_color = ARCADE_GREEN if self.face_ready else BTN_YELLOW
+                pygame.draw.rect(self.screen, debug_color, face_box, 2)
 
-        title = self.font_title.render(f"FOTO JUGADOR {self.active_camera}", True, ACCENT)
-        title_shadow = self.font_title.render(f"FOTO JUGADOR {self.active_camera}", True, DARK_GRAY)
-        t_rect = title.get_rect(center=(SCREEN_W // 2, 60))
+            # Oscurecer fondo + óvalo de posicionamiento.
+            self._draw_face_guide(camera_rect)
+
+        title = self.font_title.render(
+            f"ESCANEO JUGADOR {self.active_camera}",
+            True,
+            ACCENT
+        )
+        title_shadow = self.font_title.render(
+            f"ESCANEO JUGADOR {self.active_camera}",
+            True,
+            DARK_GRAY
+        )
+        t_rect = title.get_rect(center=(SCREEN_W // 2, 48))
         self.screen.blit(title_shadow, t_rect.move(3, 3))
         self.screen.blit(title, t_rect)
-        
-        inst = self.font_button.render("ESPACIO: CAPTURAR   |   ESC: CANCELAR", True, WHITE)
-        self.screen.blit(inst, inst.get_rect(center=(SCREEN_W // 2, SCREEN_H - 60)))
+
+        backend_text = self.font_mini.render(
+            f"CAMARA {CAMERA_INDEX} - {self.camera_backend_name} - DETECTOR V3",
+            True,
+            GRAY,
+        )
+        self.screen.blit(
+            backend_text,
+            backend_text.get_rect(center=(SCREEN_W // 2, 88)),
+        )
+
+        # Estado de alineación.
+        status_color = ARCADE_GREEN if self.face_ready else BTN_ORANGE_LIGHT
+        status_surface = self.font_small.render(
+            self.face_status,
+            True,
+            status_color
+        )
+        status_bg = pygame.Rect(
+            SCREEN_W // 2 - 245,
+            SCREEN_H - 112,
+            490,
+            36,
+        )
+        pygame.draw.rect(self.screen, BLACK, status_bg)
+        pygame.draw.rect(self.screen, status_color, status_bg, 2)
+        self.screen.blit(
+            status_surface,
+            status_surface.get_rect(center=status_bg.center),
+        )
+
+        if self.face_ready:
+            inst_text = "ESPACIO: CAPTURAR   |   ESC: CANCELAR"
+        else:
+            inst_text = "ALINEA TU CARA   |   ESC: CANCELAR"
+
+        inst = self.font_small.render(inst_text, True, WHITE)
+        self.screen.blit(
+            inst,
+            inst.get_rect(center=(SCREEN_W // 2, SCREEN_H - 48)),
+        )
 
         for event in events:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and self.cam_surface:
-                    mirrored = pygame.transform.flip(self.cam_surface, True, False)
-                    w, h = mirrored.get_size()
-                    size = min(w, h)
-                    crop_rect = pygame.Rect((w - size) // 2, (h - size) // 2, size, size)
-                    cropped = mirrored.subsurface(crop_rect).copy()
-                    
-                    final_img = pygame.transform.smoothscale(cropped, (128, 128))
-                    
-                    filename = f"igrac{self.active_camera}.png"
-                    filepath = BASE_DIR / "data" / "images" / filename
-                    filepath.parent.mkdir(parents=True, exist_ok=True)
-                    pygame.image.save(final_img, str(filepath))
-                    
-                    if self.active_camera == 1:
-                        self.photo_p1 = pygame.transform.smoothscale(final_img, (140, 140))
-                    else:
-                        self.photo_p2 = pygame.transform.smoothscale(final_img, (140, 140))
-                        
-                    self.cam.stop()
-                    self.cam = None
-                    self.state = self.prev_state
+                if event.key == pygame.K_SPACE:
+                    if self.face_ready and self._capture_current_player():
+                        self._close_camera()
+                        self.state = self.prev_state
+
                 elif event.key == pygame.K_ESCAPE:
-                    self.cam.stop()
-                    self.cam = None
+                    self._close_camera()
                     self.state = self.prev_state
+
             elif event.type == pygame.QUIT:
-                if self.cam:
-                    self.cam.stop()
+                self._close_camera()
                 self.running = False
 
     def _draw_input_box(self, label, name, x, y, active, color):
@@ -678,6 +1237,28 @@ class Launcher:
 
         self._draw_silhouette(cam1_rect, ACCENT, self.photo_p1)
         self._draw_silhouette(cam2_rect, BTN_ORANGE_LIGHT, self.photo_p2)
+
+        if self.avatar_match_p1:
+            match_text = self.font_mini.render(
+                f"{self.avatar_match_p1.avatar_id} - {self.avatar_match_p1.confidence:.0%}",
+                True,
+                ARCADE_GREEN
+            )
+            self.screen.blit(
+                match_text,
+                match_text.get_rect(center=(cam1_rect.centerx, cam1_rect.bottom - 12))
+            )
+
+        if self.avatar_match_p2:
+            match_text = self.font_mini.render(
+                f"{self.avatar_match_p2.avatar_id} - {self.avatar_match_p2.confidence:.0%}",
+                True,
+                ARCADE_GREEN
+            )
+            self.screen.blit(
+                match_text,
+                match_text.get_rect(center=(cam2_rect.centerx, cam2_rect.bottom - 12))
+            )
 
         mouse = pygame.mouse.get_pos()
         for button in (btn_play, btn_back):
@@ -946,8 +1527,7 @@ class Launcher:
             pygame.display.flip()
             self.clock.tick(FPS)
 
-        if self.cam:
-            self.cam.stop()
+        self._close_camera()
         pygame.quit()
 
 
