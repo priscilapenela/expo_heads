@@ -10,8 +10,15 @@ import math
 import pygame
 import pygame.camera
 
+import shutil
+
+from avatar_selector import AvatarSelector
+
 
 BASE_DIR = Path(__file__).resolve().parent
+AVATARS_DIR = BASE_DIR / "data" / "avatars"
+CAPTURES_DIR = BASE_DIR / "data" / "captures"
+AVATAR_CATALOG_FILE = BASE_DIR / "avatars_catalog.json"
 GAME_EXE_1V1 = "head_football_patched_v5_1v1.exe"
 GAME_EXE_TOP1 = "head_football_patched_v5_top1_ai.exe"
 CURRENT_SETTINGS_FILE = BASE_DIR / "data" / "info_files" / "tren_igra_postavke.txt"
@@ -299,6 +306,16 @@ class Launcher:
     def __init__(self):
         init_db()
         pygame.init()
+
+        AVATARS_DIR.mkdir(parents=True, exist_ok=True)
+        CAPTURES_DIR.mkdir(parents=True, exist_ok=True)
+
+        self.avatar_selector = AvatarSelector(AVATAR_CATALOG_FILE)
+
+        self.avatar_p1 = None
+        self.avatar_p2 = None
+        self.avatar_match_p1 = None
+        self.avatar_match_p2 = None
 
         try:
             pygame.camera.init()

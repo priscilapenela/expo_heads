@@ -1,0 +1,192 @@
+[
+  {
+    "id": "avatar_0001",
+    "file": "avatars/avatar_0001.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "short",
+      "hair_color": "brown",
+      "hair_texture": "wavy",
+      "bald": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "skin_tone": "light",
+      "eye_color": "brown",
+      "freckles": false,
+      "age_group": "young_adult",
+      "accessory": "none"
+    }
+  },
+  {
+    "id": "avatar_0002",
+    "file": "avatars/avatar_0002.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "long",
+      "hair_color": "brown",
+      "hair_texture": "wavy",
+      "bald": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "skin_tone": "light",
+      "eye_color": "brown",
+      "freckles": false,
+      "age_group": "young_adult",
+      "accessory": "none"
+    }
+  },
+  {
+    "id": "avatar_0003",
+    "file": "avatars/avatar_0003.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "short",
+      "hair_color": "dark_brown",
+      "hair_texture": "curly",
+      "bald": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "skin_tone": "tan",
+      "eye_color": "brown",
+      "freckles": false,
+      "age_group": "young_adult",
+      "accessory": "none"
+    }
+  },
+  {
+    "id": "avatar_0004",
+    "file": "avatars/avatar_0004.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "medium",
+      "hair_color": "blond",
+      "hair_texture": "wavy",
+      "bald": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "skin_tone": "light",
+      "eye_color": "blue",
+      "freckles": false,
+      "age_group": "young_adult",
+      "accessory": "none"
+    }
+  },
+  {
+    "id": "avatar_0005",
+    "file": "avatars/avatar_0005.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "short",
+      "hair_color": "black",
+      "hair_texture": "straight",
+      "bald": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "skin_tone": "medium",
+      "eye_color": "brown",
+      "freckles": false,
+      "age_group": "young_adult",
+      "accessory": "none"
+    }
+  },
+  {
+    "id": "avatar_0006",
+    "file": "avatars/avatar_0006.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "long",
+      "hair_color": "red",
+      "hair_texture": "wavy",
+      "bald": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "skin_tone": "light",
+      "eye_color": "green",
+      "freckles": true,
+      "age_group": "young_adult",
+      "accessory": "none"
+    }
+  },
+  {
+    "id": "avatar_0007",
+    "file": "avatars/avatar_0007.png",
+    "traits": {
+      "glasses": true,
+      "hair_length": "long",
+      "hair_color": "brown",
+      "hair_texture": "wavy",
+      "bald": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "skin_tone": "light",
+      "eye_color": "brown",
+      "freckles": false,
+      "age_group": "young_adult",
+      "accessory": "glasses"
+    }
+  },
+  {
+    "id": "avatar_0008",
+    "file": "avatars/avatar_0008.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "bald",
+      "hair_color": "none",
+      "hair_texture": "none",
+      "bald": true,
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "skin_tone": "medium",
+      "eye_color": "brown",
+      "freckles": false,
+      "age_group": "adult",
+      "accessory": "none"
+    }
+  },
+  {
+    "id": "avatar_0009",
+    "file": "avatars/avatar_0009.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "long",
+      "hair_color": "dark_brown",
+      "hair_texture": "braids",
+      "bald": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "skin_tone": "dark",
+      "eye_color": "brown",
+      "freckles": false,
+      "age_group": "young_adult",
+      "accessory": "hair_bead"
+    }
+  },
+  {
+    "id": "avatar_0010",
+    "file": "avatars/avatar_0010.png",
+    "traits": {
+      "glasses": false,
+      "hair_length": "medium",
+      "hair_color": "gray",
+      "hair_texture": "straight",
+      "bald": false,
+      "beard": false,
+      "moustache": true,
+      "facial_hair_style": "moustache",
+      "skin_tone": "light",
+      "eye_color": "brown",
+      "freckles": false,
+      "age_group": "older_adult",
+      "accessory": "none"
+    }
+  }
+]
