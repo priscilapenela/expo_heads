@@ -41,8 +41,26 @@ FPS = 60
 MAX_NAME_LENGTH = 15
 TOP1_NAME = "TOP #1"
 
+# Slots de runtime ya validados por la versión estable.
+# La cámara sobrescribe 21/22 solamente durante el uso normal del launcher,
+# evitando tocar los sprites base igrac1/igrac2.
+DEFAULT_PLAYER_AVATAR = "data/images/igrac1.png"
+RUNTIME_PLAYER_AVATAR_P1 = "data/images/igrac21.png"
+RUNTIME_PLAYER_AVATAR_P2 = "data/images/igrac22.png"
+
+# Alias conservados por compatibilidad con versiones previas.
+MANUAL_1V1_AVATAR_P1 = RUNTIME_PLAYER_AVATAR_P1
+MANUAL_1V1_AVATAR_P2 = RUNTIME_PLAYER_AVATAR_P2
+
+# El motor precarga igrac1.png ... igrac23.png. El slot 23 se reserva
+# temporalmente para el avatar UUID del TOP #1 y siempre se restaura.
+TOP1_RUNTIME_AVATAR = "data/images/igrac23.png"
+TOP1_RUNTIME_BACKUP = "igrac23.expo_original.png"
+TOP1_RUNTIME_STAGE = "igrac23.expo_stage.png"
+
 # Webcam comprobada en Windows con camera_diagnostic.py.
 CAMERA_INDEX = 0
+CAMERA_INDICES = (0, 1, 2, 3)
 CAMERA_WIDTH = 640
 CAMERA_HEIGHT = 480
 
@@ -830,7 +848,12 @@ class Launcher:
 
         self.face_cascades = []
 
-        if cv2 is not None:
+        if (
+            cv2 is not None
+            and hasattr(cv2, "CascadeClassifier")
+            and hasattr(cv2, "data")
+            and hasattr(cv2.data, "haarcascades")
+        ):
             cascade_files = [
                 "haarcascade_frontalface_default.xml",
                 "haarcascade_frontalface_alt2.xml",
@@ -874,10 +897,7 @@ class Launcher:
         self.cam_surface = None
         self.cam_frame = None
         self.camera_backend_name = ""
-        self.detected_face = None
-        self.face_ready = False
-        self.face_status = "CENTRA TU CARA EN EL OVALO"
-        self.face_cascade = None
+        self.camera_index = None
         self.detected_face = None
         self.face_ready = False
         self.face_status = "CENTRA TU CARA EN EL OVALO"
@@ -1105,6 +1125,12 @@ class Launcher:
                     self.avatar_p2 = None
                     self.avatar_match_p1 = None
                     self.avatar_match_p2 = None
+                    self.player_p1_id = None
+                    self.player_p2_id = None
+                    self.avatar_p1_id = None
+                    self.avatar_p2_id = None
+                    self.avatar_p1_file = None
+                    self.avatar_p2_file = None
                     self.active_input = 1
                     self.status_message = ""
                     self.state = "input_1v1"
@@ -1114,6 +1140,9 @@ class Launcher:
                     self.photo_p1 = None
                     self.avatar_p1 = None
                     self.avatar_match_p1 = None
+                    self.player_p1_id = None
+                    self.avatar_p1_id = None
+                    self.avatar_p1_file = None
                     self.status_message = ""
                     self.state = "input_top1"
                 elif self.ranking_box_rect.collidepoint(mouse):
@@ -1151,13 +1180,16 @@ class Launcher:
         self.cam_surface = None
         self.cam_frame = None
         self.camera_backend_name = ""
+        self.camera_index = None
+        self.detected_face = None
+        self.face_ready = False
+        self.face_status = "CENTRA TU CARA EN EL OVALO"
 
     def _open_camera(self, player_num):
-        """
-        Abre la webcam usando OpenCV.
+        """Abre la primera webcam disponible usando OpenCV.
 
-        Primero intenta DirectShow, que fue el backend validado en esta notebook.
-        Si por algún motivo falla, prueba Media Foundation y luego AUTO.
+        Prioriza DirectShow en Windows y el índice 0, pero prueba otros
+        backends/índices para mantener el launcher portable entre equipos.
         """
         if cv2 is None:
             self.status_message = (
@@ -1175,34 +1207,40 @@ class Launcher:
 
         selected_cam = None
         selected_backend = ""
+        selected_index = None
 
-        for backend_name, backend in backends:
-            cam = cv2.VideoCapture(CAMERA_INDEX, backend)
+        for camera_index in CAMERA_INDICES:
+            for backend_name, backend in backends:
+                cam = cv2.VideoCapture(camera_index, backend)
 
-            if not cam.isOpened():
-                cam.release()
-                continue
+                if not cam.isOpened():
+                    cam.release()
+                    continue
 
-            cam.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-            cam.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+                cam.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+                cam.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
 
-            # Confirmamos que no solo abra, sino que realmente entregue frames.
-            ok, frame = cam.read()
-            if not ok or frame is None:
-                cam.release()
-                continue
+                ok, frame = cam.read()
+                if not ok or frame is None:
+                    cam.release()
+                    continue
 
-            selected_cam = cam
-            selected_backend = backend_name
-            self.cam_frame = cv2.flip(frame, 1)
-            break
+                selected_cam = cam
+                selected_backend = backend_name
+                selected_index = camera_index
+                self.cam_frame = cv2.flip(frame, 1)
+                break
+
+            if selected_cam is not None:
+                break
 
         if selected_cam is None:
-            self.status_message = "NO SE PUDO ABRIR LA CAMARA 0 CON OPENCV."
+            self.status_message = "NO SE PUDO ABRIR NINGUNA CAMARA CON OPENCV."
             return
 
         self.cam = selected_cam
         self.camera_backend_name = selected_backend
+        self.camera_index = selected_index
         self.active_camera = player_num
         self.prev_state = self.state
         self.status_message = ""
@@ -1517,13 +1555,15 @@ class Launcher:
                 f"confidence={candidate.confidence:.1%} "
                 f"file={candidate.file}"
             )
-            print(
-                "      "
-                f"piel={candidate.breakdown.get('skin', 0):.1f}/40  "
-                f"pelo={candidate.breakdown.get('hair', 0):.1f}/30  "
-                f"anteojos={candidate.breakdown.get('glasses', 0):.1f}/20  "
-                f"barba={candidate.breakdown.get('facial_hair', 0):.1f}/10"
-            )
+            breakdown = getattr(candidate, "breakdown", {})
+            if breakdown:
+                print(
+                    "      "
+                    f"piel={breakdown.get('skin', 0):.1f}/40  "
+                    f"pelo={breakdown.get('hair', 0):.1f}/30  "
+                    f"anteojos={breakdown.get('glasses', 0):.1f}/20  "
+                    f"barba={breakdown.get('facial_hair', 0):.1f}/10"
+                )
         print("=" * 60)
         print()
 
@@ -1566,12 +1606,12 @@ class Launcher:
         # --------------------------------------------------
         # 7) Copiar avatar ganador al nombre que espera el EXE
         # --------------------------------------------------
-        game_path = (
-            BASE_DIR /
-            "data" /
-            "images" /
-            f"igrac{self.active_camera}.png"
+        runtime_avatar = (
+            RUNTIME_PLAYER_AVATAR_P1
+            if self.active_camera == 1
+            else RUNTIME_PLAYER_AVATAR_P2
         )
+        game_path = BASE_DIR.joinpath(*runtime_avatar.split("/"))
         game_path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
@@ -1669,7 +1709,7 @@ class Launcher:
         self.screen.blit(title, t_rect)
 
         backend_text = self.font_mini.render(
-            f"CAMARA {CAMERA_INDEX} - {self.camera_backend_name} - DETECTOR V3",
+            f"CAMARA {self.camera_index} - {self.camera_backend_name} - DETECTOR V3",
             True,
             GRAY,
         )
@@ -1782,7 +1822,7 @@ class Launcher:
             left_panel.centerx - 165, left_panel.bottom - 65, 150, 45, "VOLVER", self.font_small, 
             color=GRAY, bg=BTN_GRAY_BG, hover_bg=BTN_GRAY_HOVER
         )
-        can_play = bool(self.p1_name.strip() and self.p2_name.strip())
+        can_play = bool(self.p1_name.strip() and self.p2_name.strip() and self.avatar_match_p1 and self.avatar_match_p2)
         btn_play = Button(
             left_panel.centerx + 15, left_panel.bottom - 65, 150, 45, "JUGAR", self.font_button, 
             color=WHITE if can_play else GRAY, 
@@ -1822,7 +1862,7 @@ class Launcher:
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                can_play = bool(self.p1_name.strip() and self.p2_name.strip())
+                can_play = bool(self.p1_name.strip() and self.p2_name.strip() and self.avatar_match_p1 and self.avatar_match_p2)
                 if btn_play.clicked(mouse) and can_play:
                     self._start_match_1v1()
                 elif btn_back.clicked(mouse):
@@ -1836,7 +1876,7 @@ class Launcher:
                 elif cam2_rect.collidepoint(mouse):
                     self._open_camera(2)
             elif event.type == pygame.KEYDOWN:
-                can_play = bool(self.p1_name.strip() and self.p2_name.strip())
+                can_play = bool(self.p1_name.strip() and self.p2_name.strip() and self.avatar_match_p1 and self.avatar_match_p2)
                 if event.key == pygame.K_TAB:
                     self.active_input = 2 if self.active_input == 1 else 1
                 elif event.key == pygame.K_RETURN and can_play:
@@ -1882,7 +1922,7 @@ class Launcher:
             left_panel.centerx - 165, left_panel.bottom - 65, 150, 45, "VOLVER", self.font_small, 
             color=GRAY, bg=BTN_GRAY_BG, hover_bg=BTN_GRAY_HOVER
         )
-        can_play = bool(self.p1_name.strip())
+        can_play = bool(self.p1_name.strip() and self.avatar_match_p1)
         btn_play = Button(
             left_panel.centerx + 15, left_panel.bottom - 65, 150, 45, "DESAFIAR", self.font_small, 
             color=WHITE if can_play else GRAY, 
@@ -1897,7 +1937,7 @@ class Launcher:
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                can_play = bool(self.p1_name.strip())
+                can_play = bool(self.p1_name.strip() and self.avatar_match_p1)
                 if btn_play.clicked(mouse) and can_play:
                     self._start_match_top1()
                 elif btn_back.clicked(mouse):
@@ -1907,7 +1947,7 @@ class Launcher:
                 elif cam1_rect.collidepoint(mouse):
                     self._open_camera(1)
             elif event.type == pygame.KEYDOWN:
-                can_play = bool(self.p1_name.strip())
+                can_play = bool(self.p1_name.strip() and self.avatar_match_p1)
                 if event.key == pygame.K_RETURN and can_play:
                     self._start_match_top1()
                 elif event.key == pygame.K_ESCAPE:
@@ -2099,12 +2139,17 @@ class Launcher:
             self._restore_window()
 
     def _start_match_1v1(self):
+        # Evita reutilizar por accidente el avatar de un participante anterior.
+        if self.avatar_match_p1 is None or self.avatar_match_p2 is None:
+            self.status_message = "ESCANEA EL ROSTRO DE AMBOS JUGADORES ANTES DE JUGAR"
+            return
+
         try:
             self.avatar_p1_id, self.avatar_p1_file = archive_avatar_png(
-                MANUAL_1V1_AVATAR_P1
+                RUNTIME_PLAYER_AVATAR_P1
             )
             self.avatar_p2_id, self.avatar_p2_file = archive_avatar_png(
-                MANUAL_1V1_AVATAR_P2
+                RUNTIME_PLAYER_AVATAR_P2
             )
             self.player_p1_id = register_player_avatar(
                 self.p1_name.strip(),
@@ -2129,11 +2174,15 @@ class Launcher:
             GAME_EXE_1V1,
             self.p1_name.strip(),
             self.p2_name.strip(),
-            MANUAL_1V1_AVATAR_P1,
-            MANUAL_1V1_AVATAR_P2,
+            RUNTIME_PLAYER_AVATAR_P1,
+            RUNTIME_PLAYER_AVATAR_P2,
         )
 
     def _start_match_top1(self):
+        if self.avatar_match_p1 is None:
+            self.status_message = "ESCANEA TU ROSTRO ANTES DE DESAFIAR AL TOP #1"
+            return
+
         top1 = get_top1_identity()
         if top1 is None:
             self.status_message = "TODAVÍA NO HAY UN TOP #1 EN EL RANKING"
@@ -2145,16 +2194,16 @@ class Launcher:
         opponent_name = top1["name"]
         try:
             self.avatar_p1_id, self.avatar_p1_file = archive_avatar_png(
-                DEFAULT_PLAYER_AVATAR
+                RUNTIME_PLAYER_AVATAR_P1
             )
             self.player_p1_id = register_player_avatar(
                 self.p1_name.strip(),
                 self.avatar_p1_id,
                 self.avatar_p1_file,
             )
-            self.player_p2_id = top1["player_id"] if top1 else None
-            self.avatar_p2_id = top1["avatar_id"] if top1 else None
-            self.avatar_p2_file = top1["avatar_file"] if top1 else None
+            self.player_p2_id = top1["player_id"]
+            self.avatar_p2_id = top1["avatar_id"]
+            self.avatar_p2_file = top1["avatar_file"]
             print(f"[PLAYER] Retador vinculado: {self.player_p1_id}")
         except (OSError, ValueError, sqlite3.Error) as exc:
             self.status_message = f"ERROR VINCULANDO JUGADOR: {exc}"
@@ -2165,7 +2214,7 @@ class Launcher:
             GAME_EXE_TOP1,
             self.p1_name.strip(),
             opponent_name,
-            DEFAULT_PLAYER_AVATAR,
+            RUNTIME_PLAYER_AVATAR_P1,
             TOP1_RUNTIME_AVATAR,
             top1["avatar_file"],
         )
