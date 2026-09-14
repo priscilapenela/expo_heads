@@ -1,42 +1,50 @@
-
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import json
 
 
-PRIORITY_WEIGHTS = {
-    "skin": 40.0,
-    "hair": 30.0,
-    "glasses": 20.0,
-    "facial_hair": 10.0,
+# Expo Heads V5
+# Matching estructural: el color NO participa del ranking porque se aplica
+# después, desde la cámara, sobre el template seleccionado.
+
+FIELD_WEIGHTS: Dict[str, float] = {
+    "bald": 30.0,
+    "hair_length": 26.0,
+    "hair_texture": 18.0,
+    "glasses": 28.0,
+    "beard": 15.0,
+    "moustache": 10.0,
+    "facial_hair_style": 8.0,
+    "freckles": 3.0,
 }
 
-HAIR_FIELD_WEIGHTS = {
-    "hair_length": 0.40,
-    "hair_color": 0.35,
-    "bald": 0.15,
-    "hair_texture": 0.10,
-}
+# Orden determinista. Nunca usar set acá: el orden importa.
+STRICT_ORDER = (
+    "bald",
+    "glasses",
+    "beard",
+    "moustache",
+)
 
-FACIAL_HAIR_FIELD_WEIGHTS = {
-    "beard": 0.60,
-    "moustache": 0.25,
-    "facial_hair_style": 0.15,
-}
+HAIR_LENGTH_ORDER = ["bald", "very_short", "short", "medium", "long"]
 
-ORDERS = {
-    "skin_tone": ["very_light", "light", "medium", "tan", "dark", "very_dark"],
-    "hair_length": ["bald", "very_short", "short", "medium", "long"],
-}
-
-HAIR_COLOR_SIMILARITY = {
-    frozenset(("black", "dark_brown")): 0.70,
-    frozenset(("dark_brown", "brown")): 0.80,
-    frozenset(("brown", "red")): 0.25,
-    frozenset(("blond", "gray")): 0.25,
+HAIR_TEXTURE_EQUIVALENTS = {
+    "none": "none",
+    "straight": "straight",
+    "lacio": "straight",
+    "wavy": "wavy",
+    "ondulado": "wavy",
+    "curly": "curly",
+    "rizado": "curly",
+    "coily": "curly",
+    "afro": "curly",
+    "braided": "braided",
+    "braids": "braided",
+    "trenzas": "braided",
+    "spiky": "spiky",
 }
 
 
@@ -47,13 +55,14 @@ class Candidate:
     score: float
     max_score: float
     confidence: float
-    matched: List[str]
-    partial: List[str]
-    mismatched: List[str]
-    avatar_traits: Dict[str, Any]
-    breakdown: Dict[str, float]
+    matched: List[str] = field(default_factory=list)
+    partial: List[str] = field(default_factory=list)
+    mismatched: List[str] = field(default_factory=list)
+    avatar_traits: Dict[str, Any] = field(default_factory=dict)
+    breakdown: Dict[str, float] = field(default_factory=dict)
+    accessories: List[str] = field(default_factory=list)
 
-    def as_dict(self):
+    def as_dict(self) -> Dict[str, Any]:
         return {
             "avatar_id": self.avatar_id,
             "file": self.file,
@@ -63,235 +72,273 @@ class Candidate:
             "matched": self.matched,
             "partial": self.partial,
             "mismatched": self.mismatched,
-            "breakdown": {
-                k: round(v, 3)
-                for k, v in self.breakdown.items()
-            },
             "traits": self.avatar_traits,
+            "breakdown": self.breakdown,
+            "accessories": self.accessories,
         }
 
 
-def _ordinal_similarity(field: str, detected: Any, candidate: Any) -> float:
-    order = ORDERS[field]
+def _normalize_bool(value: Any) -> Optional[bool]:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        v = value.strip().lower()
+        if v in {"true", "1", "yes", "si", "sí"}:
+            return True
+        if v in {"false", "0", "no"}:
+            return False
+    return bool(value)
+
+
+def _normalize_length(value: Any, bald: Optional[bool] = None) -> Optional[str]:
+    if bald is True:
+        return "bald"
+    if value is None:
+        return None
+    v = str(value).strip().lower()
+    aliases = {
+        "none": "bald",
+        "bald": "bald",
+        "calvo": "bald",
+        "very_short": "very_short",
+        "very short": "very_short",
+        "muy_corto": "very_short",
+        "short": "short",
+        "corto": "short",
+        "medium": "medium",
+        "medio": "medium",
+        "long": "long",
+        "largo": "long",
+    }
+    return aliases.get(v, v)
+
+
+def _normalize_texture(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    v = str(value).strip().lower()
+    return HAIR_TEXTURE_EQUIVALENTS.get(v, v)
+
+
+def _confidence_map(detected_traits: Dict[str, Any]) -> Dict[str, float]:
+    raw = detected_traits.get("_confidence")
+    if not isinstance(raw, dict):
+        return {}
+    out: Dict[str, float] = {}
+    for key, value in raw.items():
+        try:
+            out[key] = max(0.0, min(1.0, float(value)))
+        except (TypeError, ValueError):
+            pass
+    return out
+
+
+def _field_confidence(field: str, confidences: Dict[str, float]) -> float:
+    if field in confidences:
+        return confidences[field]
+    if field == "facial_hair_style":
+        return max(confidences.get("beard", 0.0), confidences.get("moustache", 0.0), 0.7)
+    # Si el analizador viejo no informa confianza, no anulamos el rasgo.
+    return 1.0
+
+
+def _length_similarity(a: Any, b: Any) -> float:
+    a = _normalize_length(a)
+    b = _normalize_length(b)
+    if a is None or b is None:
+        return 0.0
+    if a == b:
+        return 1.0
     try:
-        a = order.index(detected)
-        b = order.index(candidate)
+        ia = HAIR_LENGTH_ORDER.index(a)
+        ib = HAIR_LENGTH_ORDER.index(b)
     except ValueError:
         return 0.0
-
-    d = abs(a - b)
-
-    if d == 0:
-        return 1.0
-    if d == 1:
+    distance = abs(ia - ib)
+    if distance == 1:
         return 0.55
-    if d == 2:
-        return 0.15
+    if distance == 2:
+        return 0.12
     return 0.0
 
 
-def trait_similarity(field: str, detected: Any, candidate: Any) -> float:
+def _texture_similarity(a: Any, b: Any) -> float:
+    a = _normalize_texture(a)
+    b = _normalize_texture(b)
+    if a is None or b is None:
+        return 0.0
+    if a == b:
+        return 1.0
+    # Ondulado/rizado son visualmente vecinos y se admite match parcial.
+    neighbors = {
+        frozenset(("wavy", "curly")): 0.48,
+        frozenset(("straight", "wavy")): 0.32,
+    }
+    return neighbors.get(frozenset((a, b)), 0.0)
+
+
+def _similarity(field: str, detected: Any, candidate: Any) -> float:
     if detected is None or candidate is None:
         return 0.0
-
-    if field in ORDERS:
-        return _ordinal_similarity(field, detected, candidate)
-
-    if field == "hair_color":
-        if detected == candidate:
-            return 1.0
-
-        return HAIR_COLOR_SIMILARITY.get(
-            frozenset((str(detected), str(candidate))),
-            0.0
-        )
-
-    if isinstance(detected, bool) or isinstance(candidate, bool):
-        return 1.0 if bool(detected) == bool(candidate) else 0.0
-
-    return 1.0 if detected == candidate else 0.0
-
-
-def _group_similarity(
-    detected_traits: Dict[str, Any],
-    candidate_traits: Dict[str, Any],
-    fields: Dict[str, float],
-):
-    """
-    Promedio ponderado de los campos disponibles.
-
-    Si un campo detectado es None, no penaliza.
-    El peso interno se redistribuye entre los campos disponibles.
-    """
-    total_internal_weight = 0.0
-    accumulated = 0.0
-    compared_fields = []
-
-    for field, internal_weight in fields.items():
-        detected_value = detected_traits.get(field)
-        candidate_value = candidate_traits.get(field)
-
-        if detected_value is None or candidate_value is None:
-            continue
-
-        total_internal_weight += internal_weight
-        similarity = trait_similarity(
-            field,
-            detected_value,
-            candidate_value,
-        )
-
-        accumulated += internal_weight * similarity
-        compared_fields.append((field, similarity))
-
-    if total_internal_weight <= 0:
-        return None, compared_fields
-
-    return accumulated / total_internal_weight, compared_fields
+    if field == "hair_length":
+        return _length_similarity(detected, candidate)
+    if field == "hair_texture":
+        return _texture_similarity(detected, candidate)
+    if field in {"bald", "glasses", "beard", "moustache", "freckles"}:
+        return 1.0 if _normalize_bool(detected) == _normalize_bool(candidate) else 0.0
+    return 1.0 if str(detected).strip().lower() == str(candidate).strip().lower() else 0.0
 
 
 class AvatarSelector:
-    """
-    V3 - prioridades explícitas por grupo:
-
-    1) tono de piel = 40%
-    2) pelo = 30%
-    3) anteojos = 20%
-    4) barba/bigote = 10%
-
-    Esto evita que muchos rasgos secundarios juntos
-    terminen dominando un rasgo prioritario.
-    """
-
     def __init__(self, catalog_path: str | Path):
         self.catalog_path = Path(catalog_path)
-        self.catalog = json.loads(
-            self.catalog_path.read_text(encoding="utf-8")
-        )
-
+        self.catalog = json.loads(self.catalog_path.read_text(encoding="utf-8"))
         if not isinstance(self.catalog, list):
             raise ValueError("El catálogo debe ser una lista JSON.")
 
-    def score_avatar(self, detected_traits, avatar):
-        candidate_traits = avatar.get("traits", {})
+    def _prepare_detected(self, detected_traits: Dict[str, Any]) -> Dict[str, Any]:
+        out: Dict[str, Any] = {}
+        for key in FIELD_WEIGHTS:
+            value = detected_traits.get(key)
+            if key in {"bald", "glasses", "beard", "moustache", "freckles"}:
+                value = _normalize_bool(value) if value is not None else None
+            elif key == "hair_length":
+                value = _normalize_length(value, _normalize_bool(detected_traits.get("bald")))
+            elif key == "hair_texture":
+                value = _normalize_texture(value)
+            out[key] = value
+        return out
 
+    def _strict_filter(
+        self,
+        detected: Dict[str, Any],
+        confidences: Dict[str, float],
+        avatars: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        remaining = avatars[:]
+
+        for field in STRICT_ORDER:
+            value = detected.get(field)
+            if value is None:
+                continue
+
+            conf = _field_confidence(field, confidences)
+
+            # Anteojos y calvicie son rasgos visuales muy fuertes.
+            # Con el analizador V4, un FALSE de anteojos con alta confianza
+            # debe excluir templates con anteojos si hay alternativas.
+            if field == "glasses":
+                min_conf = 0.88 if value is True else 0.72
+            elif field == "bald":
+                min_conf = 0.78
+            else:
+                min_conf = 0.68
+
+            if conf < min_conf:
+                continue
+
+            compatible = [
+                avatar
+                for avatar in remaining
+                if avatar.get("traits", {}).get(field) is not None
+                and _normalize_bool(avatar.get("traits", {}).get(field)) == value
+            ]
+
+            if compatible:
+                remaining = compatible
+
+        # Segundo filtro: peinado. Solo lo hacemos cuando el analizador está
+        # suficientemente seguro y siempre con fallback si el catálogo no
+        # posee esa combinación exacta. Textura va primero: visualmente es más
+        # importante que confundir medium con short por unos pocos píxeles.
+        texture = detected.get("hair_texture")
+        texture_conf = _field_confidence("hair_texture", confidences)
+        if texture not in (None, "none") and texture_conf >= 0.66:
+            compatible = [
+                avatar for avatar in remaining
+                if _normalize_texture(avatar.get("traits", {}).get("hair_texture")) == texture
+            ]
+            if compatible:
+                remaining = compatible
+
+        length = detected.get("hair_length")
+        length_conf = _field_confidence("hair_length", confidences)
+        if length not in (None, "bald") and length_conf >= 0.74:
+            compatible = [
+                avatar for avatar in remaining
+                if _normalize_length(avatar.get("traits", {}).get("hair_length")) == length
+            ]
+            if compatible:
+                remaining = compatible
+
+        return remaining
+
+    def score_avatar(
+        self,
+        detected: Dict[str, Any],
+        confidences: Dict[str, float],
+        avatar: Dict[str, Any],
+    ) -> Candidate:
+        traits = avatar.get("traits", {})
         score = 0.0
         max_score = 0.0
+        matched: List[str] = []
+        partial: List[str] = []
+        mismatched: List[str] = []
 
-        matched = []
-        partial = []
-        mismatched = []
+        # Subtotales de UI / debug
+        breakdown = {"skin": 0.0, "hair": 0.0, "glasses": 0.0, "facial_hair": 0.0}
 
-        breakdown = {
-            "skin": 0.0,
-            "hair": 0.0,
-            "glasses": 0.0,
-            "facial_hair": 0.0,
-        }
+        for field, base_weight in FIELD_WEIGHTS.items():
+            detected_value = detected.get(field)
+            if detected_value is None:
+                continue
 
-        # --------------------------------------------------
-        # 1) PIEL - 40 puntos
-        # --------------------------------------------------
-        detected_skin = detected_traits.get("skin_tone")
-        candidate_skin = candidate_traits.get("skin_tone")
+            conf = _field_confidence(field, confidences)
+            if conf <= 0.0:
+                continue
 
-        if detected_skin is not None and candidate_skin is not None:
-            sim = trait_similarity(
-                "skin_tone",
-                detected_skin,
-                candidate_skin,
-            )
+            # Evita que una inferencia floja domine el ranking.
+            effective_weight = base_weight * max(0.22, conf)
+            candidate_value = traits.get(field)
+            if candidate_value is None:
+                continue
 
-            group_score = PRIORITY_WEIGHTS["skin"] * sim
-            score += group_score
-            max_score += PRIORITY_WEIGHTS["skin"]
-            breakdown["skin"] = group_score
+            max_score += effective_weight
+            sim = _similarity(field, detected_value, candidate_value)
 
             if sim >= 0.999:
-                matched.append("skin_tone")
-            elif sim > 0:
-                partial.append("skin_tone")
+                score += effective_weight
+                matched.append(field)
+            elif sim > 0.0:
+                score += effective_weight * sim
+                partial.append(field)
             else:
-                mismatched.append("skin_tone")
+                # Los booleanos visualmente fuertes reciben penalización alta.
+                penalty_mult = 1.25 if field in {"glasses", "bald"} else 0.82
+                score -= effective_weight * penalty_mult
+                mismatched.append(field)
 
-        # --------------------------------------------------
-        # 2) PELO - 30 puntos
-        # --------------------------------------------------
-        hair_sim, hair_fields = _group_similarity(
-            detected_traits,
-            candidate_traits,
-            HAIR_FIELD_WEIGHTS,
-        )
+            contribution = max(0.0, effective_weight * sim)
+            if field in {"bald", "hair_length", "hair_texture"}:
+                breakdown["hair"] += contribution
+            elif field == "glasses":
+                breakdown["glasses"] += contribution
+            elif field in {"beard", "moustache", "facial_hair_style"}:
+                breakdown["facial_hair"] += contribution
 
-        if hair_sim is not None:
-            group_score = PRIORITY_WEIGHTS["hair"] * hair_sim
-            score += group_score
-            max_score += PRIORITY_WEIGHTS["hair"]
-            breakdown["hair"] = group_score
+        # Preferimos un template simple cuando dos estructuras empatan. Un
+        # accesorio no detectado (coleta/piercing/etc.) no debería ganar por azar.
+        accessories = avatar.get("accessories") or []
+        detected_accessories = detected.get("accessories") or []
+        if not detected_accessories and accessories:
+            score -= 12.0 * len(accessories)
 
-            for field, sim in hair_fields:
-                if sim >= 0.999:
-                    matched.append(field)
-                elif sim > 0:
-                    partial.append(field)
-                else:
-                    mismatched.append(field)
-
-        # --------------------------------------------------
-        # 3) ANTEOJOS - 20 puntos
-        # --------------------------------------------------
-        detected_glasses = detected_traits.get("glasses")
-        candidate_glasses = candidate_traits.get("glasses")
-
-        if detected_glasses is not None and candidate_glasses is not None:
-            sim = trait_similarity(
-                "glasses",
-                detected_glasses,
-                candidate_glasses,
-            )
-
-            group_score = PRIORITY_WEIGHTS["glasses"] * sim
-            score += group_score
-            max_score += PRIORITY_WEIGHTS["glasses"]
-            breakdown["glasses"] = group_score
-
-            if sim >= 0.999:
-                matched.append("glasses")
-            else:
-                mismatched.append("glasses")
-
-        # --------------------------------------------------
-        # 4) BARBA/BIGOTE - 10 puntos
-        # --------------------------------------------------
-        facial_sim, facial_fields = _group_similarity(
-            detected_traits,
-            candidate_traits,
-            FACIAL_HAIR_FIELD_WEIGHTS,
-        )
-
-        if facial_sim is not None:
-            group_score = (
-                PRIORITY_WEIGHTS["facial_hair"] *
-                facial_sim
-            )
-
-            score += group_score
-            max_score += PRIORITY_WEIGHTS["facial_hair"]
-            breakdown["facial_hair"] = group_score
-
-            for field, sim in facial_fields:
-                if sim >= 0.999:
-                    matched.append(field)
-                elif sim > 0:
-                    partial.append(field)
-                else:
-                    mismatched.append(field)
-
-        confidence = (
-            max(0.0, min(1.0, score / max_score))
-            if max_score > 0
-            else 0.0
-        )
+        confidence = max(0.0, min(1.0, score / max_score)) if max_score > 0 else 0.0
 
         return Candidate(
             avatar_id=str(avatar["id"]),
@@ -302,29 +349,34 @@ class AvatarSelector:
             matched=matched,
             partial=partial,
             mismatched=mismatched,
-            avatar_traits=candidate_traits,
+            avatar_traits=traits,
             breakdown=breakdown,
+            accessories=list(accessories),
         )
 
-    def rank(self, detected_traits, top_k=3):
-        candidates = [
-            self.score_avatar(detected_traits, avatar)
-            for avatar in self.catalog
-        ]
+    def rank(self, detected_traits: Dict[str, Any], top_k: int = 3) -> List[Candidate]:
+        prepared = self._prepare_detected(detected_traits)
+        confidences = _confidence_map(detected_traits)
+        pool = self._strict_filter(prepared, confidences, self.catalog)
 
+        candidates = [
+            self.score_avatar(prepared, confidences, avatar)
+            for avatar in pool
+        ]
         candidates.sort(
             key=lambda c: (
                 c.score,
-                c.breakdown["skin"],
-                c.breakdown["hair"],
-                c.breakdown["glasses"],
-                c.breakdown["facial_hair"],
+                c.confidence,
+                len(c.matched),
+                -len(c.accessories),
                 c.avatar_id,
             ),
             reverse=True,
         )
-
         return candidates[:top_k]
 
-    def best_match(self, detected_traits):
-        return self.rank(detected_traits, 1)[0]
+    def best_match(self, detected_traits: Dict[str, Any]) -> Candidate:
+        result = self.rank(detected_traits, top_k=1)
+        if not result:
+            raise RuntimeError("El catálogo no tiene candidatos disponibles.")
+        return result[0]

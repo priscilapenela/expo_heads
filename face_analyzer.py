@@ -302,274 +302,229 @@ def _color_similarity_ratio(region, ref_bgr, tolerance=58):
     return float((dist < tolerance).mean())
 
 
+def _texture_hair_presence(region, ref_bgr, tolerance=62):
+    """Presencia de pelo que exige similitud de color + textura local.
+
+    Evita confundir con pelo negro zonas grandes y lisas como:
+    auriculares, ropa oscura o padding negro del scan.
+    """
+    if region is None or region.size == 0 or ref_bgr is None:
+        return 0.0, 0.0
+
+    gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+    arr = region.astype(np.float32)
+    ref = np.asarray(ref_bgr, dtype=np.float32)
+    dist = np.linalg.norm(arr - ref.reshape(1, 1, 3), axis=2)
+    similar = dist < tolerance
+
+    fgray = gray.astype(np.float32)
+    mean = cv2.blur(fgray, (5, 5))
+    mean2 = cv2.blur(fgray * fgray, (5, 5))
+    local_std = np.sqrt(np.maximum(mean2 - mean * mean, 0.0))
+    textured = local_std > 10.0
+
+    edges = cv2.Canny(gray, 45, 120) > 0
+
+    # Pelo real suele tener algo de textura interna; un bloque negro liso no.
+    textured_presence = float((similar & textured).mean())
+    edge_presence = float((similar & edges).mean())
+    return textured_presence, edge_presence
+
+
+def _estimate_hair_texture(top_region, ref_bgr):
+    if top_region is None or top_region.size == 0 or ref_bgr is None:
+        return None, 0.0
+
+    gray = cv2.cvtColor(top_region, cv2.COLOR_BGR2GRAY)
+    arr = top_region.astype(np.float32)
+    ref = np.asarray(ref_bgr, dtype=np.float32)
+    dist = np.linalg.norm(arr - ref.reshape(1, 1, 3), axis=2)
+    similar = dist < 62
+
+    if similar.mean() < 0.08:
+        return None, 0.0
+
+    edges = cv2.Canny(gray, 45, 120) > 0
+    edge_in_hair = float((edges & similar).sum() / max(1, similar.sum()))
+
+    fgray = gray.astype(np.float32)
+    mean = cv2.blur(fgray, (5, 5))
+    mean2 = cv2.blur(fgray * fgray, (5, 5))
+    local_std = np.sqrt(np.maximum(mean2 - mean * mean, 0.0))
+    texture_strength = float(np.median(local_std[similar])) if np.any(similar) else 0.0
+
+    # Curly hair creates many short internal edges and local brightness changes.
+    if edge_in_hair >= 0.052 or texture_strength >= 8.5:
+        return "curly", 0.74
+    if edge_in_hair >= 0.032 or texture_strength >= 5.0:
+        return "wavy", 0.62
+    return "straight", 0.55
+
+
 def _estimate_hair(img_bgr, face_box):
+    """V4: largo y textura de pelo sin confundir auriculares con pelo largo."""
     x, y, w, h = face_box
 
-    hair_color, color_conf, ref_color = (
-        _dominant_hair_color(img_bgr, face_box)
-    )
+    hair_color, color_conf, ref_color = _dominant_hair_color(img_bgr, face_box)
 
     top = _crop(
         img_bgr,
-        x - 0.10*w,
-        y - 0.45*h,
-        x + 1.10*w,
-        y + 0.10*h,
-    )
-
-    left_low = _crop(
-        img_bgr,
-        x - 0.55*w,
-        y + 0.55*h,
-        x + 0.15*w,
-        y + 1.45*h,
-    )
-
-    right_low = _crop(
-        img_bgr,
-        x + 0.85*w,
-        y + 0.55*h,
-        x + 1.55*w,
-        y + 1.45*h,
+        x - 0.05*w,
+        y - 0.50*h,
+        x + 1.05*w,
+        y + 0.12*h,
     )
 
     top_dark = _dark_ratio(top, 115)
 
-    # Combina color similar al pelo + oscuridad;
-    # esto reduce que una pared o ropa clara parezca pelo largo.
-    left_sim = _color_similarity_ratio(
-        left_low,
-        ref_color,
+    if top_dark < 0.07:
+        return {
+            "bald": True,
+            "hair_length": "bald",
+            "hair_color": "none",
+            "hair_texture": "none",
+            "_confidence": {
+                "bald": 0.78,
+                "hair_length": 0.76,
+                "hair_color": 0.0,
+                "hair_texture": 0.75,
+            },
+        }
+
+    # Zonas próximas a los laterales del rostro. No usamos regiones gigantes,
+    # porque allí suelen aparecer auriculares/ropa/fondo.
+    left_mid = _crop(
+        img_bgr,
+        x - 0.20*w,
+        y + 0.56*h,
+        x + 0.12*w,
+        y + 1.02*h,
     )
-    right_sim = _color_similarity_ratio(
-        right_low,
-        ref_color,
+    right_mid = _crop(
+        img_bgr,
+        x + 0.88*w,
+        y + 0.56*h,
+        x + 1.20*w,
+        y + 1.02*h,
     )
 
-    low_presence = max(left_sim, right_sim)
+    left_below = _crop(
+        img_bgr,
+        x - 0.12*w,
+        y + 0.84*h,
+        x + 0.20*w,
+        y + 1.18*h,
+    )
+    right_below = _crop(
+        img_bgr,
+        x + 0.80*w,
+        y + 0.84*h,
+        x + 1.12*w,
+        y + 1.18*h,
+    )
 
-    if top_dark < 0.08:
-        bald = True
-        hair_length = "bald"
-        hair_color = "none"
-        hair_texture = "none"
-        length_conf = 0.70
-        bald_conf = 0.70
+    mid_l, mid_l_edge = _texture_hair_presence(left_mid, ref_color)
+    mid_r, mid_r_edge = _texture_hair_presence(right_mid, ref_color)
+    low_l, low_l_edge = _texture_hair_presence(left_below, ref_color)
+    low_r, low_r_edge = _texture_hair_presence(right_below, ref_color)
 
+    mid_presence = (mid_l + mid_r) / 2.0
+    below_presence = (low_l + low_r) / 2.0
+
+    # Long solo si realmente hay pelo texturado cerca/debajo de la mandíbula.
+    # Esto elimina el falso "long" causado por cascos negros y padding negro.
+    if below_presence >= 0.105:
+        hair_length = "long"
+        length_conf = 0.82
+    elif mid_presence >= 0.072 or below_presence >= 0.062:
+        hair_length = "medium"
+        length_conf = 0.78
     else:
-        bald = False
-        bald_conf = 0.82
+        hair_length = "short"
+        length_conf = 0.70
 
-        if low_presence >= 0.24:
-            hair_length = "long"
-            length_conf = 0.85
-        elif low_presence >= 0.12:
-            hair_length = "medium"
-            length_conf = 0.70
-        else:
-            hair_length = "short"
-            length_conf = 0.65
-
-        # Textura todavía es demasiado frágil.
-        # Mejor "no sé" que afirmar algo incorrecto.
-        hair_texture = None
+    hair_texture, texture_conf = _estimate_hair_texture(top, ref_color)
 
     return {
-        "bald": bald,
+        "bald": False,
         "hair_length": hair_length,
         "hair_color": hair_color,
         "hair_texture": hair_texture,
         "_confidence": {
-            "bald": bald_conf,
+            "bald": 0.88,
             "hair_length": length_conf,
             "hair_color": color_conf,
-            "hair_texture": 0.0,
+            "hair_texture": texture_conf,
         },
     }
 
-
 def _estimate_glasses(face_roi):
-    """
-    V3 - detector de anteojos mejorado.
+    """V4: detector conservador de anteojos.
 
-    La V2 dependía demasiado de píxeles oscuros.
-    Eso falla con marcos:
-    - finos
-    - transparentes
-    - metálicos
-    - claros
+    V3 usaba HoughCircles y confundía ojos/cejas con lentes. Esta versión
+    busca evidencia de *marco* alrededor de ambos ojos y, sobre todo, puente.
 
-    V3 combina:
-    - densidad de bordes
-    - HoughCircles para lentes grandes
-    - HoughLinesP para patillas/puente/marcos
+    Devuelve True solo con evidencia fuerte; False con evidencia clara de
+    ausencia; None cuando la imagen es ambigua. El selector ignora None.
     """
     if face_roi is None or face_roi.size == 0:
         return None, 0.0
 
     h, w = face_roi.shape[:2]
+    gray = cv2.cvtColor(face_roi, cv2.COLOR_BGR2GRAY)
+    gray = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(gray)
 
-    eye_band = _crop(
-        face_roi,
-        0.08*w,
-        0.18*h,
-        0.92*w,
-        0.55*h,
+    def region_metrics(x1, y1, x2, y2):
+        roi = _crop(gray, x1*w, y1*h, x2*w, y2*h)
+        if roi is None or roi.size == 0:
+            return 0.0, 0.0
+        edges = cv2.Canny(roi, 50, 130)
+        return float((roi < 72).mean()), float((edges > 0).mean())
+
+    # Cada ojo: bandas donde debería existir el contorno del lente.
+    # El ojo/ceja por sí solos producen mucha señal arriba, por eso el score
+    # depende especialmente de borde inferior, lateral y puente.
+    left_bottom = region_metrics(0.14, 0.47, 0.47, 0.57)
+    right_bottom = region_metrics(0.53, 0.47, 0.86, 0.57)
+
+    left_outer = region_metrics(0.12, 0.31, 0.19, 0.54)
+    right_outer = region_metrics(0.81, 0.31, 0.88, 0.54)
+
+    left_inner = region_metrics(0.43, 0.31, 0.49, 0.54)
+    right_inner = region_metrics(0.51, 0.31, 0.57, 0.54)
+
+    bridge_dark, bridge_edge = region_metrics(0.45, 0.34, 0.55, 0.49)
+
+    bottom_dark = min(left_bottom[0], right_bottom[0])
+    bottom_edge = min(left_bottom[1], right_bottom[1])
+    outer_edge = min(left_outer[1], right_outer[1])
+    inner_edge = min(left_inner[1], right_inner[1])
+
+    strong_bridge = bridge_dark >= 0.035 or bridge_edge >= 0.24
+    strong_two_lenses = (
+        (bottom_dark >= 0.025 and bottom_edge >= 0.09)
+        or (bottom_edge >= 0.14 and outer_edge >= 0.11)
     )
+    side_support = outer_edge >= 0.08 and inner_edge >= 0.08
 
-    if eye_band is None or eye_band.size == 0:
-        return None, 0.0
-
-    # Trabajamos ampliado para conservar marcos finos.
-    scale = 2
-    enlarged = cv2.resize(
-        eye_band,
-        None,
-        fx=scale,
-        fy=scale,
-        interpolation=cv2.INTER_CUBIC,
-    )
-
-    gray = cv2.cvtColor(
-        enlarged,
-        cv2.COLOR_BGR2GRAY,
-    )
-
-    clahe = cv2.createCLAHE(
-        clipLimit=2.0,
-        tileGridSize=(8, 8),
-    )
-    gray = clahe.apply(gray)
-
-    blur = cv2.GaussianBlur(
-        gray,
-        (5, 5),
-        1.2,
-    )
-
-    edges = cv2.Canny(
-        blur,
-        45,
-        120,
-    )
-
-    eh, ew = edges.shape[:2]
-
-    # --------------------------------------------------
-    # Círculos / lentes
-    # --------------------------------------------------
-    circles = cv2.HoughCircles(
-        blur,
-        cv2.HOUGH_GRADIENT,
-        dp=1.2,
-        minDist=max(20, int(ew * 0.20)),
-        param1=100,
-        param2=18,
-        minRadius=max(8, int(ew * 0.07)),
-        maxRadius=max(14, int(ew * 0.22)),
-    )
-
-    circle_count = 0
-
-    if circles is not None:
-        detected_circles = np.round(
-            circles[0]
-        ).astype(int)
-
-        # Solo círculos razonablemente ubicados
-        # a izquierda/derecha del centro.
-        for cx, cy, radius in detected_circles:
-            if (
-                int(0.08*ew) <= cx <= int(0.92*ew)
-                and int(0.10*eh) <= cy <= int(0.90*eh)
-            ):
-                circle_count += 1
-
-    # --------------------------------------------------
-    # Líneas de marco / puente / patillas
-    # --------------------------------------------------
-    lines = cv2.HoughLinesP(
-        edges,
-        rho=1,
-        theta=np.pi / 180,
-        threshold=20,
-        minLineLength=max(12, int(ew * 0.08)),
-        maxLineGap=max(5, int(ew * 0.035)),
-    )
-
-    useful_lines = 0
-
-    if lines is not None:
-        for line in lines[:, 0]:
-            x1, y1, x2, y2 = [
-                int(v) for v in line
-            ]
-
-            dx = x2 - x1
-            dy = y2 - y1
-            length = (dx*dx + dy*dy) ** 0.5
-
-            if length < ew * 0.07:
-                continue
-
-            # líneas horizontales, verticales o diagonales
-            # propias de marcos.
-            angle = abs(
-                np.degrees(
-                    np.arctan2(dy, dx)
-                )
-            )
-
-            if (
-                angle < 25
-                or angle > 155
-                or 65 < angle < 115
-            ):
-                useful_lines += 1
-
-    edge_density = float(
-        (edges > 0).mean()
-    )
-
-    # --------------------------------------------------
-    # Score de evidencia
-    # --------------------------------------------------
-    evidence = 0.0
-
-    if circle_count >= 2:
-        evidence += 0.65
-    elif circle_count == 1:
-        evidence += 0.35
-
-    if useful_lines >= 7:
-        evidence += 0.30
-    elif useful_lines >= 4:
-        evidence += 0.18
-    elif useful_lines >= 2:
-        evidence += 0.08
-
-    if edge_density > 0.16:
-        evidence += 0.18
-    elif edge_density > 0.11:
-        evidence += 0.10
-
-    detected = bool(evidence >= 0.48)
-
-    if detected:
+    if strong_bridge and strong_two_lenses and side_support:
         confidence = min(
-            0.96,
-            0.68 + evidence * 0.25
+            0.97,
+            0.82
+            + min(0.08, bridge_edge * 0.20)
+            + min(0.07, bottom_edge * 0.22),
         )
-    else:
-        # False con confianza moderada,
-        # porque algunos anteojos son muy difíciles.
-        confidence = max(
-            0.45,
-            0.72 - evidence * 0.25
-        )
+        return True, confidence
 
-    return detected, confidence
+    # Ausencia bastante clara: sin puente y sin marco inferior bilateral.
+    if bridge_dark < 0.018 and bottom_dark < 0.018 and bottom_edge < 0.085:
+        return False, 0.93
 
+    if bridge_dark < 0.025 and bottom_edge < 0.105:
+        return False, 0.86
+
+    # Ambiguo: mejor no forzar anteojos ni no-anteojos en el matching.
+    return None, 0.35
 
 def _estimate_facial_hair(face_roi):
     """
@@ -754,7 +709,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) < 2:
         print(
-            "Uso: python face_analyzer_v2.py "
+            "Uso: python face_analyzer.py "
             "data/captures/player_1_scan.png"
         )
         raise SystemExit(1)

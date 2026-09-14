@@ -1,10 +1,31 @@
-Thank you for downloading this game :)
+EXPO HEADS - FIX HAIR/GLASSES V3
 
-This game was made using python and pygame.
-Therefore, pyinstaller module was used to convert python programs to .EXE files.
-Because of this, programs may be flagged as viruses by some antivirus software on some PCs.
+Reemplazar en la raíz del proyecto:
+- launcher.py
+- avatar_selector.py
+- face_analyzer.py
 
-All I can genuinely say is that this program
-definately contains zero viruses or unwanted programs.
+NO reemplazar:
+- avatars_catalog.json
+- carpeta data/avatars
+- base SQLite
 
-All I want is to share my passion for doing python programs and games with others :)
+Cambios principales:
+1. Anteojos V4: elimina HoughCircles (confundía ojos/cejas con lentes).
+   Ahora busca marco bilateral + puente y devuelve None si es ambiguo.
+2. Pelo V4: largo usa presencia de pelo texturado cerca/debajo de mandíbula;
+   no confunde fácilmente auriculares/ropa/padding negro con pelo largo.
+3. Textura: agrega straight/wavy/curly con confianza moderada.
+4. Selector V5: anteojos sin detectar excluyen templates con anteojos cuando
+   la confianza es alta; luego prioriza textura y largo de pelo con fallback.
+5. Launcher: padding del scan pasa de negro a gris neutro para no parecer pelo.
+
+Validación con la foto suministrada en el chat:
+- bald: false
+- hair_length: medium
+- hair_texture: curly
+- glasses: false (0.93)
+- beard: false
+- moustache: false
+
+Esto evita el caso observado avatar_0014/0019 con anteojos y pelo largo recogido.

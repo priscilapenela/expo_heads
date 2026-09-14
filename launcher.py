@@ -259,181 +259,126 @@ def _recolor_mask_with_shading(rgb, mask, target_rgb):
     return rgb
 
 
-def recolor_avatar_template(template_path, output_path, colors):
+def recolor_avatar_template(template_path, output_path, colors, avatar_traits=None):
     """
-    Recolorea el template elegido por AvatarSelector y guarda SIEMPRE un PNG
-    final RGBA de 70x70.
+    Recoloreado V2 robusto para los templates Expo Heads.
 
-    Devuelve:
-        (Path_salida, modo)
+    Problema corregido respecto de V1:
+    los PNG generados no contienen siempre el RGB marcador EXACTO. Por ejemplo,
+    la piel puede ser (254, 32, 253) en vez de (255, 0, 255). V1 detectaba
+    unos pocos píxeles exactos, declaraba "semantic" y dejaba casi todo verde /
+    magenta sin modificar.
 
-    modo puede ser:
-        - "semantic": paleta exacta oficial.
-        - "legacy_hsv": templates POC anteriores.
-        - "passthrough": PNG antiguo sin marcadores; se conserva sin alterar.
+    V2 combina:
+      - marcadores RGB exactos/tolerantes;
+      - familias HSV amplias para magenta, verde, azul, cyan y amarillo;
+      - sombreado relativo del template;
+      - metadata estructural para no recolorear accesorios amarillos/azules
+        cuando el avatar no tiene anteojos o barba.
+
+    La salida SIEMPRE es RGBA 70x70.
     """
     template_path = Path(template_path)
     output_path = Path(output_path)
+    avatar_traits = avatar_traits or {}
 
     img = cv2.imread(str(template_path), cv2.IMREAD_UNCHANGED)
     if img is None:
-        raise RuntimeError(
-            f"No se pudo abrir el template: {template_path}"
-        )
+        raise RuntimeError(f"No se pudo abrir el template: {template_path}")
 
-    if img.ndim != 3:
-        raise RuntimeError(
-            f"El template no tiene canales de imagen válidos: {template_path}"
-        )
+    if img.ndim != 3 or img.shape[2] not in (3, 4):
+        raise RuntimeError(f"Template inválido: {template_path}")
 
     if img.shape[2] == 4:
         rgba = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
-    elif img.shape[2] == 3:
-        rgb_only = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        alpha = np.full(
-            rgb_only.shape[:2],
-            255,
-            dtype=np.uint8,
-        )
-        rgba = np.dstack([rgb_only, alpha])
     else:
-        raise RuntimeError(
-            f"Cantidad de canales no soportada: {img.shape[2]}"
-        )
+        rgb_only = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        alpha = np.full(rgb_only.shape[:2], 255, dtype=np.uint8)
+        rgba = np.dstack([rgb_only, alpha])
 
     rgb = rgba[..., :3].copy()
     alpha = rgba[..., 3].copy()
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
 
-    marker_masks = {
-        name: _near_marker_mask(rgb, marker)
-        & (alpha > 0)
+    visible = alpha > 0
+    near_black = visible & (rgb[..., 0] < 22) & (rgb[..., 1] < 22) & (rgb[..., 2] < 22)
+    near_white = visible & (rgb[..., 0] > 225) & (rgb[..., 1] > 225) & (rgb[..., 2] > 225)
+
+    # Marcadores exactos/tolerantes, si existen.
+    exact = {
+        name: (_near_marker_mask(rgb, marker, tolerance=18) & visible)
         for name, marker in AVATAR_MARKERS.items()
     }
 
-    semantic_pixels = sum(
-        int(np.count_nonzero(mask))
-        for mask in marker_masks.values()
+    # Familias cromáticas reales presentes en los PNG generados.
+    # OpenCV usa H 0..179.
+    skin_hsv = (
+        _legacy_hsv_mask(hsv, alpha, 140, 179, s_min=65, v_min=30)
+        | _legacy_hsv_mask(hsv, alpha, 0, 4, s_min=80, v_min=40)
     )
+    hair_hsv = _legacy_hsv_mask(hsv, alpha, 35, 92, s_min=55, v_min=20)
+    beard_hsv = _legacy_hsv_mask(hsv, alpha, 95, 138, s_min=55, v_min=20)
+    iris_hsv = _legacy_hsv_mask(hsv, alpha, 78, 104, s_min=45, v_min=35)
+    glasses_hsv = _legacy_hsv_mask(hsv, alpha, 17, 38, s_min=65, v_min=45)
 
-    # --------------------------------------------------
-    # A) Paleta exacta oficial
-    # --------------------------------------------------
-    if semantic_pixels >= 8:
-        replacements = {
-            "skin_base": colors["skin_rgb"],
-            "skin_shadow": _darken_rgb(
-                colors["skin_rgb"], 0.24
-            ),
-            "hair_base": colors["hair_rgb"],
-            "hair_shadow": _darken_rgb(
-                colors["hair_rgb"], 0.28
-            ),
-            "beard_base": colors["beard_rgb"],
-            "beard_shadow": _darken_rgb(
-                colors["beard_rgb"], 0.28
-            ),
-            "iris": colors["eye_rgb"],
-            "glasses": colors["glasses_rgb"],
-        }
+    skin_mask = skin_hsv | exact["skin_base"] | exact["skin_shadow"]
+    hair_mask = hair_hsv | exact["hair_base"] | exact["hair_shadow"]
+    beard_mask = beard_hsv | exact["beard_base"] | exact["beard_shadow"]
+    iris_mask = iris_hsv | exact["iris"]
+    glasses_mask = glasses_hsv | exact["glasses"]
 
-        for region_name, target_color in replacements.items():
-            mask = marker_masks[region_name]
-            if np.any(mask):
-                rgb[mask] = np.array(
-                    target_color,
-                    dtype=np.uint8,
-                )
+    # Nunca tocar contornos negros ni blanco del ojo.
+    for mask in (skin_mask, hair_mask, beard_mask, iris_mask, glasses_mask):
+        mask[near_black] = False
+        mask[near_white] = False
 
-        mode = "semantic"
+    # No confundir aros/accesorios amarillos con anteojos.
+    if not bool(avatar_traits.get("glasses", False)):
+        glasses_mask[:] = False
 
-    # --------------------------------------------------
-    # B) Compatibilidad con los templates POC viejos
-    # --------------------------------------------------
+    # No confundir detalles azules con barba si el JSON dice que no tiene.
+    has_facial_hair = bool(avatar_traits.get("beard", False) or avatar_traits.get("moustache", False))
+    if not has_facial_hair:
+        beard_mask[:] = False
+
+    # Si es calvo, cualquier verde aislado es accesorio/artefacto, no cabello.
+    if bool(avatar_traits.get("bald", False)):
+        hair_mask[:] = False
+
+    mask_counts = {
+        "skin": int(np.count_nonzero(skin_mask)),
+        "hair": int(np.count_nonzero(hair_mask)),
+        "beard": int(np.count_nonzero(beard_mask)),
+        "iris": int(np.count_nonzero(iris_mask)),
+        "glasses": int(np.count_nonzero(glasses_mask)),
+    }
+
+    # Recoloreamos preservando las luces/sombras originales de cada región.
+    rgb = _recolor_mask_with_shading(rgb, skin_mask, colors["skin_rgb"])
+    rgb = _recolor_mask_with_shading(rgb, hair_mask, colors["hair_rgb"])
+    if has_facial_hair:
+        rgb = _recolor_mask_with_shading(rgb, beard_mask, colors["beard_rgb"])
+    rgb = _recolor_mask_with_shading(rgb, iris_mask, colors["eye_rgb"])
+    if bool(avatar_traits.get("glasses", False)):
+        rgb = _recolor_mask_with_shading(rgb, glasses_mask, colors["glasses_rgb"])
+
+    changed_semantic_pixels = sum(mask_counts.values())
+    if changed_semantic_pixels < 12:
+        mode = "passthrough"
     else:
-        hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+        mode = "semantic_hsv"
 
-        skin_mask = (
-            _legacy_hsv_mask(
-                hsv, alpha, 145, 179,
-                s_min=50, v_min=20,
-            )
-            | _legacy_hsv_mask(
-                hsv, alpha, 0, 10,
-                s_min=50, v_min=20,
-            )
-        )
-        hair_mask = _legacy_hsv_mask(
-            hsv, alpha, 45, 85,
-            s_min=50, v_min=20,
-        )
-        beard_mask = _legacy_hsv_mask(
-            hsv, alpha, 100, 135,
-            s_min=40, v_min=20,
-        )
-        glasses_mask = _legacy_hsv_mask(
-            hsv, alpha, 18, 40,
-            s_min=60, v_min=30,
-        )
-        iris_mask = _legacy_hsv_mask(
-            hsv, alpha, 80, 105,
-            s_min=40, v_min=20,
-        )
-
-        near_black = (
-            (alpha > 0)
-            & (rgb[..., 0] < 20)
-            & (rgb[..., 1] < 20)
-            & (rgb[..., 2] < 20)
-        )
-        near_white = (
-            (alpha > 0)
-            & (rgb[..., 0] > 220)
-            & (rgb[..., 1] > 220)
-            & (rgb[..., 2] > 220)
-        )
-
-        for mask in (
-            skin_mask,
-            hair_mask,
-            beard_mask,
-            glasses_mask,
-            iris_mask,
-        ):
-            mask[near_black] = False
-            mask[near_white] = False
-
-        # No aplicamos HSV indiscriminadamente sobre avatares antiguos.
-        # Exigimos evidencia clara de template de colores marcadores:
-        # piel magenta/roja + pelo verde.
-        legacy_is_marker_template = (
-            np.count_nonzero(skin_mask) >= 10
-            and np.count_nonzero(hair_mask) >= 10
-        )
-
-        if legacy_is_marker_template:
-            rgb = _recolor_mask_with_shading(
-                rgb, skin_mask, colors["skin_rgb"]
-            )
-            rgb = _recolor_mask_with_shading(
-                rgb, hair_mask, colors["hair_rgb"]
-            )
-            rgb = _recolor_mask_with_shading(
-                rgb, beard_mask, colors["beard_rgb"]
-            )
-            rgb = _recolor_mask_with_shading(
-                rgb, glasses_mask, colors["glasses_rgb"]
-            )
-            rgb = _recolor_mask_with_shading(
-                rgb, iris_mask, colors["eye_rgb"]
-            )
-            mode = "legacy_hsv"
-        else:
-            # Biblioteca vieja: no arriesgamos a deformar sus colores.
-            mode = "passthrough"
+    print(
+        "[RECOLOR MASKS] "
+        + " ".join(f"{key}={value}" for key, value in mask_counts.items())
+    )
+    print(
+        f"[RECOLOR COLORS] skin={colors['skin_rgb']} hair={colors['hair_rgb']} "
+        f"eyes={colors['eye_rgb']} glasses={colors['glasses_rgb']} beard={colors['beard_rgb']}"
+    )
 
     out_rgba = np.dstack([rgb, alpha])
 
-    # La salida usada por el EXE es SIEMPRE 70x70.
     if out_rgba.shape[1] != AVATAR_OUTPUT_SIZE or out_rgba.shape[0] != AVATAR_OUTPUT_SIZE:
         out_rgba = cv2.resize(
             out_rgba,
@@ -441,23 +386,13 @@ def recolor_avatar_template(template_path, output_path, colors):
             interpolation=cv2.INTER_NEAREST,
         )
 
-    output_path.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     ok = cv2.imwrite(
         str(output_path),
-        cv2.cvtColor(
-            out_rgba,
-            cv2.COLOR_RGBA2BGRA,
-        ),
+        cv2.cvtColor(out_rgba, cv2.COLOR_RGBA2BGRA),
     )
-
     if not ok:
-        raise RuntimeError(
-            f"No se pudo guardar el avatar recoloreado: {output_path}"
-        )
+        raise RuntimeError(f"No se pudo guardar el avatar recoloreado: {output_path}")
 
     return output_path, mode
 
@@ -1802,7 +1737,9 @@ class Launcher:
             left=(size - cw) // 2,
             right=size - cw - (size - cw) // 2,
             borderType=cv2.BORDER_CONSTANT,
-            value=(0, 0, 0),
+            # Gris neutro: el padding negro se confundía con pelo negro y
+            # producía falsos "hair_length=long".
+            value=(127, 127, 127),
         )
 
         return canvas
@@ -2094,6 +2031,52 @@ class Launcher:
             ),
         }
 
+    def _sanitize_detected_traits(self, detected_traits):
+        """
+        Limpia falsos positivos antes del selector.
+
+        En particular, los anteojos son un rasgo demasiado fuerte para dejar
+        que un TRUE de baja confianza fuerce un avatar con lentes. Los FALSE
+        se conservan: si la cámara ve claramente que no hay anteojos, el
+        selector filtra todos los templates con lentes cuando existen opciones.
+        """
+        cleaned = dict(detected_traits or {})
+        confidence = cleaned.get("_confidence")
+        if not isinstance(confidence, dict):
+            confidence = {}
+
+        def conf(field, default=1.0):
+            try:
+                return float(confidence.get(field, default))
+            except (TypeError, ValueError):
+                return default
+
+        # Anteojos: TRUE requiere evidencia alta. Si es dudoso queda None y no
+        # domina el matching; FALSE sigue siendo una señal estructural fuerte.
+        if cleaned.get("glasses") is True and conf("glasses") < 0.90:
+            print(
+                f"[TRAITS] glasses=True descartado por baja confianza "
+                f"({conf('glasses'):.2f})"
+            )
+            cleaned["glasses"] = None
+
+        # Vello facial: evita bigotes/barbas inventados por sombras o cabello.
+        if cleaned.get("beard") is True and conf("beard") < 0.70:
+            print(f"[TRAITS] beard=True descartado ({conf('beard'):.2f})")
+            cleaned["beard"] = False
+        if cleaned.get("moustache") is True and conf("moustache") < 0.70:
+            print(f"[TRAITS] moustache=True descartado ({conf('moustache'):.2f})")
+            cleaned["moustache"] = False
+
+        # Calvicie también requiere evidencia razonable.
+        if cleaned.get("bald") is True and conf("bald") < 0.78:
+            print(f"[TRAITS] bald=True descartado ({conf('bald'):.2f})")
+            cleaned["bald"] = False
+
+        # No hacemos competir datos internos contra los rasgos del catálogo.
+        cleaned["_confidence"] = confidence
+        return cleaned
+
     def _capture_current_player(self):
         """
         Flujo definitivo de Expo Heads:
@@ -2180,6 +2163,7 @@ class Launcher:
             detected_traits = analyze_face(
                 scan_path
             )
+            detected_traits = self._sanitize_detected_traits(detected_traits)
         except Exception as exc:
             print(
                 f"[Expo Heads] Error face_analyzer: {exc}"
@@ -2350,6 +2334,7 @@ class Launcher:
                     selected_avatar_path,
                     game_path,
                     detected_colors,
+                    avatar_traits=getattr(best, "avatar_traits", {}),
                 )
             )
         except Exception as exc:
@@ -2417,8 +2402,9 @@ class Launcher:
 
         mode_label = {
             "semantic": "COLOR OK",
+            "semantic_hsv": "COLOR OK",
             "legacy_hsv": "COLOR POC",
-            "passthrough": "SIN MARCADORES",
+            "passthrough": "RECOLOR NO APLICADO",
         }.get(
             recolor_mode,
             recolor_mode.upper(),
