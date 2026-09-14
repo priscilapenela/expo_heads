@@ -6,6 +6,7 @@ import subprocess
 import sqlite3
 from datetime import datetime
 import math
+from uuid import UUID, NAMESPACE_URL, uuid4, uuid5
 
 import pygame
 
@@ -26,9 +27,14 @@ CAPTURES_DIR = BASE_DIR / "data" / "captures"
 AVATAR_CATALOG_FILE = BASE_DIR / "avatars_catalog.json"
 GAME_EXE_1V1 = "head_football_patched_v5_1v1.exe"
 GAME_EXE_TOP1 = "head_football_patched_v5_top1_ai.exe"
-CURRENT_SETTINGS_FILE = BASE_DIR / "data" / "info_files" / "tren_igra_postavke.txt"
-GAME_STATE_FILE = BASE_DIR / "cijeli_game.txt"
-DB_FILE = BASE_DIR / "data" / "ranking.db"
+INFO_DIR = BASE_DIR / "data" / "info_files"
+CURRENT_SETTINGS_FILE = INFO_DIR / "tren_igra_postavke.txt"
+RESULT_INFO_FILE = INFO_DIR / "cijeli_game_łnfo.txt"
+
+# Base única y canónica de Expo Heads. ranking.db queda fuera de uso porque
+# pertenecía al launcher provisional y guardaba resultados 0-0 incorrectos.
+DB_FILE = BASE_DIR / "data" / "expo_heads.db"
+AVATAR_DIR = BASE_DIR / "data" / "avatars"
 
 SCREEN_W, SCREEN_H = 1200, 700
 FPS = 60
@@ -91,69 +97,376 @@ ACCENT_2 = (220, 40, 80)
 # BASE DE DATOS Y LÓGICA DE ARCHIVOS
 # ==========================================
 
-def init_db():
+def _open_db():
     DB_FILE.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS ranking (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    player_name TEXT,
-                    mode TEXT,
-                    gf INTEGER,
-                    gc INTEGER,
-                    match_date TIMESTAMP
-                )''')
-    conn.commit()
-    conn.close()
+    conn = sqlite3.connect(DB_FILE, timeout=10)
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
 
-def save_score(name, mode, gf, gc):
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('''INSERT INTO ranking (player_name, mode, gf, gc, match_date)
-                 VALUES (?, ?, ?, ?, ?)''', (name, mode, gf, gc, datetime.now()))
-    conn.commit()
-    conn.close()
+
+def _table_columns(conn, table_name):
+    return {row[1] for row in conn.execute(f'PRAGMA table_info("{table_name}")')}
+
+
+def _ensure_column(conn, table_name, column_name, definition):
+    if column_name not in _table_columns(conn, table_name):
+        conn.execute(
+            f'ALTER TABLE "{table_name}" ADD COLUMN "{column_name}" {definition}'
+        )
+
+
+def _find_player_by_name(conn, name):
+    wanted = name.strip().casefold()
+    for player_id, player_name, current_avatar in conn.execute(
+        "SELECT id, nombre, avatar_actual_id FROM jugadores ORDER BY fecha_creacion, id"
+    ):
+        if player_name.strip().casefold() == wanted:
+            return player_id, player_name, current_avatar
+    return None
+
+
+def _get_or_create_player(conn, name, legacy=False):
+    name = name.strip() or "Jugador"
+    current = _find_player_by_name(conn, name)
+    if current is not None:
+        return current[0]
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+    if legacy:
+        player_id = str(uuid5(NAMESPACE_URL, f"expo-heads:{name.casefold()}"))
+    else:
+        player_id = str(uuid4())
+    conn.execute(
+        '''INSERT INTO jugadores
+           (id, nombre, avatar_actual_id, fecha_creacion, fecha_actualizacion)
+           VALUES (?, ?, NULL, ?, ?)''',
+        (player_id, name, now, now),
+    )
+    return player_id
+
+
+def _backfill_player_ids(conn):
+    """Asigna UUID estables a los resultados creados antes del CHECK 4."""
+    names = []
+    for table_name in ("ranking", "partidas"):
+        names.extend(
+            row[0]
+            for row in conn.execute(
+                f'SELECT jugador FROM "{table_name}" WHERE jugador IS NOT NULL'
+            )
+            if row[0].strip()
+        )
+
+    for name in names:
+        player_id = _get_or_create_player(conn, name, legacy=True)
+        for table_name in ("ranking", "partidas"):
+            rows = conn.execute(
+                f'SELECT id, jugador FROM "{table_name}" WHERE jugador_id IS NULL'
+            ).fetchall()
+            for row_id, row_name in rows:
+                if row_name.strip().casefold() == name.strip().casefold():
+                    conn.execute(
+                        f'UPDATE "{table_name}" SET jugador_id=? WHERE id=?',
+                        (player_id, row_id),
+                    )
+
+
+def init_db():
+    """Crea/migra la base única sin perder partidas ni récords anteriores."""
+    with _open_db() as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS partidas (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            jugador TEXT NOT NULL,
+                            goles INTEGER NOT NULL,
+                            goles_recibidos INTEGER NOT NULL,
+                            modo TEXT NOT NULL,
+                            imagen TEXT,
+                            fecha TEXT NOT NULL
+                        )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS ranking (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            jugador TEXT NOT NULL UNIQUE,
+                            goles_max INTEGER NOT NULL,
+                            goles_recibidos INTEGER NOT NULL,
+                            imagen TEXT,
+                            fecha_record TEXT NOT NULL
+                        )''')
+
+        conn.execute('''CREATE TABLE IF NOT EXISTS jugadores (
+                            id TEXT PRIMARY KEY,
+                            nombre TEXT NOT NULL,
+                            avatar_actual_id TEXT,
+                            fecha_creacion TEXT NOT NULL,
+                            fecha_actualizacion TEXT NOT NULL
+                        )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS avatares (
+                            id TEXT PRIMARY KEY,
+                            jugador_id TEXT NOT NULL,
+                            archivo TEXT NOT NULL UNIQUE,
+                            fecha_creacion TEXT NOT NULL,
+                            activo INTEGER NOT NULL DEFAULT 1 CHECK (activo IN (0, 1)),
+                            FOREIGN KEY (jugador_id) REFERENCES jugadores(id)
+                        )''')
+
+        _ensure_column(conn, "partidas", "jugador_id", "TEXT")
+        _ensure_column(conn, "partidas", "avatar_id", "TEXT")
+        _ensure_column(conn, "ranking", "jugador_id", "TEXT")
+        _ensure_column(conn, "ranking", "avatar_id", "TEXT")
+
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_partidas_jugador_id ON partidas(jugador_id)"
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_partidas_avatar_id ON partidas(avatar_id)"
+        )
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_ranking_jugador_id "
+            "ON ranking(jugador_id) WHERE jugador_id IS NOT NULL"
+        )
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_avatares_jugador_id ON avatares(jugador_id)"
+        )
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_avatares_activo_por_jugador "
+            "ON avatares(jugador_id) WHERE activo=1"
+        )
+        _backfill_player_ids(conn)
+
+
+def register_player_avatar(name, avatar_id, avatar_file):
+    """Registra la identidad del jugador y enlaza su PNG UUID actual."""
+    name = validate_name(name)
+    try:
+        UUID(str(avatar_id))
+    except (TypeError, ValueError, AttributeError) as exc:
+        raise ValueError("El avatar_id no es un UUID válido.") from exc
+
+    expected_file = f"data/avatars/{avatar_id}.png"
+    if avatar_file != expected_file:
+        raise ValueError("El archivo del avatar no coincide con su UUID.")
+    absolute_file = BASE_DIR.joinpath(*avatar_file.split("/"))
+    if not absolute_file.is_file():
+        raise FileNotFoundError(f"No se encontró el avatar archivado {avatar_file}.")
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+    with _open_db() as conn:
+        player_id = _get_or_create_player(conn, name)
+        existing_avatar = conn.execute(
+            "SELECT jugador_id, archivo FROM avatares WHERE id=?",
+            (avatar_id,),
+        ).fetchone()
+        if existing_avatar is not None and existing_avatar != (player_id, avatar_file):
+            raise ValueError("El UUID del avatar ya está vinculado a otro jugador.")
+
+        conn.execute("UPDATE avatares SET activo=0 WHERE jugador_id=?", (player_id,))
+        if existing_avatar is None:
+            conn.execute(
+                '''INSERT INTO avatares
+                   (id, jugador_id, archivo, fecha_creacion, activo)
+                   VALUES (?, ?, ?, ?, 1)''',
+                (avatar_id, player_id, avatar_file, now),
+            )
+        else:
+            conn.execute("UPDATE avatares SET activo=1 WHERE id=?", (avatar_id,))
+
+        conn.execute(
+            '''UPDATE jugadores
+               SET nombre=?, avatar_actual_id=?, fecha_actualizacion=?
+               WHERE id=?''',
+            (name, avatar_id, now, player_id),
+        )
+        return player_id
+
+
+def save_score(player_id, name, mode, gf, gc, avatar_id=None, avatar_file=None):
+    """Guarda una partida vinculada y actualiza la mejor marca personal."""
+    name = validate_name(name)
+    gf = int(gf)
+    gc = int(gc)
+    if gf < 0 or gc < 0:
+        raise ValueError("Los goles no pueden ser negativos.")
+
+    match_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+    with _open_db() as conn:
+        player = conn.execute(
+            "SELECT id FROM jugadores WHERE id=?",
+            (player_id,),
+        ).fetchone()
+        if player is None:
+            raise ValueError("El jugador no está registrado en la base.")
+        if avatar_id is not None:
+            avatar = conn.execute(
+                "SELECT id FROM avatares WHERE id=? AND jugador_id=?",
+                (avatar_id, player_id),
+            ).fetchone()
+            if avatar is None:
+                raise ValueError("El avatar no pertenece al jugador indicado.")
+
+        conn.execute(
+            '''INSERT INTO partidas
+               (jugador, goles, goles_recibidos, modo, imagen, fecha, jugador_id, avatar_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+            (name, gf, gc, mode, avatar_file, match_date, player_id, avatar_id),
+        )
+
+        current = conn.execute(
+            '''SELECT id, goles_max, goles_recibidos, avatar_id
+               FROM ranking
+               WHERE jugador_id=?
+               ORDER BY id ASC
+               LIMIT 1''',
+            (player_id,),
+        ).fetchone()
+
+        if current is None:
+            conn.execute(
+                '''INSERT INTO ranking
+                   (jugador, goles_max, goles_recibidos, imagen, fecha_record,
+                    jugador_id, avatar_id)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                (name, gf, gc, avatar_file, match_date, player_id, avatar_id),
+            )
+        else:
+            row_id, previous_gf, previous_gc, record_avatar_id = current
+            is_better = gf > previous_gf or (gf == previous_gf and gc < previous_gc)
+            if is_better:
+                conn.execute(
+                    '''UPDATE ranking
+                       SET jugador=?, goles_max=?, goles_recibidos=?, imagen=?, fecha_record=?,
+                           jugador_id=?, avatar_id=?
+                       WHERE id=?''',
+                    (
+                        name, gf, gc, avatar_file, match_date,
+                        player_id, avatar_id, row_id,
+                    ),
+                )
+            elif record_avatar_id is None and avatar_id is not None:
+                # Completa la relación de récords heredados sin alterar su marca ni fecha.
+                conn.execute(
+                    '''UPDATE ranking
+                       SET imagen=?, avatar_id=?
+                       WHERE id=?''',
+                    (avatar_file, avatar_id, row_id),
+                )
 
 def get_top_ranking(limit=10):
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('''SELECT player_name, mode, gf, gc, match_date
-                 FROM ranking
-                 ORDER BY gf DESC, gc ASC, match_date ASC
-                 LIMIT ?''', (limit,))
-    results = c.fetchall()
-    conn.close()
-    return results
+    """Devuelve el ranking: goles DESC, recibidos ASC y fecha ASC."""
+    with _open_db() as conn:
+        return conn.execute(
+            '''SELECT r.jugador, r.goles_max, r.goles_recibidos, r.fecha_record,
+                      COALESCE(a.archivo, r.imagen)
+               FROM ranking AS r
+               LEFT JOIN avatares AS a ON a.id = r.avatar_id
+               ORDER BY r.goles_max DESC, r.goles_recibidos ASC, r.fecha_record ASC
+               LIMIT ?''',
+            (int(limit),),
+        ).fetchall()
 
-def parse_match_results():
-    if not GAME_STATE_FILE.exists():
-        return 0, 0
+
+def get_top1_identity():
+    with _open_db() as conn:
+        row = conn.execute(
+            '''SELECT r.jugador, r.jugador_id,
+                      COALESCE(r.avatar_id, j.avatar_actual_id),
+                      COALESCE(record_avatar.archivo, current_avatar.archivo, r.imagen)
+               FROM ranking AS r
+               LEFT JOIN jugadores AS j ON j.id = r.jugador_id
+               LEFT JOIN avatares AS record_avatar ON record_avatar.id = r.avatar_id
+               LEFT JOIN avatares AS current_avatar ON current_avatar.id = j.avatar_actual_id
+               ORDER BY r.goles_max DESC, r.goles_recibidos ASC, r.fecha_record ASC
+               LIMIT 1'''
+        ).fetchone()
+    if row is None:
+        return None
+    return {
+        "name": row[0],
+        "player_id": row[1],
+        "avatar_id": row[2],
+        "avatar_file": row[3],
+    }
+
+
+def get_top1_name():
+    top = get_top1_identity()
+    return top["name"] if top else TOP1_NAME
+
+
+def format_db_date(value):
     try:
-        text = GAME_STATE_FILE.read_text(encoding="utf-8", errors="ignore")
-        for line in text.splitlines():
-            if line.startswith("GOLOVI-->"):
-                parts = line.split("|!|")
-                if len(parts) >= 3:
-                    g1_str = parts[1].split("|")[0].strip()
-                    g2_str = parts[2].split("|")[0].strip()
-                    if g1_str.isdigit() and g2_str.isdigit():
-                        return int(g1_str), int(g2_str)
+        return datetime.fromisoformat(str(value)).strftime("%d/%m %H:%M")
+    except (TypeError, ValueError):
+        return str(value)[:16]
 
-        for line in text.splitlines():
-            if line.startswith("IGRACI-->"):
-                parts = line.split("|!|")
-                if len(parts) >= 3:
-                    p1_data = parts[1].split("|")
-                    p2_data = parts[2].split("|")
-                    for idx in (7, 8, 9, 10, 15, 16, 17):
-                        if idx < len(p1_data) and idx < len(p2_data):
-                            if p1_data[idx].isdigit() and p2_data[idx].isdigit():
-                                v1, v2 = int(p1_data[idx]), int(p2_data[idx])
-                                if v1 > 0 or v2 > 0:
-                                    return v1, v2
-    except Exception as e:
-        print(f"Error parseando resultados: {e}")
-    return 0, 0
+
+def _result_info_paths():
+    """Lista rutas posibles sin crear, vaciar ni corregir archivos internos."""
+    paths = [RESULT_INFO_FILE]
+    if INFO_DIR.is_dir():
+        for candidate in INFO_DIR.glob("cijeli_game_*nfo.txt"):
+            if candidate not in paths:
+                paths.append(candidate)
+    return paths
+
+
+def snapshot_match_results():
+    """Toma una huella de sólo lectura para no aceptar un resultado anterior."""
+    snapshot = {}
+    for path in _result_info_paths():
+        try:
+            stat = path.stat()
+            snapshot[str(path.resolve())] = (stat.st_mtime_ns, stat.st_size)
+        except OSError:
+            pass
+    return snapshot
+
+
+def _read_result_file(path):
+    try:
+        raw = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return None
+
+    for line in reversed(raw.splitlines() or [raw]):
+        parts = [part.strip() for part in line.strip().split("|")]
+        if len(parts) < 4:
+            continue
+        try:
+            g1 = int(parts[2])
+            g2 = int(parts[3])
+        except ValueError:
+            continue
+        if g1 < 0 or g2 < 0:
+            continue
+        return {"p1": parts[0], "p2": parts[1], "g1": g1, "g2": g2}
+    return None
+
+
+def parse_match_results(previous_snapshot=None, expected_players=None):
+    """Lee el marcador real del *_łnfo actualizado por el último partido."""
+    candidates = []
+    for path in _result_info_paths():
+        try:
+            stat = path.stat()
+        except OSError:
+            continue
+
+        signature = (stat.st_mtime_ns, stat.st_size)
+        key = str(path.resolve())
+        if previous_snapshot is not None and previous_snapshot.get(key) == signature:
+            continue
+        candidates.append((stat.st_mtime_ns, path))
+
+    for _mtime, path in sorted(candidates, reverse=True):
+        result = _read_result_file(path)
+        if result is None:
+            continue
+        if expected_players:
+            expected_p1, expected_p2 = expected_players
+            if (result["p1"].casefold() != expected_p1.strip().casefold()
+                    or result["p2"].casefold() != expected_p2.strip().casefold()):
+                continue
+        return result
+    return None
 
 def asset_path(filename):
     folder = BASE_DIR / "data" / "images"
@@ -166,6 +479,36 @@ def asset_path(filename):
             if candidate.is_file() and candidate.name.casefold() == wanted:
                 return candidate
     return direct
+
+
+def resolve_ranking_avatar_path(avatar_file):
+    """Resuelve de forma segura un avatar guardado para mostrarlo en el ranking."""
+    if not isinstance(avatar_file, str) or not avatar_file.strip():
+        return None
+
+    relative = Path(avatar_file.replace("\\", "/"))
+    if relative.is_absolute() or ".." in relative.parts:
+        return None
+    if len(relative.parts) < 3 or relative.parts[0:2] not in (
+            ("data", "avatars"), ("data", "images")):
+        return None
+    if relative.suffix.casefold() != ".png":
+        return None
+
+    candidate = (BASE_DIR / relative).resolve()
+    allowed_roots = (
+        (BASE_DIR / "data" / "avatars").resolve(),
+        (BASE_DIR / "data" / "images").resolve(),
+    )
+    try:
+        if not any(candidate.is_relative_to(root) for root in allowed_roots):
+            return None
+    except AttributeError:
+        # Compatibilidad con Python 3.8.
+        if not any(root == candidate or root in candidate.parents for root in allowed_roots):
+            return None
+
+    return candidate if candidate.is_file() else None
 
 LOGO_FILE = asset_path("naslov2.png")
 BG_FILE = asset_path("pozadina.png")
@@ -180,9 +523,73 @@ def validate_name(name):
         raise ValueError("El nombre no puede contener | ni saltos de línea.")
     return name
 
-def write_player_names(player_1, player_2, settings_path=CURRENT_SETTINGS_FILE):
+
+def validate_avatar_path(image_path):
+    """Valida una ruta compatible con el diccionario de sprites del motor."""
+    if not isinstance(image_path, str) or not image_path:
+        raise ValueError("La ruta del avatar no puede estar vacía.")
+    if any(char in image_path for char in "|\r\n"):
+        raise ValueError("La ruta del avatar contiene caracteres inválidos.")
+    if not image_path.startswith("data/images/") or ".." in Path(image_path).parts:
+        raise ValueError("El avatar debe estar dentro de data/images.")
+
+    absolute_path = BASE_DIR.joinpath(*image_path.split("/"))
+    if not absolute_path.is_file():
+        raise FileNotFoundError(f"No se encontró el avatar {image_path}.")
+    return image_path
+
+
+def init_avatar_storage():
+    """Crea únicamente la carpeta permanente de avatares si no existe."""
+    AVATAR_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def archive_avatar_png(image_path):
+    """Copia un cabezón a data/avatars con UUID y sin sobrescribir archivos."""
+    image_path = validate_avatar_path(image_path)
+    source = BASE_DIR.joinpath(*image_path.split("/"))
+    payload = source.read_bytes()
+    if not payload.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError(f"El avatar {image_path} no es un PNG válido.")
+
+    init_avatar_storage()
+    for _attempt in range(10):
+        avatar_id = str(uuid4())
+        destination = AVATAR_DIR / f"{avatar_id}.png"
+        try:
+            with destination.open("xb") as output:
+                output.write(payload)
+        except FileExistsError:
+            continue
+
+        relative_path = f"data/avatars/{avatar_id}.png"
+        return avatar_id, relative_path
+
+    raise OSError("No se pudo reservar un UUID único para el avatar.")
+
+
+def _line_ending(line):
+    if line.endswith(b"\r\n"):
+        return b"\r\n"
+    if line.endswith(b"\n"):
+        return b"\n"
+    if line.endswith(b"\r"):
+        return b"\r"
+    return b""
+
+
+def write_match_players(
+    player_1,
+    player_2,
+    player_1_image,
+    player_2_image,
+    settings_path=CURRENT_SETTINGS_FILE,
+):
+    """Escribe nombres y avatares juntos, conservando el resto del archivo."""
     player_1 = validate_name(player_1)
     player_2 = validate_name(player_2)
+    player_1_image = validate_avatar_path(player_1_image)
+    player_2_image = validate_avatar_path(player_2_image)
     path = Path(settings_path)
 
     if not path.is_file():
@@ -190,20 +597,17 @@ def write_player_names(player_1, player_2, settings_path=CURRENT_SETTINGS_FILE):
 
     original = path.read_bytes()
     lines = original.splitlines(keepends=True)
-    if len(lines) < 4:
-        raise ValueError("El archivo de configuración no tiene las cuatro líneas esperadas.")
+    if len(lines) < 5:
+        raise ValueError("El archivo de configuración no tiene las cinco líneas esperadas.")
 
-    current = lines[3]
-    if current.endswith(b"\r\n"):
-        ending = b"\r\n"
-    elif current.endswith(b"\n"):
-        ending = b"\n"
-    elif current.endswith(b"\r"):
-        ending = b"\r"
-    else:
-        ending = b""
-
-    lines[3] = f"{player_1}|{player_2}".encode("utf-8") + ending
+    lines[3] = (
+        f"{player_1}|{player_2}".encode("utf-8")
+        + _line_ending(lines[3])
+    )
+    lines[4] = (
+        f"{player_1_image}|{player_2_image}".encode("utf-8")
+        + _line_ending(lines[4])
+    )
     updated = b"".join(lines)
 
     temp_path = path.with_name(path.name + ".expo_tmp")
@@ -214,7 +618,83 @@ def write_player_names(player_1, player_2, settings_path=CURRENT_SETTINGS_FILE):
         if temp_path.exists():
             temp_path.unlink()
 
-def launch_game(exe_name):
+
+def write_player_names(player_1, player_2, settings_path=CURRENT_SETTINGS_FILE):
+    """Compatibilidad: actualiza nombres y conserva los avatares configurados."""
+    path = Path(settings_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"No se encontró {path}")
+    lines = path.read_bytes().splitlines()
+    if len(lines) < 5:
+        raise ValueError("El archivo de configuración no tiene las cinco líneas esperadas.")
+    images = lines[4].decode("utf-8", errors="strict").split("|")
+    if len(images) < 2:
+        raise ValueError("La línea de avatares no tiene dos rutas.")
+    write_match_players(player_1, player_2, images[0], images[1], path)
+
+
+def _runtime_avatar_paths():
+    image_dir = BASE_DIR / "data" / "images"
+    return (
+        image_dir / Path(TOP1_RUNTIME_AVATAR).name,
+        image_dir / TOP1_RUNTIME_BACKUP,
+        image_dir / TOP1_RUNTIME_STAGE,
+    )
+
+
+def recover_top1_runtime_avatar():
+    """Restaura el slot si Windows o el launcher se cerraron durante una partida."""
+    slot, backup, stage = _runtime_avatar_paths()
+    if backup.is_file():
+        os.replace(backup, slot)
+    if stage.exists():
+        stage.unlink()
+
+
+def prepare_top1_runtime_avatar(avatar_file):
+    """Inyecta una copia temporal del PNG UUID en un slot que el motor conoce."""
+    if not isinstance(avatar_file, str) or not avatar_file.startswith("data/avatars/"):
+        raise ValueError("El TOP #1 no tiene una ruta de avatar válida.")
+    if ".." in Path(avatar_file).parts:
+        raise ValueError("La ruta del avatar TOP #1 no es segura.")
+
+    source = BASE_DIR.joinpath(*avatar_file.split("/"))
+    avatar_root = AVATAR_DIR.resolve()
+    try:
+        source.resolve().relative_to(avatar_root)
+    except ValueError as exc:
+        raise ValueError("El avatar TOP #1 está fuera de data/avatars.") from exc
+    if not source.is_file():
+        raise FileNotFoundError(f"No se encontró el avatar del TOP #1: {avatar_file}")
+
+    payload = source.read_bytes()
+    if not payload.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise ValueError("El archivo del TOP #1 no es un PNG válido.")
+
+    recover_top1_runtime_avatar()
+    slot, backup, stage = _runtime_avatar_paths()
+    if not slot.is_file():
+        raise FileNotFoundError(f"No se encontró el slot temporal {TOP1_RUNTIME_AVATAR}.")
+
+    stage.write_bytes(payload)
+    os.replace(slot, backup)
+    try:
+        os.replace(stage, slot)
+    except Exception:
+        os.replace(backup, slot)
+        raise
+    return True
+
+
+def restore_top1_runtime_avatar():
+    slot, backup, stage = _runtime_avatar_paths()
+    if backup.is_file():
+        os.replace(backup, slot)
+    if stage.exists():
+        stage.unlink()
+
+
+def launch_game(exe_name, runtime_avatar_file=None):
     exe_path = BASE_DIR / exe_name
     if not exe_path.is_file():
         raise FileNotFoundError(f"No se encontró {exe_name}.")
@@ -225,6 +705,7 @@ def launch_game(exe_name):
     bg_tmp = img_dir / "pozadina_tmp.png"
 
     swapped = False
+    avatar_swapped = False
     if bg_launcher.exists() and bg_game.exists():
         try:
             os.replace(bg_launcher, bg_tmp)
@@ -234,9 +715,19 @@ def launch_game(exe_name):
             print(f"Aviso: Falló el intercambio de fondos: {e}")
 
     try:
+        if runtime_avatar_file:
+            prepare_top1_runtime_avatar(runtime_avatar_file)
+            avatar_swapped = True
+            print(f"[TOP1] Avatar cargado temporalmente: {runtime_avatar_file}")
         process = subprocess.Popen([str(exe_path)], cwd=str(BASE_DIR))
         return process.wait()
     finally:
+        if avatar_swapped:
+            try:
+                restore_top1_runtime_avatar()
+                print("[TOP1] Slot temporal restaurado correctamente")
+            except Exception as e:
+                print(f"Error crítico al restaurar el avatar TOP #1: {e}")
         if swapped:
             try:
                 os.replace(bg_launcher, bg_game)
@@ -323,6 +814,8 @@ class ImageButton:
 class Launcher:
     def __init__(self):
         init_db()
+        init_avatar_storage()
+        recover_top1_runtime_avatar()
         pygame.init()
 
         AVATARS_DIR.mkdir(parents=True, exist_ok=True)
@@ -375,6 +868,7 @@ class Launcher:
         self.active_input = 1
         self.finished_mode = ""
         self.status_message = ""
+        self.score_saved = False
         
         self.cam = None
         self.cam_surface = None
@@ -390,6 +884,13 @@ class Launcher:
         self.active_camera = 1
         self.photo_p1 = None
         self.photo_p2 = None
+        self.player_p1_id = None
+        self.player_p2_id = None
+        self.avatar_p1_id = None
+        self.avatar_p2_id = None
+        self.avatar_p1_file = None
+        self.avatar_p2_file = None
+        self.ranking_avatar_cache = {}
 
         self.ranking_box_rect = pygame.Rect(900, 22, 275, 195)
 
@@ -459,6 +960,54 @@ class Launcher:
             title = self.font_title.render("EXPO HEADS", True, WHITE)
             self.screen.blit(title, title.get_rect(center=(SCREEN_W // 2, 100)))
 
+    def _load_ranking_avatar(self, avatar_file, max_size):
+        """Carga una miniatura una sola vez y conserva su proporción original."""
+        cache_key = (avatar_file, int(max_size))
+        if cache_key in self.ranking_avatar_cache:
+            return self.ranking_avatar_cache[cache_key]
+
+        avatar_path = resolve_ranking_avatar_path(avatar_file)
+        if avatar_path is None:
+            return None
+
+        try:
+            raw = pygame.image.load(str(avatar_path)).convert_alpha()
+            width, height = raw.get_size()
+            if width <= 0 or height <= 0:
+                self.ranking_avatar_cache[cache_key] = None
+                return None
+
+            scale = min(max_size / width, max_size / height)
+            target_size = (
+                max(1, int(round(width * scale))),
+                max(1, int(round(height * scale))),
+            )
+            thumbnail = pygame.transform.smoothscale(raw, target_size)
+            self.ranking_avatar_cache[cache_key] = thumbnail
+            return thumbnail
+        except (OSError, pygame.error):
+            # Un PNG viejo o dañado no debe impedir que abra el launcher.
+            self.ranking_avatar_cache[cache_key] = None
+            return None
+
+    def _draw_ranking_avatar(self, avatar_file, rect, border_color):
+        """Dibuja la miniatura o una silueta segura cuando no hay avatar."""
+        shadow = rect.move(2, 2)
+        pygame.draw.rect(self.screen, BLACK, shadow)
+        pygame.draw.rect(self.screen, (8, 14, 25), rect)
+        pygame.draw.rect(self.screen, border_color, rect, 2)
+
+        thumbnail = self._load_ranking_avatar(avatar_file, min(rect.width, rect.height) - 4)
+        if thumbnail is not None:
+            image_rect = thumbnail.get_rect(center=rect.center)
+            self.screen.blit(thumbnail, image_rect)
+            return
+
+        # Fallback neutral para jugadores heredados sin PNG asociado.
+        cx, cy = rect.center
+        pygame.draw.circle(self.screen, GRAY, (cx, cy - 3), 6, 2)
+        pygame.draw.arc(self.screen, GRAY, (cx - 9, cy + 4, 18, 12), 0, math.pi, 2)
+
     def _draw_ranking_hud(self):
         r = self.ranking_box_rect
 
@@ -491,17 +1040,23 @@ class Launcher:
         top3 = get_top_ranking(3)
         podium = [("1ST", GOLD), ("2ND", SILVER), ("3RD", BRONZE)]
 
-        row_y = r.y + 60
+        row_y = r.y + 58
         for i in range(3):
             pos_label, color = podium[i]
 
             if i < len(top3):
-                p_name, _mode, gf, _gc, _date = top3[i]
+                p_name, gf, _gc, _date, avatar_file = top3[i]
                 display_name = (p_name[:7] + "..") if len(p_name) > 8 else p_name
                 score_label = f"{gf} goles"
             else:
+                avatar_file = None
                 display_name = "------"
                 score_label = "- goles"
+
+            avatar_rect = pygame.Rect(r.x + 47, row_y - 3, 31, 31)
+            self._draw_ranking_avatar(avatar_file, avatar_rect, color)
+
+            text_y = row_y + 4
 
             pos_surf = self.font_hud_row.render(pos_label, True, color)
             pos_shadow = self.font_hud_row.render(pos_label, True, BLACK)
@@ -512,13 +1067,13 @@ class Launcher:
             score_surf = self.font_hud_row.render(score_label, True, BTN_ORANGE_LIGHT)
             score_shadow = self.font_hud_row.render(score_label, True, BLACK)
 
-            self.screen.blit(pos_shadow, (r.x + 16, row_y + 1))
-            self.screen.blit(pos_surf, (r.x + 15, row_y))
+            self.screen.blit(pos_shadow, (r.x + 13, text_y + 1))
+            self.screen.blit(pos_surf, (r.x + 12, text_y))
 
-            self.screen.blit(name_shadow, (r.x + 56, row_y + 1))
-            self.screen.blit(name_surf, (r.x + 55, row_y))
+            self.screen.blit(name_shadow, (r.x + 86, text_y + 1))
+            self.screen.blit(name_surf, (r.x + 85, text_y))
 
-            score_rect = score_surf.get_rect(right=r.right - 15, top=row_y)
+            score_rect = score_surf.get_rect(right=r.right - 12, top=text_y)
             self.screen.blit(score_shadow, score_rect.move(1, 1))
             self.screen.blit(score_surf, score_rect)
 
@@ -1316,7 +1871,7 @@ class Launcher:
 
         box_1 = self._draw_input_box("TU NOMBRE:", self.p1_name, left_panel.x + 55, left_panel.y + 105, True, ACCENT)
         
-        rival_surf = self.font_button.render(f"RIVAL: {TOP1_NAME}", True, BTN_YELLOW)
+        rival_surf = self.font_button.render(f"RIVAL: {get_top1_name()}", True, BTN_YELLOW)
         r_pos = rival_surf.get_rect(center=(left_panel.centerx, left_panel.y + 245))
         self.screen.blit(rival_surf, r_pos)
         
@@ -1385,15 +1940,21 @@ class Launcher:
             self.screen.blit(subtitle_surface, subtitle_surface.get_rect(center=(SCREEN_W // 2, panel.top + 85)))
 
     def _screen_finished(self, events):
-        self._draw_center_panel("MATCH OVER", self.finished_mode)
+        self._draw_center_panel("PARTIDO TERMINADO", self.finished_mode)
         info = self.font_subtitle.render(self.status_message[:86], True, WHITE)
         self.screen.blit(info, info.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 + 10)))
         
-        saved_info = self.font_small.render("PUNTAJE ENVIADO AL LEADERBOARD", True, NEON_CYAN)
+        if self.score_saved:
+            saved_text = "PUNTAJE ENVIADO AL RANKING"
+            saved_color = NEON_CYAN
+        else:
+            saved_text = "PUNTAJE NO GUARDADO"
+            saved_color = ACCENT_2
+        saved_info = self.font_small.render(saved_text, True, saved_color)
         self.screen.blit(saved_info, saved_info.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2 + 45)))
 
         btn_menu = Button(SCREEN_W // 2 - 250, SCREEN_H // 2 + 92, 220, 58, "MENU", self.font_button)
-        btn_exit = Button(SCREEN_W // 2 + 30, SCREEN_H // 2 + 92, 220, 58, "QUIT", self.font_button, bg=ACCENT_2, hover_bg=(245, 55, 95))
+        btn_exit = Button(SCREEN_W // 2 + 30, SCREEN_H // 2 + 92, 220, 58, "SALIR", self.font_button, bg=ACCENT_2, hover_bg=(245, 55, 95))
         mouse = pygame.mouse.get_pos()
         for button in (btn_menu, btn_exit):
             button.update(mouse)
@@ -1410,18 +1971,17 @@ class Launcher:
                     self.state = "menu"
 
     def _screen_ranking(self, events):
-        self._draw_center_panel("TOP 10 HIGH SCORES", height=500)
+        self._draw_center_panel("TOP 10 GOLEADORES", height=500)
         
-        headers = self.font_small.render(f"{'RANK':<5} {'JUGADOR':<16} {'MODO':<14} {'GOLES':<6} FECHA", True, NEON_PINK)
+        headers = self.font_small.render(f"{'RANK':<5} {'JUGADOR':<16} {'GF':<6} {'GC':<6} FECHA", True, NEON_PINK)
         self.screen.blit(headers, (SCREEN_W // 2 - 320, 185))
         pygame.draw.line(self.screen, NEON_CYAN, (SCREEN_W // 2 - 320, 210), (SCREEN_W // 2 + 320, 210), 3)
 
         records = get_top_ranking(10)
         y_pos = 225
-        for i, (name, mode, gf, gc, m_date) in enumerate(records):
-            dt_obj = datetime.strptime(m_date, "%Y-%m-%d %H:%M:%S.%f")
-            date_str = dt_obj.strftime("%d/%m %H:%M")
-            row_text = f"#{i+1:02d}   {name.upper()[:15]:<16} {mode[:12]:<14} {gf:<6} {date_str}"
+        for i, (name, gf, gc, m_date, _image) in enumerate(records):
+            date_str = format_db_date(m_date)
+            row_text = f"#{i+1:02d}   {name.upper()[:15]:<16} {gf:<6} {gc:<6} {date_str}"
             
             color = GOLD if i == 0 else SILVER if i == 1 else BRONZE if i == 2 else NEON_CYAN
             
@@ -1442,7 +2002,7 @@ class Launcher:
                 self.state = "menu"
 
     def _screen_confirm_exit(self, events):
-        self._draw_center_panel("INSERT COIN TO CONTINUE?", "O QUIERES SALIR DEL JUEGO?")
+        self._draw_center_panel("CONTINUAR?", "O QUIERES SALIR DEL JUEGO?")
         btn_yes = Button(SCREEN_W // 2 - 260, SCREEN_H // 2 + 60, 220, 58, "SALIR", self.font_button, bg=ACCENT_2, hover_bg=(245, 55, 95))
         btn_no = Button(SCREEN_W // 2 + 40, SCREEN_H // 2 + 60, 220, 58, "VOLVER", self.font_button)
         mouse = pygame.mouse.get_pos()
@@ -1462,29 +2022,76 @@ class Launcher:
                 elif event.key in (pygame.K_RETURN, pygame.K_y, pygame.K_s):
                     self.running = False
 
-    def _run_match(self, mode_label, exe_name, player_1, player_2):
+    def _run_match(
+        self,
+        mode_label,
+        exe_name,
+        player_1,
+        player_2,
+        player_1_image=DEFAULT_PLAYER_AVATAR,
+        player_2_image=DEFAULT_PLAYER_AVATAR,
+        runtime_avatar_file=None,
+    ):
         try:
-            write_player_names(player_1, player_2)
+            write_match_players(
+                player_1,
+                player_2,
+                player_1_image,
+                player_2_image,
+            )
+            previous_results = snapshot_match_results()
+            self.score_saved = False
             pygame.display.iconify()
             
-            return_code = launch_game(exe_name)
-            
-            g1, g2 = parse_match_results()
-            self.match_results = (g1, g2)
-            
+            return_code = launch_game(exe_name, runtime_avatar_file)
+
             if return_code == 0:
-                self.status_message = f"MARCADOR FINAL: {g1} - {g2}"
-                if self.game_mode == "1v1":
-                    save_score(player_1, "1 VS 1", g1, g2)
-                    save_score(player_2, "1 VS 1", g2, g1)
-                elif self.game_mode == "top1":
-                    save_score(player_1, "1 VS TOP #1", g1, g2)
+                result = parse_match_results(
+                    previous_results,
+                    expected_players=(player_1, player_2),
+                )
+                if result is None:
+                    self.status_message = "NO SE PUDO LEER EL MARCADOR FINAL"
+                else:
+                    g1, g2 = result["g1"], result["g2"]
+                    self.match_results = (g1, g2)
+                    self.status_message = f"MARCADOR FINAL: {g1} - {g2}"
+                    if self.game_mode == "1v1":
+                        save_score(
+                            self.player_p1_id,
+                            player_1,
+                            "1 VS 1",
+                            g1,
+                            g2,
+                            self.avatar_p1_id,
+                            self.avatar_p1_file,
+                        )
+                        save_score(
+                            self.player_p2_id,
+                            player_2,
+                            "1 VS 1",
+                            g2,
+                            g1,
+                            self.avatar_p2_id,
+                            self.avatar_p2_file,
+                        )
+                    elif self.game_mode == "top1":
+                        save_score(
+                            self.player_p1_id,
+                            player_1,
+                            "1 VS TOP #1",
+                            g1,
+                            g2,
+                            self.avatar_p1_id,
+                            self.avatar_p1_file,
+                        )
+                    self.score_saved = True
             else:
                 self.status_message = f"GAME ERROR CODE: {return_code}"
 
             self.finished_mode = mode_label
             self.state = "finished"
-        except (OSError, ValueError) as exc:
+        except (OSError, ValueError, sqlite3.Error) as exc:
             self.finished_mode = mode_label
             self.status_message = str(exc)
             self.state = "finished"
@@ -1492,10 +2099,76 @@ class Launcher:
             self._restore_window()
 
     def _start_match_1v1(self):
-        self._run_match("1 VS 1", GAME_EXE_1V1, self.p1_name.strip(), self.p2_name.strip())
+        try:
+            self.avatar_p1_id, self.avatar_p1_file = archive_avatar_png(
+                MANUAL_1V1_AVATAR_P1
+            )
+            self.avatar_p2_id, self.avatar_p2_file = archive_avatar_png(
+                MANUAL_1V1_AVATAR_P2
+            )
+            self.player_p1_id = register_player_avatar(
+                self.p1_name.strip(),
+                self.avatar_p1_id,
+                self.avatar_p1_file,
+            )
+            self.player_p2_id = register_player_avatar(
+                self.p2_name.strip(),
+                self.avatar_p2_id,
+                self.avatar_p2_file,
+            )
+            print(f"[AVATAR] J1 guardado: {self.avatar_p1_file}")
+            print(f"[AVATAR] J2 guardado: {self.avatar_p2_file}")
+            print(f"[PLAYER] J1 vinculado: {self.player_p1_id}")
+            print(f"[PLAYER] J2 vinculado: {self.player_p2_id}")
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            self.status_message = f"ERROR GUARDANDO AVATARES: {exc}"
+            return
+
+        self._run_match(
+            "1 VS 1",
+            GAME_EXE_1V1,
+            self.p1_name.strip(),
+            self.p2_name.strip(),
+            MANUAL_1V1_AVATAR_P1,
+            MANUAL_1V1_AVATAR_P2,
+        )
 
     def _start_match_top1(self):
-        self._run_match("1 VS TOP #1", GAME_EXE_TOP1, self.p1_name.strip(), TOP1_NAME)
+        top1 = get_top1_identity()
+        if top1 is None:
+            self.status_message = "TODAVÍA NO HAY UN TOP #1 EN EL RANKING"
+            return
+        if not top1["avatar_id"] or not top1["avatar_file"]:
+            self.status_message = "EL TOP #1 TODAVÍA NO TIENE UN AVATAR VINCULADO"
+            return
+
+        opponent_name = top1["name"]
+        try:
+            self.avatar_p1_id, self.avatar_p1_file = archive_avatar_png(
+                DEFAULT_PLAYER_AVATAR
+            )
+            self.player_p1_id = register_player_avatar(
+                self.p1_name.strip(),
+                self.avatar_p1_id,
+                self.avatar_p1_file,
+            )
+            self.player_p2_id = top1["player_id"] if top1 else None
+            self.avatar_p2_id = top1["avatar_id"] if top1 else None
+            self.avatar_p2_file = top1["avatar_file"] if top1 else None
+            print(f"[PLAYER] Retador vinculado: {self.player_p1_id}")
+        except (OSError, ValueError, sqlite3.Error) as exc:
+            self.status_message = f"ERROR VINCULANDO JUGADOR: {exc}"
+            return
+
+        self._run_match(
+            "1 VS TOP #1",
+            GAME_EXE_TOP1,
+            self.p1_name.strip(),
+            opponent_name,
+            DEFAULT_PLAYER_AVATAR,
+            TOP1_RUNTIME_AVATAR,
+            top1["avatar_file"],
+        )
 
     def _restore_window(self):
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
