@@ -1,4 +1,4 @@
-"""Expo Heads UNO - launcher de los modos 1 VS 1 y 1 VS TOP #1."""
+"""Expo Heads UNO - launcher portable + matching + recoloreado dinámico."""
 
 from pathlib import Path
 import os
@@ -9,13 +9,13 @@ import math
 from uuid import UUID, NAMESPACE_URL, uuid4, uuid5
 
 import pygame
+import numpy as np
 
 try:
     import cv2
 except ImportError:
     cv2 = None
 
-import shutil
 
 from avatar_selector import AvatarSelector
 from face_analyzer import analyze_face
@@ -109,6 +109,357 @@ SILVER = (210, 220, 235)
 BRONZE = (215, 125, 50)
 ACCENT = (0, 170, 255)
 ACCENT_2 = (220, 40, 80)
+
+
+# ==========================================
+# AVATARES RECOLOREABLES - PALETA OFICIAL
+# ==========================================
+#
+# A partir de esta versión, los templates oficiales de Expo Heads deben
+# utilizar estos colores marcador. El launcher reemplaza esos colores por
+# los tonos detectados en la fotografía del jugador.
+#
+# El negro, el blanco y los píxeles transparentes NO se recolorean.
+#
+# IMPORTANTE:
+# - Los PNG oficiales deben ser RGBA.
+# - El tamaño oficial de biblioteca es 70x70.
+# - El launcher igualmente fuerza la salida final a 70x70.
+#
+# Se mantiene compatibilidad con los dos templates POC anteriores mediante
+# un fallback HSV. Los nuevos lotes deben usar esta paleta exacta.
+
+AVATAR_OUTPUT_SIZE = 70
+AVATAR_MARKER_TOLERANCE = 10
+
+AVATAR_MARKERS = {
+    "skin_base":    (255,   0, 255),  # magenta
+    "skin_shadow":  (170,   0, 170),
+    "hair_base":    (  0, 255,   0),  # verde
+    "hair_shadow":  (  0, 130,   0),
+    "beard_base":   (  0,  80, 255),  # azul
+    "beard_shadow": (  0,  40, 150),
+    "iris":         (  0, 255, 255),  # cyan
+    "glasses":      (255, 255,   0),  # amarillo
+}
+
+
+def _crop_array(img, x1, y1, x2, y2):
+    h, w = img.shape[:2]
+    x1 = max(0, min(w, int(round(x1))))
+    y1 = max(0, min(h, int(round(y1))))
+    x2 = max(0, min(w, int(round(x2))))
+    y2 = max(0, min(h, int(round(y2))))
+    if x2 <= x1 or y2 <= y1:
+        return None
+    return img[y1:y2, x1:x2]
+
+
+def _median_color(pixels, fallback):
+    if pixels is None or len(pixels) == 0:
+        return np.array(fallback, dtype=np.float32)
+    return np.median(pixels.astype(np.float32), axis=0)
+
+
+def _bgr_to_rgb(color):
+    return (
+        int(color[2]),
+        int(color[1]),
+        int(color[0]),
+    )
+
+
+def _rgb_to_bgr(color):
+    return (
+        int(color[2]),
+        int(color[1]),
+        int(color[0]),
+    )
+
+
+def _ensure_rgb(color):
+    return tuple(
+        int(max(0, min(255, round(float(channel)))))
+        for channel in color
+    )
+
+
+def _darken_rgb(color, amount=0.20):
+    arr = np.array(color, dtype=np.float32)
+    return tuple(
+        np.clip(arr * (1.0 - amount), 0, 255)
+        .astype(np.uint8)
+        .tolist()
+    )
+
+
+def _skin_mask_ycrcb(bgr_img):
+    """Máscara tolerante de piel usada solamente para estimar color."""
+    ycrcb = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2YCrCb)
+    lower = np.array([0, 135, 85], dtype=np.uint8)
+    upper = np.array([255, 180, 135], dtype=np.uint8)
+    return cv2.inRange(ycrcb, lower, upper) > 0
+
+
+def _near_marker_mask(rgb, marker, tolerance=AVATAR_MARKER_TOLERANCE):
+    marker_arr = np.array(marker, dtype=np.int16)
+    delta = np.abs(rgb.astype(np.int16) - marker_arr)
+    return np.max(delta, axis=2) <= int(tolerance)
+
+
+def _legacy_hsv_mask(hsv, alpha, h_low, h_high, s_min=60, v_min=20):
+    if h_low <= h_high:
+        hue_mask = (
+            (hsv[..., 0] >= h_low)
+            & (hsv[..., 0] <= h_high)
+        )
+    else:
+        hue_mask = (
+            (hsv[..., 0] >= h_low)
+            | (hsv[..., 0] <= h_high)
+        )
+
+    return (
+        (alpha > 0)
+        & hue_mask
+        & (hsv[..., 1] >= s_min)
+        & (hsv[..., 2] >= v_min)
+    )
+
+
+def _recolor_mask_with_shading(rgb, mask, target_rgb):
+    """
+    Fallback para los templates POC viejos.
+
+    Conserva diferencias de luminosidad internas del color marcador para
+    mantener sombras y luces aunque el template no use la paleta exacta.
+    """
+    if not np.any(mask):
+        return rgb
+
+    region = rgb[mask].astype(np.float32)
+    brightness = region.mean(axis=1)
+
+    bmin = float(brightness.min())
+    bmax = float(brightness.max())
+
+    if bmax - bmin < 1e-6:
+        normalized = np.full_like(brightness, 0.5)
+    else:
+        normalized = (brightness - bmin) / (bmax - bmin)
+
+    factor = 0.72 + (0.48 * normalized)
+    target = np.array(target_rgb, dtype=np.float32)
+    rgb[mask] = np.clip(
+        target * factor[:, None],
+        0,
+        255,
+    ).astype(np.uint8)
+
+    return rgb
+
+
+def recolor_avatar_template(template_path, output_path, colors):
+    """
+    Recolorea el template elegido por AvatarSelector y guarda SIEMPRE un PNG
+    final RGBA de 70x70.
+
+    Devuelve:
+        (Path_salida, modo)
+
+    modo puede ser:
+        - "semantic": paleta exacta oficial.
+        - "legacy_hsv": templates POC anteriores.
+        - "passthrough": PNG antiguo sin marcadores; se conserva sin alterar.
+    """
+    template_path = Path(template_path)
+    output_path = Path(output_path)
+
+    img = cv2.imread(str(template_path), cv2.IMREAD_UNCHANGED)
+    if img is None:
+        raise RuntimeError(
+            f"No se pudo abrir el template: {template_path}"
+        )
+
+    if img.ndim != 3:
+        raise RuntimeError(
+            f"El template no tiene canales de imagen válidos: {template_path}"
+        )
+
+    if img.shape[2] == 4:
+        rgba = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+    elif img.shape[2] == 3:
+        rgb_only = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        alpha = np.full(
+            rgb_only.shape[:2],
+            255,
+            dtype=np.uint8,
+        )
+        rgba = np.dstack([rgb_only, alpha])
+    else:
+        raise RuntimeError(
+            f"Cantidad de canales no soportada: {img.shape[2]}"
+        )
+
+    rgb = rgba[..., :3].copy()
+    alpha = rgba[..., 3].copy()
+
+    marker_masks = {
+        name: _near_marker_mask(rgb, marker)
+        & (alpha > 0)
+        for name, marker in AVATAR_MARKERS.items()
+    }
+
+    semantic_pixels = sum(
+        int(np.count_nonzero(mask))
+        for mask in marker_masks.values()
+    )
+
+    # --------------------------------------------------
+    # A) Paleta exacta oficial
+    # --------------------------------------------------
+    if semantic_pixels >= 8:
+        replacements = {
+            "skin_base": colors["skin_rgb"],
+            "skin_shadow": _darken_rgb(
+                colors["skin_rgb"], 0.24
+            ),
+            "hair_base": colors["hair_rgb"],
+            "hair_shadow": _darken_rgb(
+                colors["hair_rgb"], 0.28
+            ),
+            "beard_base": colors["beard_rgb"],
+            "beard_shadow": _darken_rgb(
+                colors["beard_rgb"], 0.28
+            ),
+            "iris": colors["eye_rgb"],
+            "glasses": colors["glasses_rgb"],
+        }
+
+        for region_name, target_color in replacements.items():
+            mask = marker_masks[region_name]
+            if np.any(mask):
+                rgb[mask] = np.array(
+                    target_color,
+                    dtype=np.uint8,
+                )
+
+        mode = "semantic"
+
+    # --------------------------------------------------
+    # B) Compatibilidad con los templates POC viejos
+    # --------------------------------------------------
+    else:
+        hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+
+        skin_mask = (
+            _legacy_hsv_mask(
+                hsv, alpha, 145, 179,
+                s_min=50, v_min=20,
+            )
+            | _legacy_hsv_mask(
+                hsv, alpha, 0, 10,
+                s_min=50, v_min=20,
+            )
+        )
+        hair_mask = _legacy_hsv_mask(
+            hsv, alpha, 45, 85,
+            s_min=50, v_min=20,
+        )
+        beard_mask = _legacy_hsv_mask(
+            hsv, alpha, 100, 135,
+            s_min=40, v_min=20,
+        )
+        glasses_mask = _legacy_hsv_mask(
+            hsv, alpha, 18, 40,
+            s_min=60, v_min=30,
+        )
+        iris_mask = _legacy_hsv_mask(
+            hsv, alpha, 80, 105,
+            s_min=40, v_min=20,
+        )
+
+        near_black = (
+            (alpha > 0)
+            & (rgb[..., 0] < 20)
+            & (rgb[..., 1] < 20)
+            & (rgb[..., 2] < 20)
+        )
+        near_white = (
+            (alpha > 0)
+            & (rgb[..., 0] > 220)
+            & (rgb[..., 1] > 220)
+            & (rgb[..., 2] > 220)
+        )
+
+        for mask in (
+            skin_mask,
+            hair_mask,
+            beard_mask,
+            glasses_mask,
+            iris_mask,
+        ):
+            mask[near_black] = False
+            mask[near_white] = False
+
+        # No aplicamos HSV indiscriminadamente sobre avatares antiguos.
+        # Exigimos evidencia clara de template de colores marcadores:
+        # piel magenta/roja + pelo verde.
+        legacy_is_marker_template = (
+            np.count_nonzero(skin_mask) >= 10
+            and np.count_nonzero(hair_mask) >= 10
+        )
+
+        if legacy_is_marker_template:
+            rgb = _recolor_mask_with_shading(
+                rgb, skin_mask, colors["skin_rgb"]
+            )
+            rgb = _recolor_mask_with_shading(
+                rgb, hair_mask, colors["hair_rgb"]
+            )
+            rgb = _recolor_mask_with_shading(
+                rgb, beard_mask, colors["beard_rgb"]
+            )
+            rgb = _recolor_mask_with_shading(
+                rgb, glasses_mask, colors["glasses_rgb"]
+            )
+            rgb = _recolor_mask_with_shading(
+                rgb, iris_mask, colors["eye_rgb"]
+            )
+            mode = "legacy_hsv"
+        else:
+            # Biblioteca vieja: no arriesgamos a deformar sus colores.
+            mode = "passthrough"
+
+    out_rgba = np.dstack([rgb, alpha])
+
+    # La salida usada por el EXE es SIEMPRE 70x70.
+    if out_rgba.shape[1] != AVATAR_OUTPUT_SIZE or out_rgba.shape[0] != AVATAR_OUTPUT_SIZE:
+        out_rgba = cv2.resize(
+            out_rgba,
+            (AVATAR_OUTPUT_SIZE, AVATAR_OUTPUT_SIZE),
+            interpolation=cv2.INTER_NEAREST,
+        )
+
+    output_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    ok = cv2.imwrite(
+        str(output_path),
+        cv2.cvtColor(
+            out_rgba,
+            cv2.COLOR_RGBA2BGRA,
+        ),
+    )
+
+    if not ok:
+        raise RuntimeError(
+            f"No se pudo guardar el avatar recoloreado: {output_path}"
+        )
+
+    return output_path, mode
 
 
 # ==========================================
@@ -1456,17 +1807,309 @@ class Launcher:
 
         return canvas
 
+    def _estimate_avatar_colors(self, scan_bgr):
+        """
+        Estima los colores que personalizarán el template seleccionado.
+
+        El matching estructural sigue perteneciendo a face_analyzer.py +
+        AvatarSelector. Esta función SOLO obtiene colores del mismo scan.
+
+        Retorna:
+            skin_rgb
+            hair_rgb
+            eye_rgb
+            glasses_rgb
+            beard_rgb
+        """
+        if scan_bgr is None or scan_bgr.size == 0:
+            raise RuntimeError("El scan está vacío.")
+
+        gray = cv2.cvtColor(scan_bgr, cv2.COLOR_BGR2GRAY)
+        equalized = cv2.equalizeHist(gray)
+
+        detected = []
+
+        for cascade in self.face_cascades:
+            for source in (gray, equalized):
+                faces = cascade.detectMultiScale(
+                    source,
+                    scaleFactor=1.08,
+                    minNeighbors=4,
+                    minSize=(55, 55),
+                    flags=cv2.CASCADE_SCALE_IMAGE,
+                )
+
+                for face in faces:
+                    detected.append(
+                        tuple(int(v) for v in face)
+                    )
+
+        img_h, img_w = scan_bgr.shape[:2]
+
+        if detected:
+            # El scan ya contiene únicamente la cabeza objetivo.
+            # Elegimos simplemente la cara de mayor superficie.
+            x, y, w, h = max(
+                detected,
+                key=lambda f: f[2] * f[3],
+            )
+        else:
+            # Fallback seguro: el scan proviene de una cara ya validada por
+            # el detector del launcher, por lo que podemos usar el centro.
+            x = int(img_w * 0.22)
+            y = int(img_h * 0.17)
+            w = int(img_w * 0.56)
+            h = int(img_h * 0.60)
+
+        skin_mask = _skin_mask_ycrcb(scan_bgr)
+
+        # --------------------------------------------------
+        # PIEL - mejillas, evitando ojos/pelo.
+        # --------------------------------------------------
+        skin_pixels = []
+
+        cheek_specs = [
+            (
+                x + 0.18 * w,
+                y + 0.46 * h,
+                x + 0.38 * w,
+                y + 0.73 * h,
+            ),
+            (
+                x + 0.62 * w,
+                y + 0.46 * h,
+                x + 0.82 * w,
+                y + 0.73 * h,
+            ),
+        ]
+
+        for x1, y1, x2, y2 in cheek_specs:
+            roi = _crop_array(
+                scan_bgr, x1, y1, x2, y2
+            )
+            roi_mask = _crop_array(
+                (skin_mask.astype(np.uint8) * 255),
+                x1, y1, x2, y2,
+            )
+
+            if roi is None or roi_mask is None:
+                continue
+
+            valid = roi_mask > 0
+            if np.any(valid):
+                skin_pixels.append(roi[valid])
+
+        if skin_pixels:
+            skin_pixels = np.concatenate(
+                skin_pixels,
+                axis=0,
+            )
+        else:
+            face_roi = _crop_array(
+                scan_bgr,
+                x, y,
+                x + w,
+                y + h,
+            )
+            face_mask = _crop_array(
+                (skin_mask.astype(np.uint8) * 255),
+                x, y,
+                x + w,
+                y + h,
+            )
+
+            if (
+                face_roi is not None
+                and face_mask is not None
+                and np.any(face_mask > 0)
+            ):
+                skin_pixels = face_roi[
+                    face_mask > 0
+                ]
+            else:
+                skin_pixels = np.empty(
+                    (0, 3),
+                    dtype=np.uint8,
+                )
+
+        skin_bgr = _median_color(
+            skin_pixels,
+            fallback=(145, 175, 220),
+        )
+        skin_rgb = _ensure_rgb(
+            _bgr_to_rgb(skin_bgr)
+        )
+
+        # --------------------------------------------------
+        # PELO - zona superior y lateral de la cara.
+        # --------------------------------------------------
+        hair_roi = _crop_array(
+            scan_bgr,
+            x - 0.12 * w,
+            y - 0.42 * h,
+            x + 1.12 * w,
+            y + 0.24 * h,
+        )
+        hair_skin_mask = _crop_array(
+            (skin_mask.astype(np.uint8) * 255),
+            x - 0.12 * w,
+            y - 0.42 * h,
+            x + 1.12 * w,
+            y + 0.24 * h,
+        )
+
+        if hair_roi is None:
+            hair_rgb = (75, 52, 38)
+        else:
+            hsv = cv2.cvtColor(
+                hair_roi,
+                cv2.COLOR_BGR2HSV,
+            )
+
+            saturation = hsv[..., 1]
+            value = hsv[..., 2]
+
+            not_skin = np.ones(
+                hair_roi.shape[:2],
+                dtype=bool,
+            )
+
+            if hair_skin_mask is not None:
+                not_skin = hair_skin_mask == 0
+
+            candidates = (
+                not_skin
+                & (saturation > 28)
+                & (value > 18)
+                & (value < 215)
+            )
+
+            pixels = hair_roi[candidates]
+
+            if len(pixels) < 80:
+                candidates = (
+                    not_skin
+                    & (value > 18)
+                    & (value < 210)
+                )
+                pixels = hair_roi[candidates]
+
+            hair_bgr = _median_color(
+                pixels,
+                fallback=(45, 65, 90),
+            )
+            hair_rgb = _ensure_rgb(
+                _bgr_to_rgb(hair_bgr)
+            )
+
+        # --------------------------------------------------
+        # OJOS - aproximación. Es el dato menos confiable,
+        # pero solo modifica la pequeña región de iris.
+        # --------------------------------------------------
+        eye_roi = _crop_array(
+            scan_bgr,
+            x + 0.17 * w,
+            y + 0.27 * h,
+            x + 0.83 * w,
+            y + 0.54 * h,
+        )
+
+        eye_rgb = (92, 72, 52)
+
+        if eye_roi is not None:
+            eye_hsv = cv2.cvtColor(
+                eye_roi,
+                cv2.COLOR_BGR2HSV,
+            )
+            saturation = eye_hsv[..., 1]
+            value = eye_hsv[..., 2]
+
+            candidates = (
+                (saturation > 20)
+                & (value > 25)
+                & (value < 195)
+            )
+
+            pixels = eye_roi[candidates]
+
+            if len(pixels) > 20:
+                eye_bgr = _median_color(
+                    pixels,
+                    fallback=(52, 72, 92),
+                )
+                eye_rgb = _ensure_rgb(
+                    _bgr_to_rgb(eye_bgr)
+                )
+
+        # --------------------------------------------------
+        # ANTEOJOS - estimación opcional; si no hay evidencia
+        # suficiente usamos un tono derivado del pelo.
+        # --------------------------------------------------
+        glasses_rgb = _darken_rgb(
+            hair_rgb,
+            0.35,
+        )
+
+        if eye_roi is not None:
+            eye_hsv = cv2.cvtColor(
+                eye_roi,
+                cv2.COLOR_BGR2HSV,
+            )
+            saturation = eye_hsv[..., 1]
+            value = eye_hsv[..., 2]
+
+            candidates = (
+                (value > 15)
+                & (value < 145)
+                & (saturation > 10)
+            )
+
+            pixels = eye_roi[candidates]
+
+            if len(pixels) > 30:
+                glasses_bgr = _median_color(
+                    pixels,
+                    fallback=_rgb_to_bgr(
+                        glasses_rgb
+                    ),
+                )
+                glasses_rgb = _ensure_rgb(
+                    _bgr_to_rgb(glasses_bgr)
+                )
+
+        beard_rgb = _darken_rgb(
+            hair_rgb,
+            0.18,
+        )
+
+        return {
+            "skin_rgb": skin_rgb,
+            "hair_rgb": hair_rgb,
+            "eye_rgb": _ensure_rgb(eye_rgb),
+            "glasses_rgb": _ensure_rgb(
+                glasses_rgb
+            ),
+            "beard_rgb": _ensure_rgb(
+                beard_rgb
+            ),
+        }
+
     def _capture_current_player(self):
         """
-        Flujo completo de Expo Heads:
+        Flujo definitivo de Expo Heads:
 
         1. Guarda captura RAW.
         2. Extrae/normaliza la cabeza objetivo.
         3. Guarda player_X_scan.png.
-        4. Analiza rasgos con face_analyzer.py.
-        5. Busca el mejor avatar con avatar_selector.py.
-        6. Copia el avatar ganador a data/images/igracX.png.
-        7. Muestra ese avatar como preview en el launcher.
+        4. face_analyzer.py detecta RASGOS.
+        5. AvatarSelector + avatars_catalog.json eligen ESTRUCTURA.
+        6. Se estiman COLORES desde el mismo scan.
+        7. Se recolorea el template ganador.
+        8. Se genera igrac21/igrac22 SIEMPRE en 70x70.
+        9. El preview muestra el avatar FINAL recoloreado.
+
+        El ranking y la base archivan posteriormente ese avatar final,
+        no el template de biblioteca.
         """
         if self.cam_frame is None:
             self.status_message = "NO HAY FRAME DE CAMARA."
@@ -1478,13 +2121,22 @@ class Launcher:
 
         frame = self.cam_frame.copy()
 
-        CAPTURES_DIR.mkdir(parents=True, exist_ok=True)
-        AVATARS_DIR.mkdir(parents=True, exist_ok=True)
+        CAPTURES_DIR.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+        AVATARS_DIR.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
 
         # --------------------------------------------------
         # 1) RAW para diagnóstico
         # --------------------------------------------------
-        raw_path = CAPTURES_DIR / f"player_{self.active_camera}_raw.png"
+        raw_path = (
+            CAPTURES_DIR
+            / f"player_{self.active_camera}_raw.png"
+        )
         cv2.imwrite(str(raw_path), frame)
 
         # --------------------------------------------------
@@ -1493,165 +2145,293 @@ class Launcher:
         head_crop = self._extract_head_crop(frame)
 
         if head_crop is None:
-            self.status_message = "NO SE PUDO RECORTAR LA CABEZA."
+            self.status_message = (
+                "NO SE PUDO RECORTAR LA CABEZA."
+            )
             return False
 
         # --------------------------------------------------
-        # 3) Scan normalizado para análisis
+        # 3) Scan normalizado 320x320
         # --------------------------------------------------
-        scan_path = CAPTURES_DIR / f"player_{self.active_camera}_scan.png"
+        scan_path = (
+            CAPTURES_DIR
+            / f"player_{self.active_camera}_scan.png"
+        )
 
         scan_img = cv2.resize(
             head_crop,
             (320, 320),
-            interpolation=cv2.INTER_AREA
+            interpolation=cv2.INTER_AREA,
         )
 
-        if not cv2.imwrite(str(scan_path), scan_img):
-            self.status_message = "NO SE PUDO GUARDAR EL ESCANEO."
+        if not cv2.imwrite(
+            str(scan_path),
+            scan_img,
+        ):
+            self.status_message = (
+                "NO SE PUDO GUARDAR EL ESCANEO."
+            )
             return False
 
         # --------------------------------------------------
-        # 4) Analizar rasgos
+        # 4) RASGOS ESTRUCTURALES
         # --------------------------------------------------
         try:
-            detected_traits = analyze_face(scan_path)
+            detected_traits = analyze_face(
+                scan_path
+            )
         except Exception as exc:
-            print(f"[Expo Heads] Error face_analyzer: {exc}")
-            self.status_message = f"ERROR ANALIZANDO ROSTRO: {exc}"
+            print(
+                f"[Expo Heads] Error face_analyzer: {exc}"
+            )
+            self.status_message = (
+                f"ERROR ANALIZANDO ROSTRO: {exc}"
+            )
             return False
 
         print()
-        print("=" * 60)
-        print(f"[JUGADOR {self.active_camera}] RASGOS DETECTADOS")
+        print("=" * 68)
+        print(
+            f"[JUGADOR {self.active_camera}] "
+            "RASGOS DETECTADOS"
+        )
+
         for key, value in detected_traits.items():
             print(f"  {key}: {value}")
 
         # --------------------------------------------------
-        # 5) Ranking / selección
+        # 5) MATCHING ESTRUCTURAL MEDIANTE JSON GLOBAL
         # --------------------------------------------------
         try:
             top_matches = self.avatar_selector.rank(
                 detected_traits,
-                top_k=3
+                top_k=3,
             )
         except Exception as exc:
-            print(f"[Expo Heads] Error avatar_selector: {exc}")
-            self.status_message = f"ERROR SELECCIONANDO AVATAR: {exc}"
+            print(
+                f"[Expo Heads] "
+                f"Error avatar_selector: {exc}"
+            )
+            self.status_message = (
+                f"ERROR SELECCIONANDO AVATAR: {exc}"
+            )
             return False
 
         if not top_matches:
-            self.status_message = "NO HAY AVATARES COMPATIBLES EN EL CATALOGO."
+            self.status_message = (
+                "NO HAY AVATARES COMPATIBLES "
+                "EN EL CATALOGO."
+            )
             return False
 
         best = top_matches[0]
 
         print()
         print("TOP MATCHES:")
-        for pos, candidate in enumerate(top_matches, 1):
+
+        for pos, candidate in enumerate(
+            top_matches,
+            1,
+        ):
             print(
                 f"  #{pos} {candidate.avatar_id} "
                 f"score={candidate.score:.2f} "
-                f"confidence={candidate.confidence:.1%} "
+                f"confidence="
+                f"{candidate.confidence:.1%} "
                 f"file={candidate.file}"
             )
-            breakdown = getattr(candidate, "breakdown", {})
+
+            breakdown = getattr(
+                candidate,
+                "breakdown",
+                {},
+            )
+
             if breakdown:
                 print(
                     "      "
-                    f"piel={breakdown.get('skin', 0):.1f}/40  "
-                    f"pelo={breakdown.get('hair', 0):.1f}/30  "
-                    f"anteojos={breakdown.get('glasses', 0):.1f}/20  "
-                    f"barba={breakdown.get('facial_hair', 0):.1f}/10"
+                    f"piel="
+                    f"{breakdown.get('skin', 0):.1f}/40  "
+                    f"pelo="
+                    f"{breakdown.get('hair', 0):.1f}/30  "
+                    f"anteojos="
+                    f"{breakdown.get('glasses', 0):.1f}/20  "
+                    f"barba="
+                    f"{breakdown.get('facial_hair', 0):.1f}/10"
                 )
-        print("=" * 60)
-        print()
 
         # --------------------------------------------------
-        # 6) Resolver path del avatar
+        # 6) Resolver template ganador
         # --------------------------------------------------
         catalog_path_value = Path(best.file)
-
-        # Soportamos tanto:
-        # "avatars/avatar_0001.png"
-        # como:
-        # "data/avatars/avatar_0001.png"
-        # como paths absolutos.
         candidate_paths = []
 
         if catalog_path_value.is_absolute():
-            candidate_paths.append(catalog_path_value)
+            candidate_paths.append(
+                catalog_path_value
+            )
         else:
             candidate_paths.extend([
                 BASE_DIR / catalog_path_value,
-                BASE_DIR / "data" / catalog_path_value,
-                AVATARS_DIR / catalog_path_value.name,
+                BASE_DIR
+                / "data"
+                / catalog_path_value,
+                AVATARS_DIR
+                / catalog_path_value.name,
             ])
 
         selected_avatar_path = next(
-            (p for p in candidate_paths if p.is_file()),
-            None
+            (
+                path
+                for path in candidate_paths
+                if path.is_file()
+            ),
+            None,
         )
 
         if selected_avatar_path is None:
-            print("[Expo Heads] Paths probados:")
-            for p in candidate_paths:
-                print(" ", p)
+            print(
+                "[Expo Heads] Paths probados:"
+            )
+            for path in candidate_paths:
+                print(" ", path)
 
             self.status_message = (
-                f"FALTA PNG DEL AVATAR: {best.avatar_id}"
+                f"FALTA PNG DEL AVATAR: "
+                f"{best.avatar_id}"
             )
             return False
 
         # --------------------------------------------------
-        # 7) Copiar avatar ganador al nombre que espera el EXE
+        # 7) COLORES PERSONALIZADOS
+        # --------------------------------------------------
+        try:
+            detected_colors = (
+                self._estimate_avatar_colors(
+                    scan_img
+                )
+            )
+        except Exception as exc:
+            print(
+                f"[Expo Heads] "
+                f"Error detectando colores: {exc}"
+            )
+            self.status_message = (
+                f"ERROR DETECTANDO COLORES: {exc}"
+            )
+            return False
+
+        print()
+        print("COLORES DETECTADOS:")
+
+        for key, value in detected_colors.items():
+            print(f"  {key}: {value}")
+
+        # --------------------------------------------------
+        # 8) RECOLOREAR + GENERAR SLOT FINAL 70x70
         # --------------------------------------------------
         runtime_avatar = (
             RUNTIME_PLAYER_AVATAR_P1
             if self.active_camera == 1
             else RUNTIME_PLAYER_AVATAR_P2
         )
-        game_path = BASE_DIR.joinpath(*runtime_avatar.split("/"))
-        game_path.parent.mkdir(parents=True, exist_ok=True)
+
+        game_path = BASE_DIR.joinpath(
+            *runtime_avatar.split("/")
+        )
+        game_path.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
 
         try:
-            shutil.copy2(selected_avatar_path, game_path)
+            final_avatar_path, recolor_mode = (
+                recolor_avatar_template(
+                    selected_avatar_path,
+                    game_path,
+                    detected_colors,
+                )
+            )
         except Exception as exc:
-            self.status_message = f"ERROR COPIANDO AVATAR: {exc}"
+            print(
+                f"[Expo Heads] "
+                f"Error recoloreando avatar: {exc}"
+            )
+            self.status_message = (
+                f"ERROR RECOLOREANDO AVATAR: {exc}"
+            )
             return False
 
+        print()
+        print(
+            f"[RECOLOR] template="
+            f"{best.avatar_id}"
+        )
+        print(
+            f"[RECOLOR] modo={recolor_mode}"
+        )
+        print(
+            f"[RECOLOR] salida="
+            f"{final_avatar_path}"
+        )
+        print(
+            f"[RECOLOR] tamaño final="
+            f"{AVATAR_OUTPUT_SIZE}x"
+            f"{AVATAR_OUTPUT_SIZE}"
+        )
+        print("=" * 68)
+        print()
+
         # --------------------------------------------------
-        # 8) Preview del avatar elegido
+        # 9) Preview DEL RESULTADO FINAL, no del template
         # --------------------------------------------------
         try:
             avatar_preview = pygame.image.load(
-                str(selected_avatar_path)
+                str(final_avatar_path)
             ).convert_alpha()
 
-            # NEAREST para respetar pixel art.
-            avatar_preview = pygame.transform.scale(
-                avatar_preview,
-                (140, 140)
+            avatar_preview = (
+                pygame.transform.scale(
+                    avatar_preview,
+                    (140, 140),
+                )
             )
         except Exception as exc:
-            self.status_message = f"ERROR CARGANDO PREVIEW: {exc}"
+            self.status_message = (
+                f"ERROR CARGANDO PREVIEW: {exc}"
+            )
             return False
 
         if self.active_camera == 1:
             self.photo_p1 = avatar_preview
-            self.avatar_p1 = str(selected_avatar_path)
+            self.avatar_p1 = str(
+                final_avatar_path
+            )
             self.avatar_match_p1 = best
         else:
             self.photo_p2 = avatar_preview
-            self.avatar_p2 = str(selected_avatar_path)
+            self.avatar_p2 = str(
+                final_avatar_path
+            )
             self.avatar_match_p2 = best
+
+        mode_label = {
+            "semantic": "COLOR OK",
+            "legacy_hsv": "COLOR POC",
+            "passthrough": "SIN MARCADORES",
+        }.get(
+            recolor_mode,
+            recolor_mode.upper(),
+        )
 
         self.status_message = (
             f"AVATAR: {best.avatar_id} - "
-            f"{best.confidence:.0%} MATCH"
+            f"{best.confidence:.0%} MATCH - "
+            f"{mode_label}"
         )
 
         return True
+
 
     def _screen_camera(self, events):
         self.screen.fill(BLACK)
