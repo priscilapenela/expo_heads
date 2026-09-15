@@ -144,6 +144,192 @@ AVATAR_MARKERS = {
 }
 
 
+# ==========================================
+# CHECK COLOR 1A - PALETAS CANÓNICAS
+# ==========================================
+# En vez de recolorear con el RGB crudo de la webcam, el scan se usa para
+# clasificar cada zona en una paleta finita y estable. Esto evita violetas,
+# grises o tonos "sucios" provocados por luz ambiente, reflejos y promedios.
+
+SKIN_COLOR_PALETTE = {
+    "skin_01_porcelain": (255, 211, 174),
+    "skin_02_fair": (250, 190, 145),
+    "skin_03_light": (235, 164, 116),
+    "skin_04_warm": (216, 142, 92),
+    "skin_05_olive": (190, 126, 82),
+    "skin_06_tan": (165, 101, 63),
+    "skin_07_brown": (133, 76, 48),
+    "skin_08_deep": (104, 57, 39),
+    "skin_09_dark": (78, 43, 32),
+    "skin_10_ebony": (57, 32, 27),
+}
+
+HAIR_COLOR_PALETTE = {
+    "hair_01_black": (30, 23, 24),
+    "hair_02_soft_black": (49, 38, 37),
+    "hair_03_dark_brown": (68, 42, 31),
+    "hair_04_brown": (101, 59, 38),
+    "hair_05_chestnut": (126, 69, 38),
+    "hair_06_light_brown": (154, 103, 62),
+    "hair_07_dark_blond": (170, 128, 70),
+    "hair_08_blond": (218, 175, 94),
+    "hair_09_light_blond": (244, 214, 143),
+    "hair_10_auburn": (154, 61, 32),
+    "hair_11_copper": (199, 78, 34),
+    "hair_12_gray": (132, 131, 137),
+    "hair_13_silver": (193, 190, 193),
+}
+
+IRIS_COLOR_PALETTE = {
+    "iris_01_near_black": (32, 23, 20),
+    "iris_02_dark_brown": (59, 37, 26),
+    "iris_03_medium_brown": (106, 62, 40),
+    "iris_04_honey": (154, 106, 47),
+    "iris_05_hazel": (123, 113, 55),
+    "iris_06_amber": (180, 122, 40),
+    "iris_07_green": (79, 123, 69),
+    "iris_08_gray_green": (102, 122, 101),
+    "iris_09_blue": (62, 120, 168),
+    "iris_10_gray_blue": (111, 135, 150),
+}
+
+FRAME_COLOR_PALETTE = {
+    "frame_black": (24, 24, 27),
+    "frame_graphite": (66, 69, 76),
+    "frame_brown": (90, 53, 35),
+    "frame_tortoise": (129, 72, 31),
+    "frame_blue": (34, 77, 145),
+    "frame_cyan": (29, 150, 180),
+    "frame_red": (160, 42, 45),
+    "frame_burgundy": (104, 31, 48),
+    "frame_violet": (105, 52, 137),
+    "frame_pink": (190, 73, 116),
+    "frame_green": (52, 117, 72),
+    "frame_gold": (198, 148, 41),
+    "frame_silver": (176, 184, 194),
+}
+
+SKIN_SEMANTIC_MAP = {
+    "very_light": "skin_01_porcelain",
+    "porcelain": "skin_01_porcelain",
+    "fair": "skin_02_fair",
+    "light": "skin_03_light",
+    "light_medium": "skin_04_warm",
+    "medium_light": "skin_04_warm",
+    "medium": "skin_04_warm",
+    "warm": "skin_04_warm",
+    "olive": "skin_05_olive",
+    "tan": "skin_06_tan",
+    "brown": "skin_07_brown",
+    "deep": "skin_08_deep",
+    "dark": "skin_09_dark",
+    "very_dark": "skin_10_ebony",
+    "ebony": "skin_10_ebony",
+}
+
+HAIR_SEMANTIC_MAP = {
+    "black": "hair_01_black",
+    "soft_black": "hair_02_soft_black",
+    "very_dark_brown": "hair_02_soft_black",
+    "dark_brown": "hair_03_dark_brown",
+    "brown": "hair_04_brown",
+    "medium_brown": "hair_04_brown",
+    "chestnut": "hair_05_chestnut",
+    "light_brown": "hair_06_light_brown",
+    "dark_blond": "hair_07_dark_blond",
+    "dark_blonde": "hair_07_dark_blond",
+    "blond": "hair_08_blond",
+    "blonde": "hair_08_blond",
+    "light_blond": "hair_09_light_blond",
+    "light_blonde": "hair_09_light_blond",
+    "auburn": "hair_10_auburn",
+    "red": "hair_10_auburn",
+    "red_brown": "hair_10_auburn",
+    "copper": "hair_11_copper",
+    "ginger": "hair_11_copper",
+    "gray": "hair_12_gray",
+    "grey": "hair_12_gray",
+    "silver": "hair_13_silver",
+    "white": "hair_13_silver",
+}
+
+IRIS_SEMANTIC_MAP = {
+    "black": "iris_01_near_black",
+    "near_black": "iris_01_near_black",
+    "dark_brown": "iris_02_dark_brown",
+    "brown": "iris_03_medium_brown",
+    "medium_brown": "iris_03_medium_brown",
+    "honey": "iris_04_honey",
+    "hazel": "iris_05_hazel",
+    "amber": "iris_06_amber",
+    "green": "iris_07_green",
+    "gray_green": "iris_08_gray_green",
+    "grey_green": "iris_08_gray_green",
+    "blue": "iris_09_blue",
+    "gray_blue": "iris_10_gray_blue",
+    "grey_blue": "iris_10_gray_blue",
+    "gray": "iris_10_gray_blue",
+    "grey": "iris_10_gray_blue",
+}
+
+
+def _normalize_semantic_label(value):
+    if value is None:
+        return None
+    label = str(value).strip().lower().replace("-", "_").replace(" ", "_")
+    if label in {"", "none", "null", "unknown", "n/a", "na"}:
+        return None
+    return label
+
+
+def _rgb_to_lab_vector(rgb):
+    rgb = _ensure_rgb(rgb)
+    if cv2 is None:
+        return np.array(rgb, dtype=np.float32)
+    sample = np.array([[rgb]], dtype=np.uint8)
+    return cv2.cvtColor(sample, cv2.COLOR_RGB2LAB)[0, 0].astype(np.float32)
+
+
+def _nearest_palette_entry(rgb, palette):
+    target = _rgb_to_lab_vector(rgb)
+    best_name = None
+    best_rgb = None
+    best_distance = float("inf")
+
+    for name, candidate_rgb in palette.items():
+        candidate = _rgb_to_lab_vector(candidate_rgb)
+        distance = float(np.linalg.norm(target - candidate))
+        if distance < best_distance:
+            best_name = name
+            best_rgb = candidate_rgb
+            best_distance = distance
+
+    return best_name, _ensure_rgb(best_rgb)
+
+
+def _resolve_palette_color(
+    raw_rgb,
+    palette,
+    semantic_value=None,
+    semantic_map=None,
+    default_name=None,
+):
+    semantic_label = _normalize_semantic_label(semantic_value)
+
+    if semantic_label and semantic_map:
+        palette_name = semantic_map.get(semantic_label)
+        if palette_name in palette:
+            return palette_name, _ensure_rgb(palette[palette_name]), "semantic"
+
+    if raw_rgb is not None:
+        name, rgb = _nearest_palette_entry(raw_rgb, palette)
+        return name, rgb, "nearest"
+
+    if default_name is None or default_name not in palette:
+        default_name = next(iter(palette))
+    return default_name, _ensure_rgb(palette[default_name]), "default"
+
+
 def _crop_array(img, x1, y1, x2, y2):
     h, w = img.shape[:2]
     x1 = max(0, min(w, int(round(x1))))
@@ -799,15 +985,27 @@ def format_db_date(value):
 
 
 def _result_info_paths():
-    """Lista rutas posibles sin crear, vaciar ni corregir archivos internos."""
+    """
+    Lista todas las fuentes válidas de resultado del juego.
+
+    El EXE actual deja data/info_files/cijeli_game_łnfo.txt vacío al finalizar,
+    pero sí escribe el marcador real en data/replays/recent/*nfo.txt.
+    Por eso se monitorean ambas ubicaciones.
+    """
     paths = [RESULT_INFO_FILE]
+
     if INFO_DIR.is_dir():
         for candidate in INFO_DIR.glob("cijeli_game_*nfo.txt"):
-            if candidate not in paths:
+            if candidate.is_file() and candidate not in paths:
                 paths.append(candidate)
+
+    replay_dir = BASE_DIR / "data" / "replays" / "recent"
+    if replay_dir.is_dir():
+        for candidate in replay_dir.glob("*nfo.txt"):
+            if candidate.is_file() and candidate not in paths:
+                paths.append(candidate)
+
     return paths
-
-
 def snapshot_match_results():
     """Toma una huella de sólo lectura para no aceptar un resultado anterior."""
     snapshot = {}
@@ -2004,28 +2202,24 @@ class Launcher:
 
         return canvas
 
-    def _estimate_avatar_colors(self, scan_bgr):
+    def _estimate_avatar_colors(self, scan_bgr, detected_traits=None):
         """
-        Estima los colores que personalizarán el template seleccionado.
+        CHECK COLOR 1A.
 
-        El matching estructural sigue perteneciendo a face_analyzer.py +
-        AvatarSelector. Esta función SOLO obtiene colores del mismo scan.
-
-        Retorna:
-            skin_rgb
-            hair_rgb
-            eye_rgb
-            glasses_rgb
-            beard_rgb
+        Estima colores crudos desde el scan, pero NO los aplica directamente.
+        Cada zona se cuantiza a una paleta canónica. Cuando face_analyzer ya
+        detectó una categoría semántica (por ejemplo hair_color=dark_brown),
+        esa categoría tiene prioridad sobre el RGB de la webcam.
         """
         if scan_bgr is None or scan_bgr.size == 0:
             raise RuntimeError("El scan está vacío.")
+
+        detected_traits = detected_traits or {}
 
         gray = cv2.cvtColor(scan_bgr, cv2.COLOR_BGR2GRAY)
         equalized = cv2.equalizeHist(gray)
 
         detected = []
-
         for cascade in self.face_cascades:
             for source in (gray, equalized):
                 faces = cascade.detectMultiScale(
@@ -2035,24 +2229,14 @@ class Launcher:
                     minSize=(55, 55),
                     flags=cv2.CASCADE_SCALE_IMAGE,
                 )
-
                 for face in faces:
-                    detected.append(
-                        tuple(int(v) for v in face)
-                    )
+                    detected.append(tuple(int(v) for v in face))
 
         img_h, img_w = scan_bgr.shape[:2]
 
         if detected:
-            # El scan ya contiene únicamente la cabeza objetivo.
-            # Elegimos simplemente la cara de mayor superficie.
-            x, y, w, h = max(
-                detected,
-                key=lambda f: f[2] * f[3],
-            )
+            x, y, w, h = max(detected, key=lambda f: f[2] * f[3])
         else:
-            # Fallback seguro: el scan proviene de una cara ya validada por
-            # el detector del launcher, por lo que podemos usar el centro.
             x = int(img_w * 0.22)
             y = int(img_h * 0.17)
             w = int(img_w * 0.56)
@@ -2061,84 +2245,48 @@ class Launcher:
         skin_mask = _skin_mask_ycrcb(scan_bgr)
 
         # --------------------------------------------------
-        # PIEL - mejillas, evitando ojos/pelo.
+        # PIEL - color bruto desde mejillas.
         # --------------------------------------------------
         skin_pixels = []
-
         cheek_specs = [
-            (
-                x + 0.18 * w,
-                y + 0.46 * h,
-                x + 0.38 * w,
-                y + 0.73 * h,
-            ),
-            (
-                x + 0.62 * w,
-                y + 0.46 * h,
-                x + 0.82 * w,
-                y + 0.73 * h,
-            ),
+            (x + 0.18 * w, y + 0.46 * h, x + 0.38 * w, y + 0.73 * h),
+            (x + 0.62 * w, y + 0.46 * h, x + 0.82 * w, y + 0.73 * h),
         ]
 
         for x1, y1, x2, y2 in cheek_specs:
-            roi = _crop_array(
-                scan_bgr, x1, y1, x2, y2
-            )
+            roi = _crop_array(scan_bgr, x1, y1, x2, y2)
             roi_mask = _crop_array(
                 (skin_mask.astype(np.uint8) * 255),
                 x1, y1, x2, y2,
             )
-
             if roi is None or roi_mask is None:
                 continue
-
             valid = roi_mask > 0
             if np.any(valid):
                 skin_pixels.append(roi[valid])
 
         if skin_pixels:
-            skin_pixels = np.concatenate(
-                skin_pixels,
-                axis=0,
-            )
+            skin_pixels = np.concatenate(skin_pixels, axis=0)
         else:
-            face_roi = _crop_array(
-                scan_bgr,
-                x, y,
-                x + w,
-                y + h,
-            )
+            face_roi = _crop_array(scan_bgr, x, y, x + w, y + h)
             face_mask = _crop_array(
                 (skin_mask.astype(np.uint8) * 255),
-                x, y,
-                x + w,
-                y + h,
+                x, y, x + w, y + h,
             )
-
             if (
                 face_roi is not None
                 and face_mask is not None
                 and np.any(face_mask > 0)
             ):
-                skin_pixels = face_roi[
-                    face_mask > 0
-                ]
+                skin_pixels = face_roi[face_mask > 0]
             else:
-                skin_pixels = np.empty(
-                    (0, 3),
-                    dtype=np.uint8,
-                )
+                skin_pixels = np.empty((0, 3), dtype=np.uint8)
 
-        skin_bgr = _median_color(
-            skin_pixels,
-            fallback=(145, 175, 220),
-        )
-        skin_rgb = _ensure_rgb(
-            _bgr_to_rgb(skin_bgr)
-        )
+        skin_bgr = _median_color(skin_pixels, fallback=(145, 175, 220))
+        skin_raw_rgb = _ensure_rgb(_bgr_to_rgb(skin_bgr))
 
         # --------------------------------------------------
-        # PELO - zona superior y lateral de la cara.
+        # PELO - color bruto.
         # --------------------------------------------------
         hair_roi = _crop_array(
             scan_bgr,
@@ -2156,21 +2304,13 @@ class Launcher:
         )
 
         if hair_roi is None:
-            hair_rgb = (75, 52, 38)
+            hair_raw_rgb = (75, 52, 38)
         else:
-            hsv = cv2.cvtColor(
-                hair_roi,
-                cv2.COLOR_BGR2HSV,
-            )
-
+            hsv = cv2.cvtColor(hair_roi, cv2.COLOR_BGR2HSV)
             saturation = hsv[..., 1]
             value = hsv[..., 2]
 
-            not_skin = np.ones(
-                hair_roi.shape[:2],
-                dtype=bool,
-            )
-
+            not_skin = np.ones(hair_roi.shape[:2], dtype=bool)
             if hair_skin_mask is not None:
                 not_skin = hair_skin_mask == 0
 
@@ -2180,28 +2320,17 @@ class Launcher:
                 & (value > 18)
                 & (value < 215)
             )
-
             pixels = hair_roi[candidates]
 
             if len(pixels) < 80:
-                candidates = (
-                    not_skin
-                    & (value > 18)
-                    & (value < 210)
-                )
+                candidates = not_skin & (value > 18) & (value < 210)
                 pixels = hair_roi[candidates]
 
-            hair_bgr = _median_color(
-                pixels,
-                fallback=(45, 65, 90),
-            )
-            hair_rgb = _ensure_rgb(
-                _bgr_to_rgb(hair_bgr)
-            )
+            hair_bgr = _median_color(pixels, fallback=(45, 65, 90))
+            hair_raw_rgb = _ensure_rgb(_bgr_to_rgb(hair_bgr))
 
         # --------------------------------------------------
-        # OJOS - aproximación. Es el dato menos confiable,
-        # pero solo modifica la pequeña región de iris.
+        # OJOS - color bruto solo si hay evidencia suficiente.
         # --------------------------------------------------
         eye_roi = _crop_array(
             scan_bgr,
@@ -2211,47 +2340,35 @@ class Launcher:
             y + 0.54 * h,
         )
 
-        eye_rgb = (92, 72, 52)
+        eye_raw_rgb = None
+        eye_sample_count = 0
 
         if eye_roi is not None:
-            eye_hsv = cv2.cvtColor(
-                eye_roi,
-                cv2.COLOR_BGR2HSV,
-            )
+            eye_hsv = cv2.cvtColor(eye_roi, cv2.COLOR_BGR2HSV)
             saturation = eye_hsv[..., 1]
             value = eye_hsv[..., 2]
 
             candidates = (
-                (saturation > 20)
+                (saturation > 25)
                 & (value > 25)
-                & (value < 195)
+                & (value < 170)
             )
-
             pixels = eye_roi[candidates]
+            eye_sample_count = int(len(pixels))
 
-            if len(pixels) > 20:
-                eye_bgr = _median_color(
-                    pixels,
-                    fallback=(52, 72, 92),
-                )
-                eye_rgb = _ensure_rgb(
-                    _bgr_to_rgb(eye_bgr)
-                )
+            # El umbral anterior (>20) era demasiado permisivo.
+            if eye_sample_count >= 120:
+                eye_bgr = _median_color(pixels, fallback=(26, 37, 59))
+                eye_raw_rgb = _ensure_rgb(_bgr_to_rgb(eye_bgr))
 
         # --------------------------------------------------
-        # ANTEOJOS - estimación opcional; si no hay evidencia
-        # suficiente usamos un tono derivado del pelo.
+        # ANTEOJOS - estimación bruta; luego se cuantiza.
         # --------------------------------------------------
-        glasses_rgb = _darken_rgb(
-            hair_rgb,
-            0.35,
-        )
+        glasses_raw_rgb = None
+        glasses_sample_count = 0
 
-        if eye_roi is not None:
-            eye_hsv = cv2.cvtColor(
-                eye_roi,
-                cv2.COLOR_BGR2HSV,
-            )
+        if eye_roi is not None and detected_traits.get("glasses") is True:
+            eye_hsv = cv2.cvtColor(eye_roi, cv2.COLOR_BGR2HSV)
             saturation = eye_hsv[..., 1]
             value = eye_hsv[..., 2]
 
@@ -2260,45 +2377,120 @@ class Launcher:
                 & (value < 145)
                 & (saturation > 10)
             )
-
             pixels = eye_roi[candidates]
+            glasses_sample_count = int(len(pixels))
 
-            if len(pixels) > 30:
+            if glasses_sample_count >= 60:
                 glasses_bgr = _median_color(
                     pixels,
-                    fallback=_rgb_to_bgr(
-                        glasses_rgb
-                    ),
+                    fallback=(76, 69, 66),
                 )
-                glasses_rgb = _ensure_rgb(
-                    _bgr_to_rgb(glasses_bgr)
-                )
+                glasses_raw_rgb = _ensure_rgb(_bgr_to_rgb(glasses_bgr))
 
-        beard_rgb = _darken_rgb(
-            hair_rgb,
-            0.18,
+        # --------------------------------------------------
+        # CUANTIZACIÓN A PALETAS CANÓNICAS.
+        # --------------------------------------------------
+        skin_name, skin_rgb, skin_source = _resolve_palette_color(
+            skin_raw_rgb,
+            SKIN_COLOR_PALETTE,
+            semantic_value=detected_traits.get("skin_tone"),
+            semantic_map=SKIN_SEMANTIC_MAP,
+            default_name="skin_03_light",
+        )
+
+        hair_name, hair_rgb, hair_source = _resolve_palette_color(
+            hair_raw_rgb,
+            HAIR_COLOR_PALETTE,
+            semantic_value=detected_traits.get("hair_color"),
+            semantic_map=HAIR_SEMANTIC_MAP,
+            default_name="hair_03_dark_brown",
+        )
+
+        eye_name, eye_rgb, eye_source = _resolve_palette_color(
+            eye_raw_rgb,
+            IRIS_COLOR_PALETTE,
+            semantic_value=detected_traits.get("eye_color"),
+            semantic_map=IRIS_SEMANTIC_MAP,
+            default_name="iris_02_dark_brown",
+        )
+
+        if detected_traits.get("glasses") is True:
+            # Los píxeles alrededor de los ojos se contaminan fácilmente con
+            # piel, iris y reflejos. Solo permitimos marcos de color cuando la
+            # muestra tiene saturación clara; si no, usamos negro/grafito/plata.
+            if glasses_raw_rgb is not None:
+                sample = np.array([[glasses_raw_rgb]], dtype=np.uint8)
+                sample_hsv = cv2.cvtColor(sample, cv2.COLOR_RGB2HSV)[0, 0]
+                frame_saturation = int(sample_hsv[1])
+                frame_value = int(sample_hsv[2])
+            else:
+                frame_saturation = 0
+                frame_value = 0
+
+            if glasses_raw_rgb is None:
+                glasses_name = "frame_graphite"
+                glasses_rgb = FRAME_COLOR_PALETTE[glasses_name]
+                glasses_source = "default"
+            elif frame_saturation < 90:
+                neutral_frames = {
+                    "frame_black": FRAME_COLOR_PALETTE["frame_black"],
+                    "frame_graphite": FRAME_COLOR_PALETTE["frame_graphite"],
+                    "frame_silver": FRAME_COLOR_PALETTE["frame_silver"],
+                    "frame_brown": FRAME_COLOR_PALETTE["frame_brown"],
+                }
+                glasses_name, glasses_rgb = _nearest_palette_entry(
+                    glasses_raw_rgb,
+                    neutral_frames,
+                )
+                glasses_source = "nearest_neutral"
+            else:
+                glasses_name, glasses_rgb, glasses_source = _resolve_palette_color(
+                    glasses_raw_rgb,
+                    FRAME_COLOR_PALETTE,
+                    default_name="frame_graphite",
+                )
+        else:
+            glasses_name = "frame_graphite"
+            glasses_rgb = FRAME_COLOR_PALETTE[glasses_name]
+            glasses_source = "default"
+
+        # Barba coherente con el cabello: mismo color base, ligeramente más oscuro.
+        beard_rgb = _ensure_rgb(_darken_rgb(hair_rgb, 0.12))
+
+        print(
+            "[COLOR PALETTE] "
+            f"skin={skin_name}({skin_source}) "
+            f"hair={hair_name}({hair_source}) "
+            f"eyes={eye_name}({eye_source}) "
+            f"glasses={glasses_name}({glasses_source})"
+        )
+        print(
+            "[COLOR RAW] "
+            f"skin={skin_raw_rgb} hair={hair_raw_rgb} "
+            f"eyes={eye_raw_rgb}({eye_sample_count}px) "
+            f"glasses={glasses_raw_rgb}({glasses_sample_count}px)"
         )
 
         return {
-            "skin_rgb": skin_rgb,
-            "hair_rgb": hair_rgb,
+            "skin_rgb": _ensure_rgb(skin_rgb),
+            "hair_rgb": _ensure_rgb(hair_rgb),
             "eye_rgb": _ensure_rgb(eye_rgb),
-            "glasses_rgb": _ensure_rgb(
-                glasses_rgb
-            ),
-            "beard_rgb": _ensure_rgb(
-                beard_rgb
-            ),
+            "glasses_rgb": _ensure_rgb(glasses_rgb),
+            "beard_rgb": beard_rgb,
+            "skin_palette": skin_name,
+            "hair_palette": hair_name,
+            "eye_palette": eye_name,
+            "glasses_palette": glasses_name,
         }
+
 
     def _sanitize_detected_traits(self, detected_traits):
         """
-        Limpia falsos positivos antes del selector.
+        Limpia falsos positivos antes del selector y normaliza metadatos.
 
-        En particular, los anteojos son un rasgo demasiado fuerte para dejar
-        que un TRUE de baja confianza fuerce un avatar con lentes. Los FALSE
-        se conservan: si la cámara ve claramente que no hay anteojos, el
-        selector filtra todos los templates con lentes cuando existen opciones.
+        Importante: no convertimos un booleano estructural incierto a False
+        porque eso inventaría información. Los None no estructurales sí se
+        normalizan para que el diagnóstico sea más limpio.
         """
         cleaned = dict(detected_traits or {})
         confidence = cleaned.get("_confidence")
@@ -2311,8 +2503,8 @@ class Launcher:
             except (TypeError, ValueError):
                 return default
 
-        # Anteojos: TRUE requiere evidencia alta. Si es dudoso queda None y no
-        # domina el matching; FALSE sigue siendo una señal estructural fuerte.
+        # Anteojos: TRUE requiere evidencia alta. Un resultado dudoso queda
+        # como None deliberadamente para que el selector lo ignore.
         if cleaned.get("glasses") is True and conf("glasses") < 0.90:
             print(
                 f"[TRAITS] glasses=True descartado por baja confianza "
@@ -2320,7 +2512,7 @@ class Launcher:
             )
             cleaned["glasses"] = None
 
-        # Vello facial: evita bigotes/barbas inventados por sombras o cabello.
+        # Vello facial.
         if cleaned.get("beard") is True and conf("beard") < 0.70:
             print(f"[TRAITS] beard=True descartado ({conf('beard'):.2f})")
             cleaned["beard"] = False
@@ -2328,14 +2520,39 @@ class Launcher:
             print(f"[TRAITS] moustache=True descartado ({conf('moustache'):.2f})")
             cleaned["moustache"] = False
 
-        # Calvicie también requiere evidencia razonable.
+        # Calvicie.
         if cleaned.get("bald") is True and conf("bald") < 0.78:
             print(f"[TRAITS] bald=True descartado ({conf('bald'):.2f})")
             cleaned["bald"] = False
 
-        # No hacemos competir datos internos contra los rasgos del catálogo.
+        # Normalizaciones seguras de campos que antes quedaban en None.
+        if cleaned.get("freckles") is None:
+            cleaned["freckles"] = False
+
+        if cleaned.get("age_group") is None:
+            cleaned["age_group"] = "unknown"
+
+        if cleaned.get("eye_color") is None:
+            cleaned["eye_color"] = "unknown"
+
+        if cleaned.get("skin_tone") is None:
+            cleaned["skin_tone"] = "unknown"
+
+        if cleaned.get("hair_color") is None:
+            cleaned["hair_color"] = "unknown"
+
+        # Coherencia del estilo de vello facial.
+        if cleaned.get("facial_hair_style") is None:
+            if cleaned.get("beard") is True:
+                cleaned["facial_hair_style"] = "beard"
+            elif cleaned.get("moustache") is True:
+                cleaned["facial_hair_style"] = "moustache"
+            elif cleaned.get("beard") is False and cleaned.get("moustache") is False:
+                cleaned["facial_hair_style"] = "none"
+
         cleaned["_confidence"] = confidence
         return cleaned
+
 
     def _capture_current_player(self):
         """
@@ -2552,7 +2769,8 @@ class Launcher:
         try:
             detected_colors = (
                 self._estimate_avatar_colors(
-                    scan_img
+                    scan_img,
+                    detected_traits,
                 )
             )
         except Exception as exc:

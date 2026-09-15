@@ -1,0 +1,53 @@
+EXPO HEADS - CHECK HAIR 2C - AUDITORÍA STAGE 1
+================================================================
+Avatares totales: 39
+Con hair_shape_family respaldado por metadata/traits: 19
+Pendientes de revisión visual del PNG: 20
+
+ANOTADOS / MIGRADOS:
+- avatar_0012: family=none variant=bald length=bald texture=none tied=none
+- avatar_0014: family=braids variant=braids_unspecified length=long texture=braided tied=unknown
+- avatar_0015: family=messy_short variant=spiky_short_unspecified length=short texture=spiky tied=none
+- avatar_0018: family=undercut variant=undercut length=short texture=straight tied=none
+- avatar_0019: family=ponytail variant=ponytail length=long texture=straight tied=ponytail
+- avatar_0022: family=none variant=bald length=bald texture=none tied=none
+- avatar_0024: family=braids variant=braids length=long texture=braided tied=unknown
+- avatar_0025: family=undercut variant=undercut length=short texture=straight tied=none
+- avatar_0029: family=ponytail variant=ponytail length=medium texture=wavy tied=ponytail
+- avatar_0030: family=messy_short variant=spiky_short length=short texture=spiky tied=none
+- avatar_0031: family=locs variant=dreadlocks length=long texture=locs tied=unknown
+- avatar_0032: family=long_layered variant=layered_medium length=medium texture=wavy tied=none
+- avatar_0033: family=afro variant=afro length=medium texture=curly tied=none
+- avatar_0034: family=ponytail variant=high_ponytail length=long texture=wavy tied=ponytail
+- avatar_0035: family=none variant=bald length=bald texture=none tied=none
+- avatar_0036: family=braids variant=braids_cornrows length=long texture=braided tied=unknown
+- avatar_0037: family=long_loose variant=shoulder_length_straight length=long texture=straight tied=none
+- avatar_0038: family=messy_medium variant=messy_medium length=medium texture=wavy tied=none
+- avatar_0039: family=bun variant=high_bun_ponytail length=long texture=wavy tied=bun
+
+PENDIENTES DE REVISIÓN VISUAL:
+- avatar_0001: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0002: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0003: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0004: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0005: length=medium texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0006: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0007: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0008: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0009: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0010: length=long texture=wavy (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0011: length=short texture=curly (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0013: length=short texture=wavy (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0016: length=short texture=curly (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0017: length=medium texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0020: length=long texture=wavy (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0021: length=short texture=curly (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0023: length=medium texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0026: length=short texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0027: length=short texture=curly (no hay metadata suficiente para asignar familia sin inventar)
+- avatar_0028: length=medium texture=straight (no hay metadata suficiente para asignar familia sin inventar)
+
+NOTA:
+Los campos bangs, parting, hair_volume y face_framing sólo se completaron
+cuando la metadata existente permitía hacerlo con seguridad. No se inventaron
+valores para los PNG que no tienen descripción visual suficiente.

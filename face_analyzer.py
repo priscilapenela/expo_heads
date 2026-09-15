@@ -353,16 +353,401 @@ def _estimate_hair_texture(top_region, ref_bgr):
     local_std = np.sqrt(np.maximum(mean2 - mean * mean, 0.0))
     texture_strength = float(np.median(local_std[similar])) if np.any(similar) else 0.0
 
-    # Curly hair creates many short internal edges and local brightness changes.
-    if edge_in_hair >= 0.052 or texture_strength >= 8.5:
+    # CHECK HAIR 2F:
+    # Los bordes altos por sí solos no alcanzan para declarar curly: flequillo,
+    # reflejos y anteojos pueden generar muchos edges. Exigimos también
+    # variación local real del cabello.
+    if (
+        texture_strength >= 8.8
+        or (edge_in_hair >= 0.085 and texture_strength >= 6.8)
+    ):
         return "curly", 0.74
-    if edge_in_hair >= 0.032 or texture_strength >= 5.0:
-        return "wavy", 0.62
-    return "straight", 0.55
+
+    if (
+        texture_strength >= 4.6
+        or edge_in_hair >= 0.040
+    ):
+        return "wavy", 0.68
+
+    return "straight", 0.58
+
+
+
+def _hair_similarity_mask(region, ref_bgr, tolerance=62):
+    """Máscara simple de color similar al pelo de referencia."""
+    if region is None or region.size == 0 or ref_bgr is None:
+        return None
+
+    arr = region.astype(np.float32)
+    ref = np.asarray(ref_bgr, dtype=np.float32)
+    dist = np.linalg.norm(arr - ref.reshape(1, 1, 3), axis=2)
+    return dist < tolerance
+
+
+def _hair_region_presence(region, ref_bgr, tolerance=62, require_texture=False):
+    """
+    Ocupación aproximada de cabello dentro de una región.
+
+    Si require_texture=True, exige además variación local para reducir falsos
+    positivos de fondos/ropa de color parecido.
+    """
+    mask = _hair_similarity_mask(region, ref_bgr, tolerance=tolerance)
+    if mask is None or mask.size == 0:
+        return 0.0
+
+    if not require_texture:
+        return float(mask.mean())
+
+    gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    mean = cv2.blur(gray, (5, 5))
+    mean2 = cv2.blur(gray * gray, (5, 5))
+    local_std = np.sqrt(np.maximum(mean2 - mean * mean, 0.0))
+    textured = local_std > 8.0
+
+    return float((mask & textured).mean())
+
+
+def _estimate_hair_v2_details(
+    img_bgr,
+    face_box,
+    ref_color,
+    hair_length,
+    hair_texture,
+):
+    """
+    CHECK HAIR 2D.
+
+    Agrega una descripción más fina del peinado usando únicamente geometría
+    frontal + color/texture del cabello ya estimado.
+
+    Campos:
+      - hair_shape_family
+      - hair_volume
+      - bangs
+      - hair_tied
+      - parting
+      - face_framing
+
+    Es deliberadamente conservador: si una señal no es suficientemente clara,
+    devuelve None y baja confianza en vez de inventar un peinado.
+    """
+    x, y, w, h = face_box
+
+    if hair_length == "bald" or ref_color is None:
+        return {
+            "hair_shape_family": "none",
+            "hair_volume": "low",
+            "bangs": "none",
+            "hair_tied": "none",
+            "parting": "none",
+            "face_framing": "none",
+            "_confidence": {
+                "hair_shape_family": 0.92,
+                "hair_volume": 0.90,
+                "bangs": 0.90,
+                "hair_tied": 0.90,
+                "parting": 0.88,
+                "face_framing": 0.90,
+            },
+        }
+
+    # --------------------------------------------------
+    # 1) VOLUMEN GENERAL
+    # --------------------------------------------------
+    top_outer = _crop(
+        img_bgr,
+        x - 0.22*w,
+        y - 0.58*h,
+        x + 1.22*w,
+        y + 0.12*h,
+    )
+    top_presence = _hair_region_presence(
+        top_outer,
+        ref_color,
+        require_texture=True,
+    )
+
+    side_left = _crop(
+        img_bgr,
+        x - 0.28*w,
+        y + 0.05*h,
+        x + 0.12*w,
+        y + 0.82*h,
+    )
+    side_right = _crop(
+        img_bgr,
+        x + 0.88*w,
+        y + 0.05*h,
+        x + 1.28*w,
+        y + 0.82*h,
+    )
+
+    side_left_presence = _hair_region_presence(
+        side_left, ref_color, require_texture=True
+    )
+    side_right_presence = _hair_region_presence(
+        side_right, ref_color, require_texture=True
+    )
+    side_presence = (side_left_presence + side_right_presence) / 2.0
+
+    if top_presence >= 0.20 or side_presence >= 0.13:
+        hair_volume = "high"
+        volume_conf = 0.72
+    elif top_presence <= 0.075 and side_presence <= 0.055:
+        hair_volume = "low"
+        volume_conf = 0.66
+    else:
+        hair_volume = "medium"
+        volume_conf = 0.68
+
+    # --------------------------------------------------
+    # 2) FACE FRAMING
+    # --------------------------------------------------
+    frame_left = _crop(
+        img_bgr,
+        x - 0.10*w,
+        y + 0.18*h,
+        x + 0.15*w,
+        y + 0.96*h,
+    )
+    frame_right = _crop(
+        img_bgr,
+        x + 0.85*w,
+        y + 0.18*h,
+        x + 1.10*w,
+        y + 0.96*h,
+    )
+
+    frame_l = _hair_region_presence(
+        frame_left, ref_color, require_texture=True
+    )
+    frame_r = _hair_region_presence(
+        frame_right, ref_color, require_texture=True
+    )
+    frame_bilateral = min(frame_l, frame_r)
+    frame_mean = (frame_l + frame_r) / 2.0
+
+    if frame_bilateral >= 0.090 or frame_mean >= 0.125:
+        face_framing = "strong"
+        framing_conf = 0.72
+    elif frame_mean >= 0.045:
+        face_framing = "light"
+        framing_conf = 0.64
+    else:
+        face_framing = "none"
+        framing_conf = 0.62
+
+    # --------------------------------------------------
+    # 3) FLEQUILLO + PARTIDO
+    # --------------------------------------------------
+    # Dividimos la franja superior de la cara en izquierda/centro/derecha.
+    forehead_left = _crop(
+        img_bgr,
+        x + 0.08*w,
+        y - 0.03*h,
+        x + 0.38*w,
+        y + 0.28*h,
+    )
+    forehead_center = _crop(
+        img_bgr,
+        x + 0.38*w,
+        y - 0.03*h,
+        x + 0.62*w,
+        y + 0.28*h,
+    )
+    forehead_right = _crop(
+        img_bgr,
+        x + 0.62*w,
+        y - 0.03*h,
+        x + 0.92*w,
+        y + 0.28*h,
+    )
+
+    fh_l = _hair_region_presence(forehead_left, ref_color)
+    fh_c = _hair_region_presence(forehead_center, ref_color)
+    fh_r = _hair_region_presence(forehead_right, ref_color)
+    fh_mean = (fh_l + fh_c + fh_r) / 3.0
+
+    bangs = None
+    bangs_conf = 0.32
+
+    # Cortina: cabello a ambos lados con apertura central.
+    if min(fh_l, fh_r) >= 0.12 and fh_c <= min(fh_l, fh_r) * 0.65:
+        bangs = "curtain"
+        bangs_conf = 0.68
+
+    # Recto: ocupación clara y bastante uniforme sobre la frente.
+    elif fh_mean >= 0.16 and max(fh_l, fh_c, fh_r) - min(fh_l, fh_c, fh_r) <= 0.10:
+        bangs = "straight"
+        bangs_conf = 0.66
+
+    # Lateral: un costado domina claramente.
+    elif max(fh_l, fh_r) >= 0.16 and abs(fh_l - fh_r) >= 0.08:
+        bangs = "side"
+        bangs_conf = 0.62
+
+    elif fh_mean >= 0.075:
+        bangs = "short"
+        bangs_conf = 0.56
+
+    elif fh_mean <= 0.035:
+        bangs = "none"
+        bangs_conf = 0.60
+
+    parting = None
+    parting_conf = 0.30
+
+    # Curtain bangs implican una apertura central aunque la pose de la cabeza
+    # haga que un lado ocupe más píxeles que el otro.
+    if bangs == "curtain":
+        parting = "center"
+        parting_conf = 0.66
+    elif fh_c <= 0.055 and min(fh_l, fh_r) >= 0.085:
+        parting = "center"
+        parting_conf = 0.64
+    elif abs(fh_l - fh_r) >= 0.095 and max(fh_l, fh_r) >= 0.12:
+        parting = "side"
+        parting_conf = 0.60
+    elif fh_mean <= 0.05:
+        parting = "none"
+        parting_conf = 0.52
+
+    # --------------------------------------------------
+    # 4) RECOGIDO
+    # --------------------------------------------------
+    # Bun: blob centrado por encima de la caja facial.
+    bun_region = _crop(
+        img_bgr,
+        x + 0.20*w,
+        y - 0.78*h,
+        x + 0.80*w,
+        y - 0.20*h,
+    )
+    bun_presence = _hair_region_presence(
+        bun_region, ref_color, require_texture=True
+    )
+
+    # Ponytail: masa lateral exterior detrás de la cabeza.
+    pony_left = _crop(
+        img_bgr,
+        x - 0.48*w,
+        y - 0.02*h,
+        x - 0.08*w,
+        y + 0.82*h,
+    )
+    pony_right = _crop(
+        img_bgr,
+        x + 1.08*w,
+        y - 0.02*h,
+        x + 1.48*w,
+        y + 0.82*h,
+    )
+
+    pony_l = _hair_region_presence(
+        pony_left, ref_color, require_texture=True
+    )
+    pony_r = _hair_region_presence(
+        pony_right, ref_color, require_texture=True
+    )
+    strongest_pony = max(pony_l, pony_r)
+
+    hair_tied = None
+    tied_conf = 0.30
+
+    if bun_presence >= 0.10 and side_presence <= 0.095:
+        hair_tied = "bun"
+        tied_conf = 0.70
+    elif strongest_pony >= 0.075 and abs(pony_l - pony_r) >= 0.035:
+        hair_tied = "ponytail"
+        tied_conf = 0.66
+    elif hair_length in {"medium", "long"} and frame_mean <= 0.030 and side_presence <= 0.040:
+        hair_tied = "tied_back"
+        tied_conf = 0.56
+    elif strongest_pony <= 0.025 and bun_presence <= 0.045:
+        hair_tied = "none"
+        tied_conf = 0.56
+
+    # --------------------------------------------------
+    # 5) FAMILIA GENERAL
+    # --------------------------------------------------
+    family = None
+    family_conf = 0.40
+
+    if hair_tied == "bun":
+        family = "bun"
+        family_conf = max(0.70, tied_conf)
+
+    elif hair_tied == "ponytail":
+        family = "ponytail"
+        family_conf = max(0.68, tied_conf)
+
+    elif hair_tied == "tied_back":
+        family = "tied_back"
+        family_conf = max(0.58, tied_conf)
+
+    elif (
+        hair_texture == "curly"
+        and hair_volume == "high"
+        and hair_length in {"short", "medium"}
+    ):
+        family = "afro"
+        family_conf = 0.66
+
+    elif hair_length == "short":
+        if hair_texture in {"curly", "wavy"} and hair_volume != "low":
+            family = "messy_short"
+            family_conf = 0.60
+        elif parting == "side":
+            family = "side_part"
+            family_conf = 0.58
+        else:
+            family = "crop"
+            family_conf = 0.55
+
+    elif hair_length == "medium":
+        # Bob: caída bilateral cercana a la cara, no excesivamente voluminosa.
+        if face_framing == "strong" and hair_volume in {"low", "medium"}:
+            family = "bob"
+            family_conf = 0.61
+        elif hair_texture in {"curly", "wavy"}:
+            family = "messy_medium"
+            family_conf = 0.58
+        else:
+            family = "long_layered"
+            family_conf = 0.54
+
+    elif hair_length == "long":
+        if hair_texture in {"wavy", "curly"}:
+            family = "long_layered"
+            family_conf = 0.70
+        else:
+            family = "long_loose"
+            family_conf = 0.66
+
+    return {
+        "hair_shape_family": family,
+        "hair_volume": hair_volume,
+        "bangs": bangs,
+        "hair_tied": hair_tied,
+        "parting": parting,
+        "face_framing": face_framing,
+        "_confidence": {
+            "hair_shape_family": family_conf,
+            "hair_volume": volume_conf,
+            "bangs": bangs_conf,
+            "hair_tied": tied_conf,
+            "parting": parting_conf,
+            "face_framing": framing_conf,
+        },
+    }
 
 
 def _estimate_hair(img_bgr, face_box):
-    """V4: largo y textura de pelo sin confundir auriculares con pelo largo."""
+    """
+    V6 / CHECK HAIR 2D:
+    conserva largo, color y textura existentes y agrega descripción fina
+    de peinado para el selector Hair V2.
+    """
     x, y, w, h = face_box
 
     hair_color, color_conf, ref_color = _dominant_hair_color(img_bgr, face_box)
@@ -383,16 +768,26 @@ def _estimate_hair(img_bgr, face_box):
             "hair_length": "bald",
             "hair_color": "none",
             "hair_texture": "none",
+            "hair_shape_family": "none",
+            "hair_volume": "low",
+            "bangs": "none",
+            "hair_tied": "none",
+            "parting": "none",
+            "face_framing": "none",
             "_confidence": {
                 "bald": 0.78,
                 "hair_length": 0.76,
                 "hair_color": 0.0,
                 "hair_texture": 0.75,
+                "hair_shape_family": 0.92,
+                "hair_volume": 0.90,
+                "bangs": 0.90,
+                "hair_tied": 0.90,
+                "parting": 0.88,
+                "face_framing": 0.90,
             },
         }
 
-    # Zonas próximas a los laterales del rostro. No usamos regiones gigantes,
-    # porque allí suelen aparecer auriculares/ropa/fondo.
     left_mid = _crop(
         img_bgr,
         x - 0.20*w,
@@ -431,20 +826,23 @@ def _estimate_hair(img_bgr, face_box):
     mid_presence = (mid_l + mid_r) / 2.0
     below_presence = (low_l + low_r) / 2.0
 
-    # Long solo si realmente hay pelo texturado cerca/debajo de la mandíbula.
-    # V5: además de la media bilateral, aceptamos caída clara en UN solo lado.
-    # Esto cubre pelo largo que cae asimétricamente sin volver a confundir
-    # auriculares/cascos con cabello: exigimos también textura interna real.
     strongest_low_presence = max(low_l, low_r)
     strongest_low_edge = max(low_l_edge, low_r_edge)
 
     if (
         below_presence >= 0.105
         or (strongest_low_presence >= 0.065 and strongest_low_edge >= 0.018)
+        # CHECK HAIR 2F: caída bilateral clara alrededor de la mandíbula +
+        # continuidad texturada en la zona inferior.
+        or (
+            mid_presence >= 0.078
+            and min(mid_l, mid_r) >= 0.072
+            and strongest_low_edge >= 0.032
+        )
     ):
         hair_length = "long"
-        length_conf = 0.86
-    elif mid_presence >= 0.072 or below_presence >= 0.062:
+        length_conf = 0.84
+    elif mid_presence >= 0.068 or below_presence >= 0.055:
         hair_length = "medium"
         length_conf = 0.78
     else:
@@ -453,7 +851,7 @@ def _estimate_hair(img_bgr, face_box):
 
     hair_texture, texture_conf = _estimate_hair_texture(top, ref_color)
 
-    return {
+    result = {
         "bald": False,
         "hair_length": hair_length,
         "hair_color": hair_color,
@@ -465,6 +863,19 @@ def _estimate_hair(img_bgr, face_box):
             "hair_texture": texture_conf,
         },
     }
+
+    details = _estimate_hair_v2_details(
+        img_bgr,
+        face_box,
+        ref_color,
+        hair_length,
+        hair_texture,
+    )
+
+    result["_confidence"].update(details.pop("_confidence"))
+    result.update(details)
+    return result
+
 
 def _estimate_glasses(face_roi):
     """V4: detector conservador de anteojos.

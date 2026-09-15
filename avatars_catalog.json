@@ -23,7 +23,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0002",
@@ -49,7 +54,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0003",
@@ -75,7 +85,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0004",
@@ -101,7 +116,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0005",
@@ -127,7 +147,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0006",
@@ -153,7 +178,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0007",
@@ -179,7 +209,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0008",
@@ -205,7 +240,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0009",
@@ -231,7 +271,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0010",
@@ -258,7 +303,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0011",
@@ -285,7 +335,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0012",
@@ -298,7 +353,14 @@
       "beard": true,
       "moustache": false,
       "facial_hair_style": "full_beard",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "none",
+      "hair_style_variant": "bald",
+      "hair_volume": "low",
+      "bangs": "none",
+      "hair_tied": "none",
+      "parting": "none",
+      "face_framing": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -312,7 +374,14 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "bald"
+      ],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0013",
@@ -339,7 +408,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0014",
@@ -352,7 +426,9 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "braids",
+      "hair_style_variant": "braids_unspecified"
     },
     "template_markers": {
       "skin": "magenta",
@@ -366,7 +442,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0015",
@@ -379,7 +460,10 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "messy_short",
+      "hair_style_variant": "spiky_short_unspecified",
+      "hair_tied": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -395,7 +479,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0016",
@@ -422,7 +511,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0017",
@@ -449,7 +543,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0018",
@@ -462,7 +561,10 @@
       "beard": true,
       "moustache": false,
       "facial_hair_style": "full_beard",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "undercut",
+      "hair_style_variant": "undercut",
+      "hair_tied": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -478,7 +580,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0019",
@@ -491,7 +598,10 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "ponytail",
+      "hair_style_variant": "ponytail",
+      "hair_tied": "ponytail"
     },
     "template_markers": {
       "skin": "magenta",
@@ -507,7 +617,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0020",
@@ -534,7 +649,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0021",
@@ -561,7 +681,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0022",
@@ -574,7 +699,14 @@
       "beard": true,
       "moustache": false,
       "facial_hair_style": "full_beard",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "none",
+      "hair_style_variant": "bald",
+      "hair_volume": "low",
+      "bangs": "none",
+      "hair_tied": "none",
+      "parting": "none",
+      "face_framing": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -588,7 +720,14 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "bald"
+      ],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0023",
@@ -615,7 +754,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0024",
@@ -628,7 +772,9 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "braids",
+      "hair_style_variant": "braids"
     },
     "template_markers": {
       "skin": "magenta",
@@ -644,7 +790,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0025",
@@ -657,7 +808,10 @@
       "beard": true,
       "moustache": false,
       "facial_hair_style": "goatee",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "undercut",
+      "hair_style_variant": "undercut",
+      "hair_tied": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -673,7 +827,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0026",
@@ -700,7 +859,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0027",
@@ -727,7 +891,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0028",
@@ -754,7 +923,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "pending_visual_review",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0029",
@@ -767,7 +941,10 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "ponytail",
+      "hair_style_variant": "ponytail",
+      "hair_tied": "ponytail"
     },
     "template_markers": {
       "skin": "magenta",
@@ -783,7 +960,12 @@
     "canvas": [
       70,
       70
-    ]
+    ],
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [],
+      "notes": []
+    }
   },
   {
     "id": "avatar_0030",
@@ -791,12 +973,15 @@
     "traits": {
       "bald": false,
       "hair_length": "short",
-      "hair_texture": "straight",
+      "hair_texture": "spiky",
       "glasses": false,
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "messy_short",
+      "hair_style_variant": "spiky_short",
+      "hair_tied": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -816,6 +1001,15 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'spiky_short'"
+      ]
     }
   },
   {
@@ -824,12 +1018,14 @@
     "traits": {
       "bald": false,
       "hair_length": "long",
-      "hair_texture": "curly",
+      "hair_texture": "locs",
       "glasses": false,
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "locs",
+      "hair_style_variant": "dreadlocks"
     },
     "template_markers": {
       "skin": "magenta",
@@ -849,6 +1045,15 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'dreadlocks'"
+      ]
     }
   },
   {
@@ -862,7 +1067,10 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "layered_medium",
+      "hair_style_variant": "layered_medium",
+      "hair_tied": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -884,6 +1092,16 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "reviewed",
+      "source": [
+        "visual_review",
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "hair_shape_family corregido de 'long_layered' a 'layered_medium'."
+      ]
     }
   },
   {
@@ -897,7 +1115,12 @@
       "beard": false,
       "moustache": true,
       "facial_hair_style": "moustache",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "afro",
+      "hair_style_variant": "afro",
+      "hair_volume": "high",
+      "hair_tied": "none",
+      "parting": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -917,6 +1140,15 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'afro'"
+      ]
     }
   },
   {
@@ -930,7 +1162,10 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "ponytail",
+      "hair_style_variant": "high_ponytail",
+      "hair_tied": "ponytail"
     },
     "template_markers": {
       "skin": "magenta",
@@ -953,6 +1188,15 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'high_ponytail'"
+      ]
     }
   },
   {
@@ -966,7 +1210,14 @@
       "beard": true,
       "moustache": true,
       "facial_hair_style": "full_beard",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "none",
+      "hair_style_variant": "bald",
+      "hair_volume": "low",
+      "bangs": "none",
+      "hair_tied": "none",
+      "parting": "none",
+      "face_framing": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -986,6 +1237,16 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "bald",
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'bald'"
+      ]
     }
   },
   {
@@ -994,12 +1255,14 @@
     "traits": {
       "bald": false,
       "hair_length": "long",
-      "hair_texture": "curly",
+      "hair_texture": "braided",
       "glasses": false,
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "braids",
+      "hair_style_variant": "braids_cornrows"
     },
     "template_markers": {
       "skin": "magenta",
@@ -1019,6 +1282,15 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'braids_cornrows'"
+      ]
     }
   },
   {
@@ -1032,7 +1304,10 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "long_loose",
+      "hair_style_variant": "shoulder_length_straight",
+      "hair_tied": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -1054,6 +1329,15 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'shoulder_length_straight'"
+      ]
     }
   },
   {
@@ -1067,7 +1351,10 @@
       "beard": true,
       "moustache": true,
       "facial_hair_style": "full_beard",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "messy_medium",
+      "hair_style_variant": "messy_medium",
+      "hair_tied": "none"
     },
     "template_markers": {
       "skin": "magenta",
@@ -1087,6 +1374,15 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'messy_medium'"
+      ]
     }
   },
   {
@@ -1100,7 +1396,10 @@
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "hair_shape_family": "bun",
+      "hair_style_variant": "high_bun_ponytail",
+      "hair_tied": "bun"
     },
     "template_markers": {
       "skin": "magenta",
@@ -1123,6 +1422,15 @@
         70
       ],
       "background": "transparent_outside_head_only"
+    },
+    "hair_v2_annotation": {
+      "status": "partial",
+      "source": [
+        "visual_metadata.hair_style"
+      ],
+      "notes": [
+        "Mapeado desde 'high_bun_ponytail'"
+      ]
     }
   }
 ]
