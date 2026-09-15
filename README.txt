@@ -1,31 +1,18 @@
-EXPO HEADS - FIX HAIR/GLASSES V3
+EXPO HEADS - CHECK 1 - RESET DE TURNO
 
-Reemplazar en la raíz del proyecto:
+Reemplazar solamente:
 - launcher.py
-- avatar_selector.py
+
+No reemplazar:
 - face_analyzer.py
-
-NO reemplazar:
+- avatar_selector.py
 - avatars_catalog.json
-- carpeta data/avatars
-- base SQLite
+- PNGs
 
-Cambios principales:
-1. Anteojos V4: elimina HoughCircles (confundía ojos/cejas con lentes).
-   Ahora busca marco bilateral + puente y devuelve None si es ambiguo.
-2. Pelo V4: largo usa presencia de pelo texturado cerca/debajo de mandíbula;
-   no confunde fácilmente auriculares/ropa/padding negro con pelo largo.
-3. Textura: agrega straight/wavy/curly con confianza moderada.
-4. Selector V5: anteojos sin detectar excluyen templates con anteojos cuando
-   la confianza es alta; luego prioriza textura y largo de pelo con fallback.
-5. Launcher: padding del scan pasa de negro a gris neutro para no parecer pelo.
-
-Validación con la foto suministrada en el chat:
-- bald: false
-- hair_length: medium
-- hair_texture: curly
-- glasses: false (0.93)
-- beard: false
-- moustache: false
-
-Esto evita el caso observado avatar_0014/0019 con anteojos y pelo largo recogido.
+Cambios:
+- Botón RESET TURNO arriba a la izquierda del menú.
+- Confirmación obligatoria antes de borrar.
+- Borra partidas, ranking, jugadores y registros de avatares del turno.
+- Elimina únicamente PNGs archivados con nombre UUID.
+- Conserva templates avatar_XXXX.png, catálogo, ejecutables y configuración del juego.
+- Limpia el TOP #1 actual y la caché visual del ranking.

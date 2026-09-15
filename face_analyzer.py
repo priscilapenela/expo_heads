@@ -432,10 +432,18 @@ def _estimate_hair(img_bgr, face_box):
     below_presence = (low_l + low_r) / 2.0
 
     # Long solo si realmente hay pelo texturado cerca/debajo de la mandíbula.
-    # Esto elimina el falso "long" causado por cascos negros y padding negro.
-    if below_presence >= 0.105:
+    # V5: además de la media bilateral, aceptamos caída clara en UN solo lado.
+    # Esto cubre pelo largo que cae asimétricamente sin volver a confundir
+    # auriculares/cascos con cabello: exigimos también textura interna real.
+    strongest_low_presence = max(low_l, low_r)
+    strongest_low_edge = max(low_l_edge, low_r_edge)
+
+    if (
+        below_presence >= 0.105
+        or (strongest_low_presence >= 0.065 and strongest_low_edge >= 0.018)
+    ):
         hair_length = "long"
-        length_conf = 0.82
+        length_conf = 0.86
     elif mid_presence >= 0.072 or below_presence >= 0.062:
         hair_length = "medium"
         length_conf = 0.78
@@ -504,8 +512,11 @@ def _estimate_glasses(face_roi):
     strong_two_lenses = (
         (bottom_dark >= 0.025 and bottom_edge >= 0.09)
         or (bottom_edge >= 0.14 and outer_edge >= 0.11)
+        # Marcos finos/redondos: pueden no tener una banda inferior oscura,
+        # pero sí borde bilateral + puente muy claro.
+        or (bottom_edge >= 0.09 and outer_edge >= 0.12)
     )
-    side_support = outer_edge >= 0.08 and inner_edge >= 0.08
+    side_support = outer_edge >= 0.08 and inner_edge >= 0.06
 
     if strong_bridge and strong_two_lenses and side_support:
         confidence = min(
@@ -580,19 +591,25 @@ def _estimate_facial_hair(face_roi):
 
     must_dark = _dark_ratio(moustache_roi, 90)
 
-    jaw_scores = [
-        _dark_ratio(jaw_left, 88),
-        _dark_ratio(jaw_right, 88),
-        _dark_ratio(chin, 88),
-    ]
+    jaw_left_dark = _dark_ratio(jaw_left, 88)
+    jaw_right_dark = _dark_ratio(jaw_right, 88)
+    chin_dark = _dark_ratio(chin, 88)
 
-    beard_zones = sum(
-        score > 0.15
-        for score in jaw_scores
-    )
+    jaw_scores = [jaw_left_dark, jaw_right_dark, chin_dark]
 
     moustache = bool(must_dark > 0.24)
-    beard = bool(beard_zones >= 2)
+
+    # V5: una sombra puntual, pelo largo entrando por un lateral o la propia
+    # boca ya no alcanzan para declarar barba. Pedimos evidencia bilateral
+    # o una zona central de mentón realmente densa.
+    beard = bool(
+        (jaw_left_dark > 0.15 and jaw_right_dark > 0.15)
+        or chin_dark > 0.23
+        or (
+            chin_dark > 0.18
+            and min(jaw_left_dark, jaw_right_dark) > 0.10
+        )
+    )
 
     # Cuando decimos False somos bastante conservadores.
     beard_conf = 0.82 if not beard else 0.72

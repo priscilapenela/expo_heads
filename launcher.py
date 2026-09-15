@@ -537,6 +537,102 @@ def init_db():
         _backfill_player_ids(conn)
 
 
+
+def reset_turn_data():
+    """
+    Reinicia solamente los datos competitivos del turno actual.
+
+    Borra:
+    - partidas
+    - ranking
+    - avatares UUID archivados de jugadores
+    - jugadores
+
+    Conserva:
+    - avatars_catalog.json
+    - templates avatar_XXXX.png de la biblioteca
+    - ejecutables
+    - configuración base del juego
+    - assets del launcher
+
+    Los PNG archivados de jugadores usan UUID como nombre. Se eliminan
+    solamente esos archivos, nunca los templates avatar_XXXX.png.
+    """
+    archived_files = []
+
+    with _open_db() as conn:
+        # Guardamos las rutas antes de borrar las filas para poder limpiar
+        # solamente los avatares archivados de jugadores.
+        archived_files = [
+            row[0]
+            for row in conn.execute(
+                "SELECT archivo FROM avatares WHERE archivo IS NOT NULL"
+            ).fetchall()
+            if row[0]
+        ]
+
+        # Orden importante por las relaciones entre tablas.
+        conn.execute("DELETE FROM partidas")
+        conn.execute("DELETE FROM ranking")
+        conn.execute("DELETE FROM avatares")
+        conn.execute("DELETE FROM jugadores")
+
+        # Reinicia los IDs autoincrementales de las tablas que los usan.
+        try:
+            conn.execute(
+                "DELETE FROM sqlite_sequence "
+                "WHERE name IN ('partidas', 'ranking')"
+            )
+        except sqlite3.OperationalError:
+            # sqlite_sequence puede no existir todavía en una DB recién creada.
+            pass
+
+    deleted_avatar_files = 0
+
+    # Primera pasada: elimina exactamente los archivos que estaban registrados.
+    for avatar_file in archived_files:
+        candidate = resolve_ranking_avatar_path(avatar_file)
+        if candidate is None:
+            continue
+
+        # Seguridad adicional: solamente UUIDs dentro de data/avatars.
+        try:
+            UUID(candidate.stem)
+        except (ValueError, AttributeError):
+            continue
+
+        try:
+            candidate.unlink()
+            deleted_avatar_files += 1
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            print(f"[RESET TURNO] No se pudo borrar {candidate}: {exc}")
+
+    # Segunda pasada: limpia UUID huérfanos de resets/crashes anteriores.
+    if AVATAR_DIR.is_dir():
+        for candidate in AVATAR_DIR.glob("*.png"):
+            try:
+                UUID(candidate.stem)
+            except (ValueError, AttributeError):
+                continue
+
+            try:
+                candidate.unlink()
+                deleted_avatar_files += 1
+            except FileNotFoundError:
+                pass
+            except OSError as exc:
+                print(f"[RESET TURNO] No se pudo borrar {candidate}: {exc}")
+
+    print(
+        "[RESET TURNO] Base reiniciada correctamente. "
+        f"Avatares archivados eliminados: {deleted_avatar_files}"
+    )
+
+    return deleted_avatar_files
+
+
 def register_player_avatar(name, avatar_id, avatar_file):
     """Registra la identidad del jugador y enlaza su PNG UUID actual."""
     name = validate_name(name)
@@ -1200,6 +1296,21 @@ class Launcher:
 
         self.ranking_box_rect = pygame.Rect(900, 22, 275, 195)
 
+        # CHECK FINAL 1: reset del turno. Se mantiene arriba a la izquierda
+        # para no interferir con el ranking ni con los botones centrales.
+        self.btn_reset_turn = Button(
+            18, 18, 165, 42,
+            "RESET TURNO",
+            self.font_mini,
+            color=WHITE,
+            bg=(92, 24, 32),
+            hover_bg=(150, 35, 48),
+            border_color=BLACK,
+            border_w=3,
+        )
+        self.menu_notice = ""
+        self.menu_notice_until = 0
+
         self.bg_image = self._load_background()
         self.logo_image = self._load_logo()
         self._create_menu_buttons()
@@ -1395,13 +1506,28 @@ class Launcher:
         self._draw_ranking_hud()
 
         mouse = pygame.mouse.get_pos()
+
+        self.btn_reset_turn.update(mouse)
+        self.btn_reset_turn.draw(self.screen)
+
         for button in (self.btn_top1, self.btn_1v1, self.btn_exit):
             button.update(mouse)
             button.draw(self.screen)
 
+        if self.menu_notice and pygame.time.get_ticks() < self.menu_notice_until:
+            notice = self.font_mini.render(self.menu_notice, True, ARCADE_GREEN)
+            notice_bg = pygame.Rect(18, 66, notice.get_width() + 18, 28)
+            pygame.draw.rect(self.screen, (8, 14, 25), notice_bg)
+            pygame.draw.rect(self.screen, ARCADE_GREEN_DIM, notice_bg, 2)
+            self.screen.blit(notice, (notice_bg.x + 9, notice_bg.y + 7))
+        elif self.menu_notice:
+            self.menu_notice = ""
+
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if self.btn_1v1.clicked(mouse):
+                if self.btn_reset_turn.clicked(mouse):
+                    self.state = "confirm_reset"
+                elif self.btn_1v1.clicked(mouse):
                     self.game_mode = "1v1"
                     self.p1_name = ""
                     self.p2_name = ""
@@ -1437,6 +1563,140 @@ class Launcher:
                     self.state = "confirm_exit"
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 self.state = "confirm_exit"
+
+    def _clear_turn_runtime_state(self):
+        """Limpia cualquier referencia en memoria después de reiniciar el turno."""
+        self._close_camera()
+
+        self.game_mode = None
+        self.p1_name = ""
+        self.p2_name = ""
+        self.active_input = 1
+
+        self.photo_p1 = None
+        self.photo_p2 = None
+        self.avatar_p1 = None
+        self.avatar_p2 = None
+        self.avatar_match_p1 = None
+        self.avatar_match_p2 = None
+
+        self.player_p1_id = None
+        self.player_p2_id = None
+        self.avatar_p1_id = None
+        self.avatar_p2_id = None
+        self.avatar_p1_file = None
+        self.avatar_p2_file = None
+
+        self.match_results = None
+        self.score_saved = False
+        self.finished_mode = ""
+        self.status_message = ""
+
+        # Obliga a recargar las miniaturas del ranking vacío/nuevo.
+        self.ranking_avatar_cache.clear()
+
+        # Por seguridad, restaura cualquier slot TOP #1 que haya quedado staged.
+        try:
+            recover_top1_runtime_avatar()
+        except OSError as exc:
+            print(f"[RESET TURNO] Aviso restaurando TOP #1: {exc}")
+
+    def _screen_confirm_reset(self, events):
+        """Confirmación explícita para evitar resets accidentales."""
+        self._draw_bg()
+        self._draw_title()
+
+        panel = pygame.Rect(
+            SCREEN_W // 2 - 360,
+            SCREEN_H // 2 - 155,
+            720,
+            310,
+        )
+        draw_arcade_panel(
+            self.screen,
+            panel,
+            bg_color=PANEL_BG,
+            border_color=ACCENT_2,
+            border_w=5,
+            highlight_color=(245, 70, 100),
+            shadow_color=(80, 10, 25),
+        )
+
+        title = self.font_subtitle.render(
+            "REINICIAR TURNO?",
+            True,
+            ACCENT_2,
+        )
+        self.screen.blit(
+            title,
+            title.get_rect(center=(SCREEN_W // 2, panel.y + 52)),
+        )
+
+        lines = (
+            "SE BORRARAN JUGADORES, PARTIDAS Y RANKING ACTUAL.",
+            "LA BIBLIOTECA DE AVATARES Y EL JUEGO NO SE TOCAN.",
+            "ESTA ACCION NO SE PUEDE DESHACER.",
+        )
+        for index, line in enumerate(lines):
+            color = WHITE if index < 2 else BTN_YELLOW_LIGHT
+            surf = self.font_small.render(line, True, color)
+            self.screen.blit(
+                surf,
+                surf.get_rect(
+                    center=(
+                        SCREEN_W // 2,
+                        panel.y + 103 + index * 30,
+                    )
+                ),
+            )
+
+        btn_cancel = Button(
+            SCREEN_W // 2 - 245,
+            panel.bottom - 76,
+            210,
+            52,
+            "CANCELAR",
+            self.font_small,
+            color=GRAY,
+            bg=BTN_GRAY_BG,
+            hover_bg=BTN_GRAY_HOVER,
+        )
+        btn_confirm = Button(
+            SCREEN_W // 2 + 35,
+            panel.bottom - 76,
+            210,
+            52,
+            "REINICIAR",
+            self.font_small,
+            color=WHITE,
+            bg=(130, 25, 38),
+            hover_bg=(205, 38, 58),
+        )
+
+        mouse = pygame.mouse.get_pos()
+        for button in (btn_cancel, btn_confirm):
+            button.update(mouse)
+            button.draw(self.screen)
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if btn_cancel.clicked(mouse):
+                    self.state = "menu"
+                elif btn_confirm.clicked(mouse):
+                    try:
+                        reset_turn_data()
+                        self._clear_turn_runtime_state()
+                        self.menu_notice = "TURNO REINICIADO - RANKING VACIO"
+                        self.menu_notice_until = pygame.time.get_ticks() + 4500
+                        self.state = "menu"
+                    except (OSError, sqlite3.Error) as exc:
+                        self.status_message = f"ERROR AL REINICIAR: {exc}"
+                        print(f"[RESET TURNO] ERROR: {exc}")
+                        self.state = "menu"
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.state = "menu"
 
     def _draw_silhouette(self, rect, color, photo=None):
         draw_arcade_panel(self.screen, rect, bg_color=PANEL_BG, border_color=color, border_w=4)
@@ -3009,6 +3269,8 @@ class Launcher:
                 self._screen_finished(events)
             elif self.state == "ranking":
                 self._screen_ranking(events)
+            elif self.state == "confirm_reset":
+                self._screen_confirm_reset(events)
             elif self.state == "confirm_exit":
                 self._screen_confirm_exit(events)
 

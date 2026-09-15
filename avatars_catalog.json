@@ -784,5 +784,345 @@
       70,
       70
     ]
+  },
+  {
+    "id": "avatar_0030",
+    "file": "avatars/avatar_0030.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "glasses": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": null
+    },
+    "visual_metadata": {
+      "hair_style": "spiky_short",
+      "accessories": [],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0031",
+    "file": "avatars/avatar_0031.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "glasses": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": null
+    },
+    "visual_metadata": {
+      "hair_style": "dreadlocks",
+      "accessories": [],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0032",
+    "file": "avatars/avatar_0032.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "yellow",
+      "facial_hair": null
+    },
+    "visual_metadata": {
+      "hair_style": "layered_medium",
+      "accessories": [
+        "glasses"
+      ],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0033",
+    "file": "avatars/avatar_0033.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "curly",
+      "glasses": false,
+      "beard": false,
+      "moustache": true,
+      "facial_hair_style": "moustache",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": "blue"
+    },
+    "visual_metadata": {
+      "hair_style": "afro",
+      "accessories": [],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0034",
+    "file": "avatars/avatar_0034.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "yellow",
+      "facial_hair": null
+    },
+    "visual_metadata": {
+      "hair_style": "high_ponytail",
+      "accessories": [
+        "glasses",
+        "hair_tie"
+      ],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0035",
+    "file": "avatars/avatar_0035.png",
+    "traits": {
+      "bald": true,
+      "hair_length": "bald",
+      "hair_texture": "none",
+      "glasses": false,
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": null,
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": "blue"
+    },
+    "visual_metadata": {
+      "hair_style": "bald",
+      "accessories": [],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0036",
+    "file": "avatars/avatar_0036.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "glasses": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": null
+    },
+    "visual_metadata": {
+      "hair_style": "braids_cornrows",
+      "accessories": [],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0037",
+    "file": "avatars/avatar_0037.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "straight",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "yellow",
+      "facial_hair": null
+    },
+    "visual_metadata": {
+      "hair_style": "shoulder_length_straight",
+      "accessories": [
+        "glasses"
+      ],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0038",
+    "file": "avatars/avatar_0038.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "glasses": false,
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": "blue"
+    },
+    "visual_metadata": {
+      "hair_style": "messy_medium",
+      "accessories": [],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
+  },
+  {
+    "id": "avatar_0039",
+    "file": "avatars/avatar_0039.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "glasses": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": null
+    },
+    "visual_metadata": {
+      "hair_style": "high_bun_ponytail",
+      "accessories": [
+        "hair_tie",
+        "eyebrow_piercing"
+      ],
+      "orientation": "left",
+      "pose": "left_3_4_or_profile",
+      "recolorable": true,
+      "canvas": [
+        70,
+        70
+      ],
+      "background": "transparent_outside_head_only"
+    }
   }
 ]
