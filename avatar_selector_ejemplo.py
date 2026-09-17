@@ -14,35 +14,35 @@ import json
 # Priorizamos la estructura visible del avatar. El color sigue fuera del
 # ranking porque se aplica después mediante recolor.
 FIELD_WEIGHTS: Dict[str, float] = {
-    "bald": 34.0,
+    "bald": 30.0,
 
-    # CHECK HAIR 2E:
-    # El peinado deja de ser solo "un bloque importante" y pasa a actuar
-    # como núcleo duro del matching. Family + length + framing + bangs deben
-    # poder derrotar coincidencias más triviales como anteojos/no barba.
-    "hair_length": 20.0,
-    "hair_texture": 12.0,
-    "hair_shape_family": 34.0,
-    "hair_volume": 8.0,
-    "bangs": 10.0,
-    "hair_tied": 12.0,
-    "parting": 5.0,
-    "face_framing": 8.0,
+    # CHECK HAIR 3B — estructura del peinado domina.
+    "hair_style_family": 28.0,
+    "hair_tied": 20.0,
+    "braid_count": 16.0,
+    "braid_style": 18.0,
 
-    "glasses": 20.0,
-    "beard": 20.0,
-    "moustache": 9.0,
-    "facial_hair_style": 5.0,
-    "freckles": 2.0,
+    # Compatibilidad Hair V2 / detalle secundario.
+    "hair_shape_family": 16.0,
+    "hair_length": 14.0,
+    "hair_texture": 8.0,
+    "hair_volume": 5.0,
+    "bangs": 6.0,
+    "parting": 3.0,
+    "face_framing": 5.0,
+
+    # Rasgos faciales importantes pero NO eliminan peinados correctos.
+    "glasses": 18.0,
+    "beard": 10.0,
+    "moustache": 6.0,
+    "facial_hair_style": 4.0,
+    "freckles": 1.0,
 }
 
 # Solo usamos filtro duro para rasgos cuya contradicción cambia muchísimo
 # la silueta. Barba/bigote/pelo se resuelven por scoring para no encerrar
 # prematuramente la búsqueda en un subconjunto incorrecto.
-STRICT_ORDER = (
-    "bald",
-    "glasses",
-)
+STRICT_ORDER = ("bald",)
 
 HAIR_LENGTH_ORDER = ["bald", "very_short", "short", "medium", "long"]
 
@@ -79,6 +79,7 @@ HAIR_SHAPE_EQUIVALENTS = {
     "long_loose": "long_loose",
     "loose_long": "long_loose",
     "long_layered": "long_layered",
+    "layered_medium": "layered_medium",
     "layered_long": "long_layered",
     "fringe_forward": "fringe_forward",
     "forward_fringe": "fringe_forward",
@@ -125,12 +126,15 @@ HAIR_TIED_EQUIVALENTS = {
     "halfup": "half_up",
     "tied_back": "tied_back",
     "tied": "tied_back",
+    "braid": "braids",
+    "braids": "braids",
+    "twin_braids": "braids",
 }
 
 LEGACY_VISUAL_HAIR_STYLE_TO_FAMILY = {
     "spiky_short": "messy_short",
     "dreadlocks": "locs",
-    "layered_medium": "long_layered",
+    "layered_medium": "layered_medium",
     "high_ponytail": "ponytail",
     "afro": "afro",
     "bald": "none",
@@ -359,6 +363,13 @@ def _hair_shape_similarity(a: Any, b: Any) -> float:
 
     partial = {
         frozenset(("long_loose", "long_layered")): 0.72,
+        # "layered_medium" es una silueta propia. Antes se colapsaba dentro
+        # de long_layered y eso hacía que avatar_0032 compitiera como si fuera
+        # una melena larga cuando visualmente es bastante más compacta.
+        frozenset(("layered_medium", "long_layered")): 0.22,
+        frozenset(("layered_medium", "long_loose")): 0.12,
+        frozenset(("layered_medium", "messy_medium")): 0.55,
+        frozenset(("layered_medium", "bob")): 0.30,
         frozenset(("ponytail", "tied_back")): 0.58,
         frozenset(("bun", "half_up")): 0.42,
         frozenset(("ponytail", "half_up")): 0.38,
@@ -451,8 +462,36 @@ def _candidate_trait(avatar: Dict[str, Any], field: str) -> Any:
 
     if field == "hair_tied":
         family = _candidate_trait(avatar, "hair_shape_family")
-        if family in {"ponytail", "bun", "half_up", "tied_back"}:
-            return family
+        if family in {"ponytail", "bun", "half_up", "tied_back", "braids"}:
+            return "braids" if family == "braids" else family
+        if family is not None:
+            return "none"
+
+    if field == "hair_style_family":
+        family = _candidate_trait(avatar, "hair_shape_family")
+        mapping = {
+            "braids": "braided_long",
+            "locs": "locs",
+            "ponytail": "ponytail",
+            "bun": "bun",
+            "half_up": "half_up",
+            "bob": "bob",
+            "long_layered": "long_layered",
+            "long_loose": "long_layered",
+            "afro": "afro",
+        }
+        return mapping.get(family, family)
+
+    if field == "braid_count":
+        family = _candidate_trait(avatar, "hair_shape_family")
+        return "multiple" if family in {"braids", "locs"} else "none"
+
+    if field == "braid_style":
+        family = _candidate_trait(avatar, "hair_shape_family")
+        if family == "braids":
+            return "cornrows"
+        if family == "locs":
+            return "locs"
         if family is not None:
             return "none"
 
@@ -523,6 +562,12 @@ def _similarity(field: str, detected: Any, candidate: Any) -> float:
         return _length_similarity(detected, candidate)
     if field == "hair_texture":
         return _texture_similarity(detected, candidate)
+    if field == "hair_style_family":
+        return _hair_style_family_similarity(detected, candidate)
+    if field == "braid_count":
+        return _braid_count_similarity(detected, candidate)
+    if field == "braid_style":
+        return _braid_style_similarity(detected, candidate)
     if field == "hair_shape_family":
         return _hair_shape_similarity(detected, candidate)
     if field == "hair_volume":
@@ -548,6 +593,130 @@ def _similarity(field: str, detected: Any, candidate: Any) -> float:
     if field in {"bald", "glasses", "beard", "moustache", "freckles"}:
         return 1.0 if _normalize_bool(detected) == _normalize_bool(candidate) else -1.0
     return 1.0 if str(detected).strip().lower() == str(candidate).strip().lower() else -1.0
+
+
+
+def _normalize_hair_style_family(value: Any) -> Optional[str]:
+    v = _normalize_label(value)
+    if v is None:
+        return None
+
+    aliases = {
+        "braids": "braided_long",
+        "braided": "braided_long",
+        "twin_braids": "braided_long",
+        "cornrows": "braided_long",
+        "dreadlocks": "locs",
+        "dreads": "locs",
+        "long_layered": "long_layered",
+        "long_loose": "long_layered",
+        "long_wavy": "long_wavy",
+        "long_curly": "long_curly",
+        "ponytail": "ponytail",
+        "bun": "bun",
+        "half_up": "half_up",
+        "afro": "afro",
+        "bob": "bob",
+    }
+    return aliases.get(v, v)
+
+
+def _normalize_braid_count(value: Any) -> Optional[str]:
+    v = _normalize_label(value)
+    if v is None:
+        return None
+    aliases = {
+        "0": "none",
+        "none": "none",
+        "1": "single",
+        "one": "single",
+        "single": "single",
+        "2": "double",
+        "two": "double",
+        "double": "double",
+        "twin": "double",
+        "multiple": "multiple",
+        "many": "multiple",
+    }
+    return aliases.get(v, v)
+
+
+def _normalize_braid_style(value: Any) -> Optional[str]:
+    v = _normalize_label(value)
+    if v is None:
+        return None
+    aliases = {
+        "double_braid": "twin_braids",
+        "double_braids": "twin_braids",
+        "two_braids": "twin_braids",
+        "braids": "twin_braids",
+        "cornrow": "cornrows",
+        "dreadlocks": "locs",
+        "dreads": "locs",
+    }
+    return aliases.get(v, v)
+
+
+def _hair_style_family_similarity(a: Any, b: Any) -> float:
+    a = _normalize_hair_style_family(a)
+    b = _normalize_hair_style_family(b)
+    if a is None or b is None:
+        return 0.0
+    if a == b:
+        return 1.0
+
+    pair = frozenset((a, b))
+
+    partial = {
+        frozenset(("long_layered", "long_wavy")): 0.75,
+        frozenset(("long_layered", "long_curly")): 0.65,
+        frozenset(("long_wavy", "long_curly")): 0.60,
+        frozenset(("braided_long", "ponytail")): 0.20,
+        frozenset(("braided_long", "locs")): 0.25,
+        frozenset(("ponytail", "half_up")): 0.40,
+        frozenset(("bun", "half_up")): 0.42,
+        frozenset(("bob", "long_layered")): 0.15,
+    }
+    return partial.get(pair, -0.90)
+
+
+def _braid_count_similarity(a: Any, b: Any) -> float:
+    a = _normalize_braid_count(a)
+    b = _normalize_braid_count(b)
+    if a is None or b is None:
+        return 0.0
+    if a == b:
+        return 1.0
+    if "none" in {a, b}:
+        return -1.0
+    pair = frozenset((a, b))
+    partial = {
+        frozenset(("single", "double")): 0.20,
+        frozenset(("double", "multiple")): 0.45,
+        frozenset(("single", "multiple")): 0.10,
+    }
+    return partial.get(pair, -0.60)
+
+
+def _braid_style_similarity(a: Any, b: Any) -> float:
+    a = _normalize_braid_style(a)
+    b = _normalize_braid_style(b)
+    if a is None or b is None:
+        return 0.0
+    if a == b:
+        return 1.0
+    if "none" in {a, b}:
+        return -1.0
+
+    pair = frozenset((a, b))
+    partial = {
+        frozenset(("twin_braids", "single_braid")): 0.20,
+        frozenset(("twin_braids", "cornrows")): 0.15,
+        frozenset(("cornrows", "box_braids")): 0.45,
+        frozenset(("box_braids", "microbraids")): 0.55,
+        frozenset(("locs", "box_braids")): 0.20,
+    }
+    return partial.get(pair, -0.75)
 
 
 def _avatar_accessories(avatar: Dict[str, Any]) -> List[str]:
@@ -590,6 +759,12 @@ class AvatarSelector:
                 )
             elif key == "hair_texture":
                 value = _normalize_texture(value)
+            elif key == "hair_style_family":
+                value = _normalize_hair_style_family(value)
+            elif key == "braid_count":
+                value = _normalize_braid_count(value)
+            elif key == "braid_style":
+                value = _normalize_braid_style(value)
             elif key == "hair_shape_family":
                 value = _normalize_hair_shape(value)
             elif key == "hair_volume":
@@ -629,10 +804,8 @@ class AvatarSelector:
 
             conf = _field_confidence(field, confidences)
 
-            if field == "glasses":
-                min_conf = 0.88 if value is True else 0.72
-            else:  # bald
-                min_conf = 0.78
+            # CHECK HAIR 3B: solo bald sigue siendo filtro duro.
+            min_conf = 0.78
 
             if conf < min_conf:
                 continue
@@ -669,6 +842,9 @@ class AvatarSelector:
             "hair": 0.0,
             "glasses": 0.0,
             "facial_hair": 0.0,
+            "hair_style_family": 0.0,
+            "braid_count": 0.0,
+            "braid_style": 0.0,
             "hair_shape_family": 0.0,
             "hair_length": 0.0,
             "hair_texture": 0.0,
@@ -721,6 +897,9 @@ class AvatarSelector:
 
             if field in {
                 "bald",
+                "hair_style_family",
+                "braid_count",
+                "braid_style",
                 "hair_length",
                 "hair_texture",
                 "hair_shape_family",
@@ -872,6 +1051,45 @@ class AvatarSelector:
                     score -= 8.0 * tied_conf
                 elif tied_sim >= 0.999:
                     score += 4.0 * tied_conf
+
+        # CHECK HAIR 3B: una estructura distintiva como twin braids
+        # debe poder vencer una coincidencia trivial de anteojos.
+        detected_braid_style = detected.get("braid_style")
+        detected_braid_count = detected.get("braid_count")
+        braid_style_conf = _field_confidence("braid_style", confidences)
+        braid_count_conf = _field_confidence("braid_count", confidences)
+
+        if (
+            detected_braid_style == "twin_braids"
+            and braid_style_conf >= 0.70
+        ):
+            candidate_braid_style = _normalize_braid_style(
+                _candidate_trait(avatar, "braid_style")
+            )
+            candidate_braid_count = _normalize_braid_count(
+                _candidate_trait(avatar, "braid_count")
+            )
+
+            if candidate_braid_style == "twin_braids":
+                score += 24.0 * braid_style_conf
+            elif candidate_braid_count in {"double", "multiple"}:
+                score += 8.0 * braid_style_conf
+            else:
+                score -= 20.0 * braid_style_conf
+
+        if (
+            detected_braid_count == "double"
+            and braid_count_conf >= 0.70
+        ):
+            candidate_braid_count = _normalize_braid_count(
+                _candidate_trait(avatar, "braid_count")
+            )
+            if candidate_braid_count == "double":
+                score += 12.0 * braid_count_conf
+            elif candidate_braid_count == "multiple":
+                score += 4.0 * braid_count_conf
+            elif candidate_braid_count == "none":
+                score -= 10.0 * braid_count_conf
 
         # Si anteojos no pudieron determinarse (None o confianza muy baja),
         # preferimos levemente el template que no inventa un accesorio facial.

@@ -1,0 +1,72 @@
+{
+  "new_fields_inside_traits": {
+    "hair_style_family": [
+      "buzzcut",
+      "pixie",
+      "short_straight",
+      "short_curly",
+      "bob",
+      "long_straight",
+      "long_wavy",
+      "long_curly",
+      "long_layered",
+      "ponytail",
+      "bun",
+      "half_up",
+      "braided_long",
+      "locs",
+      "dreadlocks",
+      "afro",
+      "coily_short",
+      "coily_long",
+      "mohawk",
+      "undercut"
+    ],
+    "hair_tied": [
+      "none",
+      "ponytail",
+      "bun",
+      "braids",
+      "half_up"
+    ],
+    "braid_count": [
+      "none",
+      "single",
+      "double",
+      "multiple"
+    ],
+    "braid_style": [
+      "none",
+      "single_braid",
+      "twin_braids",
+      "side_braid",
+      "cornrows",
+      "box_braids",
+      "microbraids",
+      "locs"
+    ],
+    "bangs": [
+      "none",
+      "straight",
+      "curtain",
+      "side",
+      "soft",
+      "short"
+    ],
+    "parting": [
+      "none",
+      "middle",
+      "side"
+    ],
+    "face_framing": [
+      "light",
+      "medium",
+      "strong"
+    ],
+    "hair_volume": [
+      "low",
+      "medium",
+      "high"
+    ]
+  }
+}

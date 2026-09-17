@@ -373,6 +373,191 @@ def _estimate_hair_texture(top_region, ref_bgr):
 
 
 
+
+def _hair_texture_region_metrics(region, ref_bgr, tolerance=62):
+    """
+    CHECK FACE 4A:
+    mide textura solo sobre píxeles similares al color de cabello.
+
+    Devuelve ocupación, densidad de bordes y variación local.
+    """
+    if region is None or region.size == 0 or ref_bgr is None:
+        return None
+
+    arr = region.astype(np.float32)
+    ref = np.asarray(ref_bgr, dtype=np.float32)
+    dist = np.linalg.norm(arr - ref.reshape(1, 1, 3), axis=2)
+    similar = dist < tolerance
+
+    occupancy = float(similar.mean())
+    if occupancy < 0.025 or int(similar.sum()) < 12:
+        return {
+            "occupancy": occupancy,
+            "edge": 0.0,
+            "std": 0.0,
+        }
+
+    gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+    edges = cv2.Canny(gray, 45, 120) > 0
+    edge_in_hair = float(
+        (edges & similar).sum() / max(1, similar.sum())
+    )
+
+    fgray = gray.astype(np.float32)
+    mean = cv2.blur(fgray, (5, 5))
+    mean2 = cv2.blur(fgray * fgray, (5, 5))
+    local_std = np.sqrt(
+        np.maximum(mean2 - mean * mean, 0.0)
+    )
+    texture_std = float(
+        np.median(local_std[similar])
+    ) if np.any(similar) else 0.0
+
+    return {
+        "occupancy": occupancy,
+        "edge": edge_in_hair,
+        "std": texture_std,
+    }
+
+
+def _estimate_hair_texture_v4(img_bgr, face_box, ref_bgr):
+    """
+    CHECK FACE 4A.
+
+    El detector anterior miraba casi solo la coronilla. Flequillo, reflejos,
+    marcos de anteojos y una raya marcada podían inflar los bordes y convertir
+    pelo lacio/ondulado en "curly".
+
+    V4 analiza varias zonas:
+      - coronilla
+      - lateral izquierdo
+      - lateral derecho
+      - caída inferior izquierda/derecha
+
+    Curly exige textura fuerte en VARIAS regiones, no un pico aislado.
+    """
+    if ref_bgr is None:
+        return None, 0.0
+
+    x, y, w, h = face_box
+
+    regions = [
+        _crop(
+            img_bgr,
+            x - 0.05*w,
+            y - 0.48*h,
+            x + 1.05*w,
+            y + 0.14*h,
+        ),
+        _crop(
+            img_bgr,
+            x - 0.18*w,
+            y + 0.05*h,
+            x + 0.18*w,
+            y + 0.96*h,
+        ),
+        _crop(
+            img_bgr,
+            x + 0.82*w,
+            y + 0.05*h,
+            x + 1.18*w,
+            y + 0.96*h,
+        ),
+        _crop(
+            img_bgr,
+            x - 0.12*w,
+            y + 0.62*h,
+            x + 0.25*w,
+            y + 1.34*h,
+        ),
+        _crop(
+            img_bgr,
+            x + 0.75*w,
+            y + 0.62*h,
+            x + 1.12*w,
+            y + 1.34*h,
+        ),
+    ]
+
+    metrics = [
+        _hair_texture_region_metrics(region, ref_bgr)
+        for region in regions
+    ]
+    metrics = [
+        m for m in metrics
+        if m is not None and m["occupancy"] >= 0.04
+    ]
+
+    if not metrics:
+        return None, 0.0
+
+    stds = np.asarray(
+        [m["std"] for m in metrics],
+        dtype=np.float32,
+    )
+    edges = np.asarray(
+        [m["edge"] for m in metrics],
+        dtype=np.float32,
+    )
+
+    robust_std = float(np.median(stds))
+    robust_edge = float(np.median(edges))
+
+    strong_curly_regions = int(
+        np.sum(
+            (stds >= 7.2)
+            & (edges >= 0.095)
+        )
+    )
+    strong_wave_regions = int(
+        np.sum(
+            (stds >= 4.0)
+            | (edges >= 0.065)
+        )
+    )
+
+    # Curly: señal sostenida, no un único parche muy texturado.
+    if (
+        strong_curly_regions >= 2
+        and robust_std >= 6.6
+        and robust_edge >= 0.085
+    ):
+        texture = "curly"
+        confidence = min(
+            0.86,
+            0.72
+            + 0.025 * strong_curly_regions
+            + min(0.06, max(0.0, robust_std - 6.6) * 0.02),
+        )
+
+    # Wavy: textura intermedia o bordes repetidos en varias zonas.
+    elif (
+        strong_wave_regions >= 2
+        and (
+            robust_std >= 3.7
+            or robust_edge >= 0.060
+        )
+    ):
+        texture = "wavy"
+        confidence = 0.74
+
+    else:
+        texture = "straight"
+        confidence = 0.70
+
+    print(
+        "[HAIR 4A TEXTURE] "
+        f"regions={len(metrics)} "
+        f"std={robust_std:.2f} "
+        f"edge={robust_edge:.3f} "
+        f"curly_regions={strong_curly_regions} "
+        f"wave_regions={strong_wave_regions} "
+        f"=> {texture}"
+    )
+
+    return texture, confidence
+
+
 def _hair_similarity_mask(region, ref_bgr, tolerance=62):
     """Máscara simple de color similar al pelo de referencia."""
     if region is None or region.size == 0 or ref_bgr is None:
@@ -436,16 +621,22 @@ def _estimate_hair_v2_details(
     if hair_length == "bald" or ref_color is None:
         return {
             "hair_shape_family": "none",
+            "hair_style_family": "none",
             "hair_volume": "low",
             "bangs": "none",
             "hair_tied": "none",
+            "braid_count": "none",
+            "braid_style": "none",
             "parting": "none",
             "face_framing": "none",
             "_confidence": {
                 "hair_shape_family": 0.92,
+                "hair_style_family": 0.92,
                 "hair_volume": 0.90,
                 "bangs": 0.90,
                 "hair_tied": 0.90,
+                "braid_count": 0.92,
+                "braid_style": 0.92,
                 "parting": 0.88,
                 "face_framing": 0.90,
             },
@@ -505,17 +696,17 @@ def _estimate_hair_v2_details(
     # --------------------------------------------------
     frame_left = _crop(
         img_bgr,
-        x - 0.10*w,
+        x - 0.12*w,
         y + 0.18*h,
-        x + 0.15*w,
-        y + 0.96*h,
+        x + 0.18*w,
+        y + 1.18*h,
     )
     frame_right = _crop(
         img_bgr,
-        x + 0.85*w,
+        x + 0.82*w,
         y + 0.18*h,
-        x + 1.10*w,
-        y + 0.96*h,
+        x + 1.12*w,
+        y + 1.18*h,
     )
 
     frame_l = _hair_region_presence(
@@ -657,12 +848,26 @@ def _estimate_hair_v2_details(
     if bun_presence >= 0.10 and side_presence <= 0.095:
         hair_tied = "bun"
         tied_conf = 0.70
-    elif strongest_pony >= 0.075 and abs(pony_l - pony_r) >= 0.035:
+    elif (
+        strongest_pony >= 0.075
+        and abs(pony_l - pony_r) >= 0.035
+        # CHECK FACE 4A:
+        # pelo largo suelto también puede sobresalir del face box en un lado.
+        # Si enmarca fuertemente AMBOS lados de la cara, priorizamos "loose".
+        and frame_bilateral < 0.090
+    ):
         hair_tied = "ponytail"
         tied_conf = 0.66
     elif hair_length in {"medium", "long"} and frame_mean <= 0.030 and side_presence <= 0.040:
         hair_tied = "tied_back"
         tied_conf = 0.56
+    elif (
+        face_framing == "strong"
+        and frame_bilateral >= 0.090
+        and bun_presence <= 0.060
+    ):
+        hair_tied = "none"
+        tied_conf = 0.68
     elif strongest_pony <= 0.025 and bun_presence <= 0.045:
         hair_tied = "none"
         tied_conf = 0.56
@@ -705,8 +910,15 @@ def _estimate_hair_v2_details(
             family_conf = 0.55
 
     elif hair_length == "medium":
-        # Bob: caída bilateral cercana a la cara, no excesivamente voluminosa.
-        if face_framing == "strong" and hair_volume in {"low", "medium"}:
+        # CHECK HAIR 2G:
+        # si existe enmarcado fuerte pero además la longitud global quedó en
+        # medium, evitamos asumir "bob" demasiado pronto. Bob requiere caída
+        # cercana a la cara SIN evidencia profunda clara.
+        if (
+            face_framing == "strong"
+            and hair_volume in {"low", "medium"}
+            and hair_tied in {None, "none"}
+        ):
             family = "bob"
             family_conf = 0.61
         elif hair_texture in {"curly", "wavy"}:
@@ -724,8 +936,53 @@ def _estimate_hair_v2_details(
             family = "long_loose"
             family_conf = 0.66
 
+    # --------------------------------------------------
+    # 6) HAIR V3: familia semántica para matching
+    # --------------------------------------------------
+    # hair_shape_family conserva geometría; hair_style_family describe
+    # la identidad visual que usa el selector V4.
+    if hair_tied == "bun":
+        style_family = "bun"
+    elif hair_tied == "ponytail":
+        style_family = "ponytail"
+    elif hair_tied == "tied_back":
+        style_family = "tied_back"
+    elif family == "afro":
+        style_family = "afro"
+    elif hair_length == "long":
+        if hair_texture == "straight":
+            style_family = "long_straight"
+        elif hair_texture == "curly":
+            style_family = "long_curly"
+        else:
+            style_family = "long_wavy"
+    elif hair_length == "medium":
+        if family == "bob":
+            style_family = "bob"
+        elif hair_texture == "curly":
+            style_family = "medium_curly"
+        else:
+            style_family = "layered_medium"
+    elif hair_length == "short":
+        if family == "afro":
+            style_family = "afro"
+        elif hair_texture == "curly":
+            style_family = "short_curly"
+        elif hair_texture == "wavy":
+            style_family = "short_wavy"
+        else:
+            style_family = "short_straight"
+    else:
+        style_family = family
+
+    style_conf = max(
+        0.54,
+        min(0.84, family_conf + 0.04),
+    )
+
     return {
         "hair_shape_family": family,
+        "hair_style_family": style_family,
         "hair_volume": hair_volume,
         "bangs": bangs,
         "hair_tied": hair_tied,
@@ -733,6 +990,7 @@ def _estimate_hair_v2_details(
         "face_framing": face_framing,
         "_confidence": {
             "hair_shape_family": family_conf,
+            "hair_style_family": style_conf,
             "hair_volume": volume_conf,
             "bangs": bangs_conf,
             "hair_tied": tied_conf,
@@ -741,6 +999,203 @@ def _estimate_hair_v2_details(
         },
     }
 
+
+
+def _deep_hair_presence(img_bgr, face_box, ref_color):
+    """
+    CHECK HAIR 2G:
+    busca evidencia de pelo que siga cayendo debajo de mandíbula/cuello,
+    aproximando pelo hasta hombros.
+
+    Devuelve:
+      - deep_presence: ocupación media bilateral
+      - deep_edge: fuerza texturada media bilateral
+      - bilateral_deep: mínimo entre ambos lados
+    """
+    x, y, w, h = face_box
+
+    deep_left = _crop(
+        img_bgr,
+        x - 0.18*w,
+        y + 1.05*h,
+        x + 0.26*w,
+        y + 1.62*h,
+    )
+    deep_right = _crop(
+        img_bgr,
+        x + 0.74*w,
+        y + 1.05*h,
+        x + 1.18*w,
+        y + 1.62*h,
+    )
+
+    dl_presence, dl_edge = _texture_hair_presence(deep_left, ref_color)
+    dr_presence, dr_edge = _texture_hair_presence(deep_right, ref_color)
+
+    deep_presence = (dl_presence + dr_presence) / 2.0
+    deep_edge = (dl_edge + dr_edge) / 2.0
+    bilateral_deep = min(dl_presence, dr_presence)
+
+    return {
+        "deep_presence": deep_presence,
+        "deep_edge": deep_edge,
+        "bilateral_deep": bilateral_deep,
+        "left_presence": dl_presence,
+        "right_presence": dr_presence,
+    }
+
+
+
+
+def _estimate_braid_structure(
+    img_bgr,
+    face_box,
+    ref_color,
+    hair_length,
+    details,
+    deep_metrics,
+):
+    """
+    CHECK HAIR 3A
+
+    Detecta estructuras de trenza largas mediante geometría bilateral.
+
+    Idea:
+    - dos columnas texturadas de color similar al pelo bajando por ambos lados
+    - continuidad profunda por debajo de mandíbula/cuello
+    - volumen global bajo/medio (las trenzas compactan el cabello)
+    - mayor presencia lateral que en la franja central inferior
+
+    Es deliberadamente conservador. Si no hay evidencia fuerte devuelve
+    "none" para no inventar trenzas.
+    """
+    default = {
+        "hair_style_family": details.get("hair_style_family") or details.get("hair_shape_family"),
+        "braid_count": "none",
+        "braid_style": "none",
+        "_confidence": {
+            "hair_style_family": details.get("_confidence", {}).get(
+                "hair_shape_family", 0.40
+            ),
+            "braid_count": 0.55,
+            "braid_style": 0.55,
+        },
+    }
+
+    if (
+        hair_length != "long"
+        or ref_color is None
+        or details.get("hair_tied") in {"bun", "ponytail"}
+    ):
+        return default
+
+    x, y, w, h = face_box
+
+    left_strand = _crop(
+        img_bgr,
+        x - 0.38*w,
+        y + 0.68*h,
+        x + 0.20*w,
+        y + 1.72*h,
+    )
+    right_strand = _crop(
+        img_bgr,
+        x + 0.80*w,
+        y + 0.68*h,
+        x + 1.38*w,
+        y + 1.72*h,
+    )
+    center_lower = _crop(
+        img_bgr,
+        x + 0.25*w,
+        y + 1.00*h,
+        x + 0.75*w,
+        y + 1.70*h,
+    )
+
+    left_presence, left_edge = _texture_hair_presence(
+        left_strand, ref_color
+    )
+    right_presence, right_edge = _texture_hair_presence(
+        right_strand, ref_color
+    )
+    center_presence, center_edge = _texture_hair_presence(
+        center_lower, ref_color
+    )
+
+    side_mean = (left_presence + right_presence) / 2.0
+    side_min = min(left_presence, right_presence)
+    edge_min = min(left_edge, right_edge)
+
+    bilateral_deep = float(
+        deep_metrics.get("bilateral_deep", 0.0)
+    )
+    deep_presence = float(
+        deep_metrics.get("deep_presence", 0.0)
+    )
+
+    volume = details.get("hair_volume")
+    parting = details.get("parting")
+
+    # Dos trenzas: dos "columnas" laterales compactas y profundas.
+    concentration_ratio = (
+        side_mean / max(0.001, center_presence)
+    )
+
+    twin_braids = (
+        side_min >= 0.034
+        and edge_min >= 0.010
+        and bilateral_deep >= 0.038
+        and deep_presence >= 0.052
+        and side_mean >= max(0.058, center_presence * 1.10)
+        and parting in {"center", "side", None}
+        # CHECK FACE 4A:
+        # el pelo largo suelto puede formar dos columnas laterales.
+        # Para declararlo trenzas pedimos pelo compacto (volume=low)
+        # o una concentración lateral claramente superior al centro.
+        and (
+            volume == "low"
+            or concentration_ratio >= 1.30
+        )
+    )
+
+    print(
+        "[HAIR 4A BRAID CHECK] "
+        f"side_min={side_min:.3f} "
+        f"side_mean={side_mean:.3f} "
+        f"edge_min={edge_min:.3f} "
+        f"deep={deep_presence:.3f} "
+        f"bilateral_deep={bilateral_deep:.3f} "
+        f"center={center_presence:.3f} "
+        f"ratio={concentration_ratio:.2f} "
+        f"volume={volume} "
+        f"parting={parting} "
+        f"twin_braids={twin_braids}"
+    )
+
+    if twin_braids:
+        # Fuerza combinada para no dar 0.95 por una sola métrica.
+        strength = min(
+            1.0,
+            0.45
+            + min(0.18, side_min * 1.4)
+            + min(0.16, bilateral_deep * 0.8)
+            + min(0.12, edge_min * 2.0),
+        )
+        conf = max(0.76, min(0.90, strength))
+
+        return {
+            "hair_style_family": "braided_long",
+            "braid_count": "double",
+            "braid_style": "twin_braids",
+            "_confidence": {
+                "hair_style_family": conf,
+                "braid_count": min(0.92, conf + 0.04),
+                "braid_style": min(0.92, conf + 0.03),
+            },
+        }
+
+    return default
 
 def _estimate_hair(img_bgr, face_box):
     """
@@ -762,27 +1217,100 @@ def _estimate_hair(img_bgr, face_box):
 
     top_dark = _dark_ratio(top, 115)
 
-    if top_dark < 0.07:
+    # CHECK HAIR 3C
+    # --------------------------------------------------------------
+    # El criterio viejo decía "top_dark < 0.07 => bald".
+    # Eso falla con:
+    #   - pelo recogido / trenzado
+    #   - raya central amplia
+    #   - fondos claros
+    #   - cabello claro
+    #
+    # Ahora "bald" requiere varias evidencias a la vez:
+    #   1) muy poca señal oscura arriba,
+    #   2) sin color de cabello confiable,
+    #   3) sin presencia texturada de cabello alrededor del cuero cabelludo.
+    top_hair_presence, top_hair_edge = _texture_hair_presence(
+        top,
+        ref_color,
+    )
+
+    crown_left = _crop(
+        img_bgr,
+        x - 0.12*w,
+        y - 0.20*h,
+        x + 0.32*w,
+        y + 0.18*h,
+    )
+    crown_right = _crop(
+        img_bgr,
+        x + 0.68*w,
+        y - 0.20*h,
+        x + 1.12*w,
+        y + 0.18*h,
+    )
+
+    crown_l_presence, crown_l_edge = _texture_hair_presence(
+        crown_left,
+        ref_color,
+    )
+    crown_r_presence, crown_r_edge = _texture_hair_presence(
+        crown_right,
+        ref_color,
+    )
+
+    crown_presence = max(crown_l_presence, crown_r_presence)
+    crown_edge = max(crown_l_edge, crown_r_edge)
+
+    bald_detected = bool(
+        top_dark < 0.035
+        and (
+            ref_color is None
+            or color_conf < 0.34
+        )
+        and top_hair_presence < 0.012
+        and top_hair_edge < 0.006
+        and crown_presence < 0.012
+        and crown_edge < 0.006
+    )
+
+    print(
+        "[HAIR 3C BALD CHECK] "
+        f"top_dark={top_dark:.3f} "
+        f"hair_color={hair_color} "
+        f"color_conf={color_conf:.2f} "
+        f"top_presence={top_hair_presence:.3f} "
+        f"crown_presence={crown_presence:.3f} "
+        f"bald={bald_detected}"
+    )
+
+    if bald_detected:
         return {
             "bald": True,
             "hair_length": "bald",
             "hair_color": "none",
             "hair_texture": "none",
             "hair_shape_family": "none",
+            "hair_style_family": "none",
             "hair_volume": "low",
             "bangs": "none",
             "hair_tied": "none",
+            "braid_count": "none",
+            "braid_style": "none",
             "parting": "none",
             "face_framing": "none",
             "_confidence": {
-                "bald": 0.78,
-                "hair_length": 0.76,
+                "bald": 0.90,
+                "hair_length": 0.88,
                 "hair_color": 0.0,
-                "hair_texture": 0.75,
+                "hair_texture": 0.0,
                 "hair_shape_family": 0.92,
+                "hair_style_family": 0.92,
                 "hair_volume": 0.90,
                 "bangs": 0.90,
                 "hair_tied": 0.90,
+                "braid_count": 0.92,
+                "braid_style": 0.92,
                 "parting": 0.88,
                 "face_framing": 0.90,
             },
@@ -805,17 +1333,17 @@ def _estimate_hair(img_bgr, face_box):
 
     left_below = _crop(
         img_bgr,
-        x - 0.12*w,
+        x - 0.14*w,
         y + 0.84*h,
-        x + 0.20*w,
-        y + 1.18*h,
+        x + 0.24*w,
+        y + 1.24*h,
     )
     right_below = _crop(
         img_bgr,
-        x + 0.80*w,
+        x + 0.76*w,
         y + 0.84*h,
-        x + 1.12*w,
-        y + 1.18*h,
+        x + 1.14*w,
+        y + 1.24*h,
     )
 
     mid_l, mid_l_edge = _texture_hair_presence(left_mid, ref_color)
@@ -829,7 +1357,23 @@ def _estimate_hair(img_bgr, face_box):
     strongest_low_presence = max(low_l, low_r)
     strongest_low_edge = max(low_l_edge, low_r_edge)
 
+    deep = _deep_hair_presence(img_bgr, face_box, ref_color)
+    deep_presence = deep["deep_presence"]
+    deep_edge = deep["deep_edge"]
+    bilateral_deep = deep["bilateral_deep"]
+
     if (
+        # Evidencia profunda bilateral: pelo claramente llega debajo del cuello.
+        (deep_presence >= 0.050 and deep_edge >= 0.012 and bilateral_deep >= 0.030)
+        or
+        # Continuidad media -> baja -> profunda.
+        (
+            mid_presence >= 0.070
+            and below_presence >= 0.060
+            and deep_presence >= 0.030
+            and deep_edge >= 0.010
+        )
+        or
         below_presence >= 0.105
         or (strongest_low_presence >= 0.065 and strongest_low_edge >= 0.018)
         # CHECK HAIR 2F: caída bilateral clara alrededor de la mandíbula +
@@ -841,15 +1385,23 @@ def _estimate_hair(img_bgr, face_box):
         )
     ):
         hair_length = "long"
-        length_conf = 0.84
-    elif mid_presence >= 0.068 or below_presence >= 0.055:
+        length_conf = 0.86
+    elif (
+        mid_presence >= 0.068
+        or below_presence >= 0.055
+        or (deep_presence >= 0.022 and deep_edge >= 0.008)
+    ):
         hair_length = "medium"
         length_conf = 0.78
     else:
         hair_length = "short"
         length_conf = 0.70
 
-    hair_texture, texture_conf = _estimate_hair_texture(top, ref_color)
+    hair_texture, texture_conf = _estimate_hair_texture_v4(
+        img_bgr,
+        face_box,
+        ref_color,
+    )
 
     result = {
         "bald": False,
@@ -872,8 +1424,48 @@ def _estimate_hair(img_bgr, face_box):
         hair_texture,
     )
 
-    result["_confidence"].update(details.pop("_confidence"))
-    result.update(details)
+    detail_conf = details.get("_confidence", {}).copy()
+    result["_confidence"].update(detail_conf)
+
+    details_without_conf = dict(details)
+    details_without_conf.pop("_confidence", None)
+    result.update(details_without_conf)
+
+    # CHECK HAIR 3A: estructura fina de trenzas.
+    braid_details = _estimate_braid_structure(
+        img_bgr,
+        face_box,
+        ref_color,
+        hair_length,
+        details,
+        deep,
+    )
+    braid_conf = braid_details.pop("_confidence", {})
+    result["_confidence"].update(braid_conf)
+    result.update(braid_details)
+
+    # Garantías de esquema Hair V3.
+    result.setdefault(
+        "hair_style_family",
+        result.get("hair_shape_family")
+    )
+    result.setdefault("braid_count", "none")
+    result.setdefault("braid_style", "none")
+
+    # Si detectamos trenzas con evidencia alta, la estructura manda sobre
+    # la familia "long_layered" inferida por largo/textura.
+    if result.get("braid_style") == "twin_braids":
+        result["hair_tied"] = "braids"
+        result["hair_shape_family"] = "braids"
+        result["_confidence"]["hair_tied"] = max(
+            result["_confidence"].get("hair_tied", 0.0),
+            result["_confidence"].get("braid_style", 0.0),
+        )
+        result["_confidence"]["hair_shape_family"] = max(
+            result["_confidence"].get("hair_shape_family", 0.0),
+            result["_confidence"].get("hair_style_family", 0.0),
+        )
+
     return result
 
 
@@ -948,6 +1540,251 @@ def _estimate_glasses(face_roi):
     # Ambiguo: mejor no forzar anteojos ni no-anteojos en el matching.
     return None, 0.35
 
+
+def _sample_iris_eye(face_roi, center_x_frac):
+    """
+    Muestrea una pequeña corona alrededor del centro esperado del iris.
+    Hace balance local usando la esclerótica para reducir dominante cálida
+    de webcam/ambiente.
+    """
+    if face_roi is None or face_roi.size == 0:
+        return None
+
+    h, w = face_roi.shape[:2]
+    cx = int(center_x_frac * w)
+    cy = int(0.425 * h)
+
+    yy, xx = np.ogrid[:h, :w]
+    dist = np.sqrt(
+        (xx - cx) ** 2
+        + (yy - cy) ** 2
+    )
+
+    hsv = cv2.cvtColor(
+        face_roi,
+        cv2.COLOR_BGR2HSV,
+    )
+
+    radius = max(2.0, 0.045 * w)
+
+    iris_mask = (
+        (dist <= radius)
+        & (dist >= max(1.0, 0.012*w))
+        & (hsv[..., 2] >= 20)
+        & (hsv[..., 2] <= 150)
+    )
+
+    iris_pixels = face_roi[iris_mask]
+    if len(iris_pixels) < 12:
+        return None
+
+    # Quitamos extremos:
+    # - los más oscuros suelen ser pupila/marco
+    # - los más claros suelen ser reflejo/esclerótica
+    iris_hsv = cv2.cvtColor(
+        iris_pixels.reshape(-1, 1, 3),
+        cv2.COLOR_BGR2HSV,
+    ).reshape(-1, 3)
+
+    order = np.argsort(iris_hsv[:, 2])
+    lo = int(len(order) * 0.15)
+    hi = max(lo + 6, int(len(order) * 0.68))
+    selected = iris_pixels[order[lo:hi]]
+
+    if len(selected) < 6:
+        return None
+
+    # Referencia local aproximadamente blanca alrededor del iris.
+    sclera_mask = (
+        (dist >= 0.050*w)
+        & (dist <= 0.105*w)
+        & (np.abs(yy - cy) <= 0.030*h)
+        & (hsv[..., 2] >= 105)
+        & (hsv[..., 1] <= 115)
+    )
+
+    sclera = face_roi[sclera_mask]
+
+    corrected = selected.astype(np.float32)
+
+    if len(sclera) >= 8:
+        sclera_med = np.median(
+            sclera.astype(np.float32),
+            axis=0,
+        )
+        target = float(
+            np.mean(sclera_med)
+        )
+        factors = (
+            target
+            / np.maximum(sclera_med, 1.0)
+        )
+        # Limitar corrección para no inventar color.
+        factors = np.clip(
+            factors,
+            0.78,
+            1.25,
+        )
+        corrected *= factors.reshape(1, 3)
+
+    corrected = np.clip(
+        corrected,
+        0,
+        255,
+    )
+
+    med_bgr = np.median(
+        corrected,
+        axis=0,
+    )
+
+    med_hsv = cv2.cvtColor(
+        np.uint8([[med_bgr]]),
+        cv2.COLOR_BGR2HSV,
+    )[0, 0]
+
+    return {
+        "bgr": tuple(
+            float(v) for v in med_bgr
+        ),
+        "h": float(med_hsv[0]),
+        "s": float(med_hsv[1]),
+        "v": float(med_hsv[2]),
+        "pixels": int(len(selected)),
+        "has_sclera_reference": bool(len(sclera) >= 8),
+    }
+
+
+def _classify_eye_sample(sample):
+    if sample is None:
+        return None, 0.0
+
+    h = sample["h"]
+    s = sample["s"]
+    v = sample["v"]
+    b, g, r = sample["bgr"]
+
+    # Muy oscuro: solo separar near-black / dark-brown.
+    if v < 52:
+        if s < 24:
+            return "near_black", 0.45
+        return "dark_brown", 0.50
+
+    # Iris casi neutro: gris. El launcher puede refinar gray_green/gray_blue.
+    if s < 34:
+        return "gray", 0.56
+
+    # Con saturación baja-media, pequeñas diferencias B/G sirven para
+    # orientar un gris hacia verde/azul.
+    if s < 52:
+        if g >= r - 2 and g >= b - 3:
+            return "gray_green", 0.55
+        if b >= g + 4:
+            return "gray_blue", 0.55
+        return "gray", 0.52
+
+    # OpenCV H: 0..179.
+    # Marrones/hazel suelen caer en el sector cálido.
+    if h <= 18 or h >= 165:
+        if v <= 82:
+            return "dark_brown", 0.58
+        if s <= 85:
+            return "hazel", 0.56
+        return "brown", 0.58
+
+    if 19 <= h <= 34:
+        return "hazel", 0.60
+
+    if 35 <= h <= 88:
+        return "green", 0.61
+
+    if 89 <= h <= 132:
+        return "blue", 0.61
+
+    return "gray", 0.45
+
+
+def _estimate_eye_color(face_roi, glasses=None):
+    """
+    CHECK FACE 4A.
+
+    Estimación SEMÁNTICA del iris, pensada para alimentar la paleta del
+    launcher. Si la evidencia no es suficiente devuelve None.
+
+    Con anteojos la confianza se limita porque reflejos/marcos contaminan
+    el área del iris.
+    """
+    if face_roi is None or face_roi.size == 0:
+        return None, 0.0
+
+    samples = [
+        _sample_iris_eye(face_roi, 0.35),
+        _sample_iris_eye(face_roi, 0.65),
+    ]
+
+    classified = [
+        _classify_eye_sample(sample)
+        for sample in samples
+        if sample is not None
+    ]
+
+    classified = [
+        (label, conf)
+        for label, conf in classified
+        if label is not None
+    ]
+
+    if not classified:
+        print("[EYE 4A] sin muestra confiable")
+        return None, 0.0
+
+    labels = [x[0] for x in classified]
+
+    # Si ambos ojos coinciden, buena evidencia.
+    if len(labels) >= 2 and labels[0] == labels[1]:
+        label = labels[0]
+        confidence = min(
+            0.72,
+            sum(x[1] for x in classified) / len(classified) + 0.08,
+        )
+    else:
+        # Resolver desacuerdos hacia familias más amplias.
+        label_set = set(labels)
+
+        if label_set <= {"gray", "gray_green", "gray_blue"}:
+            label = "gray"
+            confidence = 0.52
+        elif label_set <= {"dark_brown", "brown", "hazel"}:
+            label = "hazel" if "hazel" in label_set else "brown"
+            confidence = 0.50
+        elif len(classified) == 1:
+            label, confidence = classified[0]
+            confidence *= 0.82
+        else:
+            # Reflejo/ambigüedad: no inventar.
+            print(
+                "[EYE 4A] desacuerdo="
+                + ",".join(labels)
+                + " => unknown"
+            )
+            return None, 0.0
+
+    if glasses is True:
+        confidence = min(
+            confidence,
+            0.60,
+        )
+
+    print(
+        "[EYE 4A] "
+        f"samples={labels} "
+        f"=> {label} "
+        f"conf={confidence:.2f}"
+    )
+
+    return label, confidence
+
+
 def _estimate_facial_hair(face_roi):
     """
     V2 MUCHO más conservadora.
@@ -1008,17 +1845,50 @@ def _estimate_facial_hair(face_roi):
 
     jaw_scores = [jaw_left_dark, jaw_right_dark, chin_dark]
 
-    moustache = bool(must_dark > 0.24)
+    # CHECK FACE 4A:
+    # el ROI grande incluía labios/sombras y podía inventar bigote.
+    # Pedimos señal bilateral y razonablemente simétrica por ENCIMA del labio.
+    must_left = _crop(
+        face_roi,
+        0.34*w,
+        0.53*h,
+        0.49*w,
+        0.62*h,
+    )
+    must_right = _crop(
+        face_roi,
+        0.51*w,
+        0.53*h,
+        0.66*w,
+        0.62*h,
+    )
+
+    must_left_dark = _dark_ratio(must_left, 90)
+    must_right_dark = _dark_ratio(must_right, 90)
+    must_max = max(must_left_dark, must_right_dark)
+    must_min = min(must_left_dark, must_right_dark)
+    must_symmetry = (
+        must_min / max(0.001, must_max)
+    )
+
+    moustache = bool(
+        must_dark >= 0.22
+        and must_min >= 0.10
+        and must_symmetry >= 0.50
+    )
 
     # V5: una sombra puntual, pelo largo entrando por un lateral o la propia
     # boca ya no alcanzan para declarar barba. Pedimos evidencia bilateral
     # o una zona central de mentón realmente densa.
+    # CHECK HAIR 3A:
+    # El mentón oscuro por sí solo NO alcanza para declarar barba.
+    # En fotos con pelo largo/trenzas y sombras laterales generaba falsos
+    # positivos. Exigimos soporte bilateral de mandíbula.
     beard = bool(
         (jaw_left_dark > 0.15 and jaw_right_dark > 0.15)
-        or chin_dark > 0.23
         or (
-            chin_dark > 0.18
-            and min(jaw_left_dark, jaw_right_dark) > 0.10
+            chin_dark > 0.20
+            and min(jaw_left_dark, jaw_right_dark) > 0.105
         )
     )
 
@@ -1092,6 +1962,14 @@ def analyze_face(image_path: str | Path) -> dict:
     traits["glasses"] = glasses
     confidence["glasses"] = glasses_conf
 
+    # -------- eye color
+    eye_color, eye_conf = _estimate_eye_color(
+        face_roi,
+        glasses=glasses,
+    )
+    traits["eye_color"] = eye_color
+    confidence["eye_color"] = eye_conf
+
     # -------- facial hair
     facial = _estimate_facial_hair(face_roi)
     confidence.update(facial.pop("_confidence"))
@@ -1100,11 +1978,9 @@ def analyze_face(image_path: str | Path) -> dict:
     # V2: no inventamos lo que todavía no podemos medir bien.
     traits["freckles"] = None
     traits["age_group"] = None
-    traits["eye_color"] = None
 
     confidence["freckles"] = 0.0
     confidence["age_group"] = 0.0
-    confidence["eye_color"] = 0.0
 
     traits["_confidence"] = confidence
 

@@ -353,12 +353,23 @@ def _estimate_hair_texture(top_region, ref_bgr):
     local_std = np.sqrt(np.maximum(mean2 - mean * mean, 0.0))
     texture_strength = float(np.median(local_std[similar])) if np.any(similar) else 0.0
 
-    # Curly hair creates many short internal edges and local brightness changes.
-    if edge_in_hair >= 0.052 or texture_strength >= 8.5:
+    # CHECK HAIR 2F:
+    # Los bordes altos por sí solos no alcanzan para declarar curly: flequillo,
+    # reflejos y anteojos pueden generar muchos edges. Exigimos también
+    # variación local real del cabello.
+    if (
+        texture_strength >= 8.8
+        or (edge_in_hair >= 0.085 and texture_strength >= 6.8)
+    ):
         return "curly", 0.74
-    if edge_in_hair >= 0.032 or texture_strength >= 5.0:
-        return "wavy", 0.62
-    return "straight", 0.55
+
+    if (
+        texture_strength >= 4.6
+        or edge_in_hair >= 0.040
+    ):
+        return "wavy", 0.68
+
+    return "straight", 0.58
 
 
 
@@ -425,16 +436,22 @@ def _estimate_hair_v2_details(
     if hair_length == "bald" or ref_color is None:
         return {
             "hair_shape_family": "none",
+            "hair_style_family": "none",
             "hair_volume": "low",
             "bangs": "none",
             "hair_tied": "none",
+            "braid_count": "none",
+            "braid_style": "none",
             "parting": "none",
             "face_framing": "none",
             "_confidence": {
                 "hair_shape_family": 0.92,
+                "hair_style_family": 0.92,
                 "hair_volume": 0.90,
                 "bangs": 0.90,
                 "hair_tied": 0.90,
+                "braid_count": 0.92,
+                "braid_style": 0.92,
                 "parting": 0.88,
                 "face_framing": 0.90,
             },
@@ -494,17 +511,17 @@ def _estimate_hair_v2_details(
     # --------------------------------------------------
     frame_left = _crop(
         img_bgr,
-        x - 0.10*w,
+        x - 0.12*w,
         y + 0.18*h,
-        x + 0.15*w,
-        y + 0.96*h,
+        x + 0.18*w,
+        y + 1.18*h,
     )
     frame_right = _crop(
         img_bgr,
-        x + 0.85*w,
+        x + 0.82*w,
         y + 0.18*h,
-        x + 1.10*w,
-        y + 0.96*h,
+        x + 1.12*w,
+        y + 1.18*h,
     )
 
     frame_l = _hair_region_presence(
@@ -586,7 +603,12 @@ def _estimate_hair_v2_details(
     parting = None
     parting_conf = 0.30
 
-    if fh_c <= 0.055 and min(fh_l, fh_r) >= 0.085:
+    # Curtain bangs implican una apertura central aunque la pose de la cabeza
+    # haga que un lado ocupe más píxeles que el otro.
+    if bangs == "curtain":
+        parting = "center"
+        parting_conf = 0.66
+    elif fh_c <= 0.055 and min(fh_l, fh_r) >= 0.085:
         parting = "center"
         parting_conf = 0.64
     elif abs(fh_l - fh_r) >= 0.095 and max(fh_l, fh_r) >= 0.12:
@@ -689,8 +711,15 @@ def _estimate_hair_v2_details(
             family_conf = 0.55
 
     elif hair_length == "medium":
-        # Bob: caída bilateral cercana a la cara, no excesivamente voluminosa.
-        if face_framing == "strong" and hair_volume in {"low", "medium"}:
+        # CHECK HAIR 2G:
+        # si existe enmarcado fuerte pero además la longitud global quedó en
+        # medium, evitamos asumir "bob" demasiado pronto. Bob requiere caída
+        # cercana a la cara SIN evidencia profunda clara.
+        if (
+            face_framing == "strong"
+            and hair_volume in {"low", "medium"}
+            and hair_tied in {None, "none"}
+        ):
             family = "bob"
             family_conf = 0.61
         elif hair_texture in {"curly", "wavy"}:
@@ -703,10 +732,10 @@ def _estimate_hair_v2_details(
     elif hair_length == "long":
         if hair_texture in {"wavy", "curly"}:
             family = "long_layered"
-            family_conf = 0.64
+            family_conf = 0.70
         else:
             family = "long_loose"
-            family_conf = 0.62
+            family_conf = 0.66
 
     return {
         "hair_shape_family": family,
@@ -725,6 +754,193 @@ def _estimate_hair_v2_details(
         },
     }
 
+
+
+def _deep_hair_presence(img_bgr, face_box, ref_color):
+    """
+    CHECK HAIR 2G:
+    busca evidencia de pelo que siga cayendo debajo de mandíbula/cuello,
+    aproximando pelo hasta hombros.
+
+    Devuelve:
+      - deep_presence: ocupación media bilateral
+      - deep_edge: fuerza texturada media bilateral
+      - bilateral_deep: mínimo entre ambos lados
+    """
+    x, y, w, h = face_box
+
+    deep_left = _crop(
+        img_bgr,
+        x - 0.18*w,
+        y + 1.05*h,
+        x + 0.26*w,
+        y + 1.62*h,
+    )
+    deep_right = _crop(
+        img_bgr,
+        x + 0.74*w,
+        y + 1.05*h,
+        x + 1.18*w,
+        y + 1.62*h,
+    )
+
+    dl_presence, dl_edge = _texture_hair_presence(deep_left, ref_color)
+    dr_presence, dr_edge = _texture_hair_presence(deep_right, ref_color)
+
+    deep_presence = (dl_presence + dr_presence) / 2.0
+    deep_edge = (dl_edge + dr_edge) / 2.0
+    bilateral_deep = min(dl_presence, dr_presence)
+
+    return {
+        "deep_presence": deep_presence,
+        "deep_edge": deep_edge,
+        "bilateral_deep": bilateral_deep,
+        "left_presence": dl_presence,
+        "right_presence": dr_presence,
+    }
+
+
+
+
+def _estimate_braid_structure(
+    img_bgr,
+    face_box,
+    ref_color,
+    hair_length,
+    details,
+    deep_metrics,
+):
+    """
+    CHECK HAIR 3A
+
+    Detecta estructuras de trenza largas mediante geometría bilateral.
+
+    Idea:
+    - dos columnas texturadas de color similar al pelo bajando por ambos lados
+    - continuidad profunda por debajo de mandíbula/cuello
+    - volumen global bajo/medio (las trenzas compactan el cabello)
+    - mayor presencia lateral que en la franja central inferior
+
+    Es deliberadamente conservador. Si no hay evidencia fuerte devuelve
+    "none" para no inventar trenzas.
+    """
+    default = {
+        "hair_style_family": details.get("hair_shape_family"),
+        "braid_count": "none",
+        "braid_style": "none",
+        "_confidence": {
+            "hair_style_family": details.get("_confidence", {}).get(
+                "hair_shape_family", 0.40
+            ),
+            "braid_count": 0.55,
+            "braid_style": 0.55,
+        },
+    }
+
+    if (
+        hair_length != "long"
+        or ref_color is None
+        or details.get("hair_tied") in {"bun", "ponytail"}
+    ):
+        return default
+
+    x, y, w, h = face_box
+
+    left_strand = _crop(
+        img_bgr,
+        x - 0.38*w,
+        y + 0.68*h,
+        x + 0.20*w,
+        y + 1.72*h,
+    )
+    right_strand = _crop(
+        img_bgr,
+        x + 0.80*w,
+        y + 0.68*h,
+        x + 1.38*w,
+        y + 1.72*h,
+    )
+    center_lower = _crop(
+        img_bgr,
+        x + 0.25*w,
+        y + 1.00*h,
+        x + 0.75*w,
+        y + 1.70*h,
+    )
+
+    left_presence, left_edge = _texture_hair_presence(
+        left_strand, ref_color
+    )
+    right_presence, right_edge = _texture_hair_presence(
+        right_strand, ref_color
+    )
+    center_presence, center_edge = _texture_hair_presence(
+        center_lower, ref_color
+    )
+
+    side_mean = (left_presence + right_presence) / 2.0
+    side_min = min(left_presence, right_presence)
+    edge_min = min(left_edge, right_edge)
+
+    bilateral_deep = float(
+        deep_metrics.get("bilateral_deep", 0.0)
+    )
+    deep_presence = float(
+        deep_metrics.get("deep_presence", 0.0)
+    )
+
+    volume = details.get("hair_volume")
+    parting = details.get("parting")
+
+    # Dos trenzas: dos "columnas" laterales compactas y profundas.
+    twin_braids = (
+        # CHECK HAIR 3C:
+        # valores más tolerantes para trenzas compactas y oscuras.
+        side_min >= 0.034
+        and edge_min >= 0.010
+        and bilateral_deep >= 0.038
+        and deep_presence >= 0.052
+        and side_mean >= max(0.058, center_presence * 1.12)
+        and volume in {"low", "medium"}
+        and parting in {"center", "side", None}
+    )
+
+    print(
+        "[HAIR 3C BRAID CHECK] "
+        f"side_min={side_min:.3f} "
+        f"side_mean={side_mean:.3f} "
+        f"edge_min={edge_min:.3f} "
+        f"deep={deep_presence:.3f} "
+        f"bilateral_deep={bilateral_deep:.3f} "
+        f"center={center_presence:.3f} "
+        f"volume={volume} "
+        f"parting={parting} "
+        f"twin_braids={twin_braids}"
+    )
+
+    if twin_braids:
+        # Fuerza combinada para no dar 0.95 por una sola métrica.
+        strength = min(
+            1.0,
+            0.45
+            + min(0.18, side_min * 1.4)
+            + min(0.16, bilateral_deep * 0.8)
+            + min(0.12, edge_min * 2.0),
+        )
+        conf = max(0.76, min(0.90, strength))
+
+        return {
+            "hair_style_family": "braided_long",
+            "braid_count": "double",
+            "braid_style": "twin_braids",
+            "_confidence": {
+                "hair_style_family": conf,
+                "braid_count": min(0.92, conf + 0.04),
+                "braid_style": min(0.92, conf + 0.03),
+            },
+        }
+
+    return default
 
 def _estimate_hair(img_bgr, face_box):
     """
@@ -746,27 +962,100 @@ def _estimate_hair(img_bgr, face_box):
 
     top_dark = _dark_ratio(top, 115)
 
-    if top_dark < 0.07:
+    # CHECK HAIR 3C
+    # --------------------------------------------------------------
+    # El criterio viejo decía "top_dark < 0.07 => bald".
+    # Eso falla con:
+    #   - pelo recogido / trenzado
+    #   - raya central amplia
+    #   - fondos claros
+    #   - cabello claro
+    #
+    # Ahora "bald" requiere varias evidencias a la vez:
+    #   1) muy poca señal oscura arriba,
+    #   2) sin color de cabello confiable,
+    #   3) sin presencia texturada de cabello alrededor del cuero cabelludo.
+    top_hair_presence, top_hair_edge = _texture_hair_presence(
+        top,
+        ref_color,
+    )
+
+    crown_left = _crop(
+        img_bgr,
+        x - 0.12*w,
+        y - 0.20*h,
+        x + 0.32*w,
+        y + 0.18*h,
+    )
+    crown_right = _crop(
+        img_bgr,
+        x + 0.68*w,
+        y - 0.20*h,
+        x + 1.12*w,
+        y + 0.18*h,
+    )
+
+    crown_l_presence, crown_l_edge = _texture_hair_presence(
+        crown_left,
+        ref_color,
+    )
+    crown_r_presence, crown_r_edge = _texture_hair_presence(
+        crown_right,
+        ref_color,
+    )
+
+    crown_presence = max(crown_l_presence, crown_r_presence)
+    crown_edge = max(crown_l_edge, crown_r_edge)
+
+    bald_detected = bool(
+        top_dark < 0.035
+        and (
+            ref_color is None
+            or color_conf < 0.34
+        )
+        and top_hair_presence < 0.012
+        and top_hair_edge < 0.006
+        and crown_presence < 0.012
+        and crown_edge < 0.006
+    )
+
+    print(
+        "[HAIR 3C BALD CHECK] "
+        f"top_dark={top_dark:.3f} "
+        f"hair_color={hair_color} "
+        f"color_conf={color_conf:.2f} "
+        f"top_presence={top_hair_presence:.3f} "
+        f"crown_presence={crown_presence:.3f} "
+        f"bald={bald_detected}"
+    )
+
+    if bald_detected:
         return {
             "bald": True,
             "hair_length": "bald",
             "hair_color": "none",
             "hair_texture": "none",
             "hair_shape_family": "none",
+            "hair_style_family": "none",
             "hair_volume": "low",
             "bangs": "none",
             "hair_tied": "none",
+            "braid_count": "none",
+            "braid_style": "none",
             "parting": "none",
             "face_framing": "none",
             "_confidence": {
-                "bald": 0.78,
-                "hair_length": 0.76,
+                "bald": 0.90,
+                "hair_length": 0.88,
                 "hair_color": 0.0,
-                "hair_texture": 0.75,
+                "hair_texture": 0.0,
                 "hair_shape_family": 0.92,
+                "hair_style_family": 0.92,
                 "hair_volume": 0.90,
                 "bangs": 0.90,
                 "hair_tied": 0.90,
+                "braid_count": 0.92,
+                "braid_style": 0.92,
                 "parting": 0.88,
                 "face_framing": 0.90,
             },
@@ -789,17 +1078,17 @@ def _estimate_hair(img_bgr, face_box):
 
     left_below = _crop(
         img_bgr,
-        x - 0.12*w,
+        x - 0.14*w,
         y + 0.84*h,
-        x + 0.20*w,
-        y + 1.18*h,
+        x + 0.24*w,
+        y + 1.24*h,
     )
     right_below = _crop(
         img_bgr,
-        x + 0.80*w,
+        x + 0.76*w,
         y + 0.84*h,
-        x + 1.12*w,
-        y + 1.18*h,
+        x + 1.14*w,
+        y + 1.24*h,
     )
 
     mid_l, mid_l_edge = _texture_hair_presence(left_mid, ref_color)
@@ -813,13 +1102,40 @@ def _estimate_hair(img_bgr, face_box):
     strongest_low_presence = max(low_l, low_r)
     strongest_low_edge = max(low_l_edge, low_r_edge)
 
+    deep = _deep_hair_presence(img_bgr, face_box, ref_color)
+    deep_presence = deep["deep_presence"]
+    deep_edge = deep["deep_edge"]
+    bilateral_deep = deep["bilateral_deep"]
+
     if (
+        # Evidencia profunda bilateral: pelo claramente llega debajo del cuello.
+        (deep_presence >= 0.050 and deep_edge >= 0.012 and bilateral_deep >= 0.030)
+        or
+        # Continuidad media -> baja -> profunda.
+        (
+            mid_presence >= 0.070
+            and below_presence >= 0.060
+            and deep_presence >= 0.030
+            and deep_edge >= 0.010
+        )
+        or
         below_presence >= 0.105
         or (strongest_low_presence >= 0.065 and strongest_low_edge >= 0.018)
+        # CHECK HAIR 2F: caída bilateral clara alrededor de la mandíbula +
+        # continuidad texturada en la zona inferior.
+        or (
+            mid_presence >= 0.078
+            and min(mid_l, mid_r) >= 0.072
+            and strongest_low_edge >= 0.032
+        )
     ):
         hair_length = "long"
         length_conf = 0.86
-    elif mid_presence >= 0.072 or below_presence >= 0.062:
+    elif (
+        mid_presence >= 0.068
+        or below_presence >= 0.055
+        or (deep_presence >= 0.022 and deep_edge >= 0.008)
+    ):
         hair_length = "medium"
         length_conf = 0.78
     else:
@@ -849,8 +1165,48 @@ def _estimate_hair(img_bgr, face_box):
         hair_texture,
     )
 
-    result["_confidence"].update(details.pop("_confidence"))
-    result.update(details)
+    detail_conf = details.get("_confidence", {}).copy()
+    result["_confidence"].update(detail_conf)
+
+    details_without_conf = dict(details)
+    details_without_conf.pop("_confidence", None)
+    result.update(details_without_conf)
+
+    # CHECK HAIR 3A: estructura fina de trenzas.
+    braid_details = _estimate_braid_structure(
+        img_bgr,
+        face_box,
+        ref_color,
+        hair_length,
+        details,
+        deep,
+    )
+    braid_conf = braid_details.pop("_confidence", {})
+    result["_confidence"].update(braid_conf)
+    result.update(braid_details)
+
+    # Garantías de esquema Hair V3.
+    result.setdefault(
+        "hair_style_family",
+        result.get("hair_shape_family")
+    )
+    result.setdefault("braid_count", "none")
+    result.setdefault("braid_style", "none")
+
+    # Si detectamos trenzas con evidencia alta, la estructura manda sobre
+    # la familia "long_layered" inferida por largo/textura.
+    if result.get("braid_style") == "twin_braids":
+        result["hair_tied"] = "braids"
+        result["hair_shape_family"] = "braids"
+        result["_confidence"]["hair_tied"] = max(
+            result["_confidence"].get("hair_tied", 0.0),
+            result["_confidence"].get("braid_style", 0.0),
+        )
+        result["_confidence"]["hair_shape_family"] = max(
+            result["_confidence"].get("hair_shape_family", 0.0),
+            result["_confidence"].get("hair_style_family", 0.0),
+        )
+
     return result
 
 
@@ -990,12 +1346,15 @@ def _estimate_facial_hair(face_roi):
     # V5: una sombra puntual, pelo largo entrando por un lateral o la propia
     # boca ya no alcanzan para declarar barba. Pedimos evidencia bilateral
     # o una zona central de mentón realmente densa.
+    # CHECK HAIR 3A:
+    # El mentón oscuro por sí solo NO alcanza para declarar barba.
+    # En fotos con pelo largo/trenzas y sombras laterales generaba falsos
+    # positivos. Exigimos soporte bilateral de mandíbula.
     beard = bool(
         (jaw_left_dark > 0.15 and jaw_right_dark > 0.15)
-        or chin_dark > 0.23
         or (
-            chin_dark > 0.18
-            and min(jaw_left_dark, jaw_right_dark) > 0.10
+            chin_dark > 0.20
+            and min(jaw_left_dark, jaw_right_dark) > 0.105
         )
     )
 

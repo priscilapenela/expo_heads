@@ -4,186 +4,344 @@
     "file": "avatars/avatar_0001.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
-      "glasses": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "braids",
+      "hair_style_family": "braided_long",
+      "hair_style_variant": "cornrows_side_braid_glasses",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "braids",
+      "braid_count": "multiple",
+      "braid_style": "cornrows",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
       "beard": false,
       "moustache": false,
-      "facial_hair_style": "none"
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [],
+    "expression": "soft_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0002",
     "file": "avatars/avatar_0002.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "high_ponytail_side_bangs",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
       "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
-      "facial_hair_style": "none"
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
-    "accessories": [],
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "wink_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0003",
     "file": "avatars/avatar_0003.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
-      "glasses": false,
+      "hair_length": "medium",
+      "hair_texture": "locs",
+      "hair_shape_family": "locs",
+      "hair_style_family": "locs",
+      "hair_style_variant": "locs_tied_back_full_beard",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "tied_back",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
       "beard": true,
-      "moustache": false,
-      "facial_hair_style": "beard"
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": "blue_violet",
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0004",
     "file": "avatars/avatar_0004.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
+      "hair_length": "medium",
+      "hair_texture": "locs",
+      "hair_shape_family": "locs",
+      "hair_style_family": "locs",
+      "hair_style_variant": "loose_medium_locs",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
       "glasses": false,
+      "glasses_style": "none",
       "beard": false,
-      "moustache": true,
-      "facial_hair_style": "moustache"
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": null
     },
     "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0005",
     "file": "avatars/avatar_0005.png",
     "traits": {
       "bald": false,
-      "hair_length": "medium",
-      "hair_texture": "straight",
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "crop",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "curly_crop_full_beard",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
       "glasses": false,
-      "beard": false,
-      "moustache": false,
-      "facial_hair_style": "none"
+      "glasses_style": "none",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
     "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0006",
     "file": "avatars/avatar_0006.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
-      "glasses": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "layered_medium",
+      "hair_style_variant": "layered_wavy_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
       "beard": false,
       "moustache": false,
-      "facial_hair_style": "none"
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [],
+    "expression": "big_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0007",
@@ -191,61 +349,113 @@
     "traits": {
       "bald": false,
       "hair_length": "short",
-      "hair_texture": "straight",
-      "glasses": true,
+      "hair_texture": "curly",
+      "hair_shape_family": "rounded_crop",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "rounded_curly_crop",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
-      "facial_hair_style": "none"
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
     "accessories": [],
+    "expression": "smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0008",
     "file": "avatars/avatar_0008.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "wavy_bob_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
       "glasses": true,
-      "beard": true,
+      "glasses_style": "rectangular",
+      "beard": false,
       "moustache": false,
-      "facial_hair_style": "beard"
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0009",
@@ -254,269 +464,456 @@
       "bald": false,
       "hair_length": "short",
       "hair_texture": "straight",
-      "glasses": true,
+      "hair_shape_family": "side_part",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_side_part",
+      "hair_volume": "low",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
-      "facial_hair_style": "none"
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
     "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0010",
     "file": "avatars/avatar_0010.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
+      "hair_length": "medium",
       "hair_texture": "wavy",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "layered_medium",
+      "hair_style_variant": "medium_layered_stubble",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
       "glasses": false,
-      "beard": false,
+      "glasses_style": "none",
+      "beard": true,
       "moustache": false,
-      "facial_hair_style": "none",
-      "freckles": false
+      "facial_hair_style": "beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
     "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0011",
     "file": "avatars/avatar_0011.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "curly",
-      "glasses": true,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "long_layered",
+      "hair_style_family": "long_wavy",
+      "hair_style_variant": "long_wavy_curtain",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
     "accessories": [],
+    "expression": "soft_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0012",
     "file": "avatars/avatar_0012.png",
     "traits": {
-      "bald": true,
-      "hair_length": "bald",
-      "hair_texture": "none",
-      "glasses": false,
-      "beard": true,
-      "moustache": false,
-      "facial_hair_style": "full_beard",
-      "freckles": false,
-      "hair_shape_family": "none",
-      "hair_style_variant": "bald",
-      "hair_volume": "low",
-      "bangs": "none",
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "rounded_crop",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_round_curls",
+      "hair_volume": "high",
+      "bangs": "short",
       "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
       "parting": "none",
-      "face_framing": "none"
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
-      "hair": null,
+      "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": null
     },
     "accessories": [],
+    "expression": "big_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "bald"
-      ],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0013",
     "file": "avatars/avatar_0013.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
+      "hair_length": "long",
       "hair_texture": "wavy",
-      "glasses": false,
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "ponytail_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
       "beard": false,
-      "moustache": true,
-      "facial_hair_style": "moustache",
-      "freckles": false
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
-    "accessories": [],
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "wink_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0014",
     "file": "avatars/avatar_0014.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
-      "hair_texture": "braided",
-      "glasses": true,
+      "hair_length": "medium",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_medium",
+      "hair_style_family": "medium_curly",
+      "hair_style_variant": "messy_medium_curls",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "braids",
-      "hair_style_variant": "braids_unspecified"
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
     "accessories": [],
+    "expression": "soft_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0015",
     "file": "avatars/avatar_0015.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "spiky",
-      "glasses": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "wavy_bob_rectangular_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "rectangular",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "messy_short",
-      "hair_style_variant": "spiky_short_unspecified",
-      "hair_tied": "none"
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
-    "accessories": [
-      "eyebrow_piercing"
-    ],
+    "accessories": [],
+    "expression": "soft_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0016",
     "file": "avatars/avatar_0016.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "curly",
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "side_part",
+      "hair_style_family": "layered_medium",
+      "hair_style_variant": "medium_side_part_moustache",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
       "glasses": false,
-      "beard": true,
+      "glasses_style": "none",
+      "beard": false,
       "moustache": true,
-      "facial_hair_style": "goatee",
-      "freckles": false
+      "facial_hair_style": "moustache",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
     "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0017",
@@ -524,137 +921,227 @@
     "traits": {
       "bald": false,
       "hair_length": "medium",
-      "hair_texture": "straight",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_medium",
+      "hair_style_family": "medium_curly",
+      "hair_style_variant": "high_volume_curly",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
       "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
     "accessories": [],
+    "expression": "laughing",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0018",
     "file": "avatars/avatar_0018.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "layered_medium",
+      "hair_style_variant": "medium_center_layered",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
       "glasses": false,
-      "beard": true,
+      "glasses_style": "none",
+      "beard": false,
       "moustache": false,
-      "facial_hair_style": "full_beard",
+      "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "undercut",
-      "hair_style_variant": "undercut",
-      "hair_tied": "none"
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": null
     },
-    "accessories": [
-      "undercut"
-    ],
+    "accessories": [],
+    "expression": "soft_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0019",
     "file": "avatars/avatar_0019.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
-      "hair_texture": "straight",
-      "glasses": true,
+      "hair_length": "short",
+      "hair_texture": "wavy",
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_wavy",
+      "hair_style_variant": "short_wavy_messy",
+      "hair_volume": "medium",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "ponytail",
-      "hair_style_variant": "ponytail",
-      "hair_tied": "ponytail"
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
-    "accessories": [
-      "ponytail"
-    ],
+    "accessories": [],
+    "expression": "smirk",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0020",
     "file": "avatars/avatar_0020.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
-      "hair_texture": "wavy",
-      "glasses": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_curly_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [],
+    "expression": "big_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0021",
@@ -663,208 +1150,344 @@
       "bald": false,
       "hair_length": "short",
       "hair_texture": "curly",
-      "glasses": true,
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_curly_smile",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": false
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
     "accessories": [],
+    "expression": "wide_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0022",
     "file": "avatars/avatar_0022.png",
     "traits": {
-      "bald": true,
-      "hair_length": "bald",
-      "hair_texture": "none",
-      "glasses": true,
-      "beard": true,
-      "moustache": false,
-      "facial_hair_style": "full_beard",
-      "freckles": false,
-      "hair_shape_family": "none",
-      "hair_style_variant": "bald",
-      "hair_volume": "low",
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "braids",
+      "hair_style_family": "braided_long",
+      "hair_style_variant": "cornrows_tied_glasses",
+      "hair_volume": "medium",
       "bangs": "none",
-      "hair_tied": "none",
+      "hair_tied": "braids",
+      "braid_count": "multiple",
+      "braid_style": "cornrows",
       "parting": "none",
-      "face_framing": "none"
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
-      "hair": null,
+      "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "bald"
-      ],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0023",
     "file": "avatars/avatar_0023.png",
     "traits": {
       "bald": false,
-      "hair_length": "medium",
-      "hair_texture": "straight",
+      "hair_length": "long",
+      "hair_texture": "locs",
+      "hair_shape_family": "locs",
+      "hair_style_family": "locs",
+      "hair_style_variant": "locs_ponytail_full_beard",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "ponytail",
+      "braid_count": "multiple",
+      "braid_style": "locs",
+      "parting": "none",
+      "face_framing": "light",
       "glasses": false,
-      "beard": false,
-      "moustache": false,
-      "facial_hair_style": "none",
-      "freckles": false
+      "glasses_style": "none",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
-    "accessories": [],
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0024",
     "file": "avatars/avatar_0024.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
-      "hair_texture": "braided",
+      "hair_length": "medium",
+      "hair_texture": "locs",
+      "hair_shape_family": "locs",
+      "hair_style_family": "locs",
+      "hair_style_variant": "locs_tied_full_beard",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "tied_back",
+      "braid_count": "multiple",
+      "braid_style": "locs",
+      "parting": "none",
+      "face_framing": "light",
       "glasses": false,
-      "beard": false,
-      "moustache": false,
-      "facial_hair_style": "none",
+      "glasses_style": "none",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
       "freckles": false,
-      "hair_shape_family": "braids",
-      "hair_style_variant": "braids"
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
-    "accessories": [
-      "braids"
-    ],
+    "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0025",
     "file": "avatars/avatar_0025.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
-      "glasses": false,
-      "beard": true,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "double_ponytail",
+      "hair_style_family": "double_ponytail",
+      "hair_style_variant": "double_ponytail_round_glasses",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "double_ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
       "moustache": false,
-      "facial_hair_style": "goatee",
+      "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "undercut",
-      "hair_style_variant": "undercut",
-      "hair_tied": "none"
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [
-      "undercut"
+      "hair_ties"
     ],
+    "expression": "big_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0026",
     "file": "avatars/avatar_0026.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "straight",
+      "hair_length": "medium",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_medium",
+      "hair_style_family": "medium_curly",
+      "hair_style_variant": "curly_medium_stubble_glasses",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
       "glasses": true,
-      "beard": false,
+      "glasses_style": "rectangular",
+      "beard": true,
       "moustache": false,
-      "facial_hair_style": "none",
-      "freckles": false
+      "facial_hair_style": "short_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [],
+    "expression": "open_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0027",
@@ -872,473 +1495,632 @@
     "traits": {
       "bald": false,
       "hair_length": "short",
-      "hair_texture": "curly",
-      "glasses": false,
+      "hair_texture": "coily",
+      "hair_shape_family": "afro",
+      "hair_style_family": "afro",
+      "hair_style_variant": "rounded_afro_glasses",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
-      "freckles": true
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
     "accessories": [],
+    "expression": "smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0028",
     "file": "avatars/avatar_0028.png",
     "traits": {
       "bald": false,
-      "hair_length": "medium",
-      "hair_texture": "straight",
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "high_ponytail_glasses",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
       "glasses": true,
-      "beard": true,
+      "glasses_style": "round",
+      "beard": false,
       "moustache": false,
-      "facial_hair_style": "full_beard",
-      "freckles": false
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
-    "accessories": [],
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "wink_smile",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "pending_visual_review",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0029",
     "file": "avatars/avatar_0029.png",
     "traits": {
       "bald": false,
-      "hair_length": "medium",
-      "hair_texture": "wavy",
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "braids",
+      "hair_style_family": "braided_long",
+      "hair_style_variant": "cornrows_full_beard",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "braids",
+      "braid_count": "multiple",
+      "braid_style": "cornrows",
+      "parting": "none",
+      "face_framing": "light",
       "glasses": false,
-      "beard": false,
-      "moustache": false,
-      "facial_hair_style": "none",
+      "glasses_style": "none",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
       "freckles": false,
-      "hair_shape_family": "ponytail",
-      "hair_style_variant": "ponytail",
-      "hair_tied": "ponytail"
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
-    "accessories": [
-      "ponytail"
-    ],
+    "accessories": [],
+    "expression": "calm",
     "recolorable": true,
-    "canvas": [
+    "source_canvas": [
       70,
       70
     ],
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [],
-      "notes": []
-    }
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0030",
     "file": "avatars/avatar_0030.png",
     "traits": {
       "bald": false,
-      "hair_length": "short",
-      "hair_texture": "spiky",
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bun",
+      "hair_style_family": "bun",
+      "hair_style_variant": "messy_bun_moustache",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "bun",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
       "glasses": false,
+      "glasses_style": "none",
       "beard": false,
-      "moustache": false,
-      "facial_hair_style": "none",
+      "moustache": true,
+      "facial_hair_style": "moustache",
       "freckles": false,
-      "hair_shape_family": "messy_short",
-      "hair_style_variant": "spiky_short",
-      "hair_tied": "none"
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
-    "visual_metadata": {
-      "hair_style": "spiky_short",
-      "accessories": [],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'spiky_short'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0031",
     "file": "avatars/avatar_0031.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
-      "hair_texture": "locs",
-      "glasses": false,
+      "hair_length": "medium",
+      "hair_texture": "straight",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "straight_bob_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "locs",
-      "hair_style_variant": "dreadlocks"
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
-    "visual_metadata": {
-      "hair_style": "dreadlocks",
-      "accessories": [],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'dreadlocks'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0032",
     "file": "avatars/avatar_0032.png",
     "traits": {
       "bald": false,
-      "hair_length": "medium",
-      "hair_texture": "wavy",
-      "glasses": true,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "side_part",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_side_swept",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "layered_medium",
-      "hair_style_variant": "layered_medium",
-      "hair_tied": "none"
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
-    "visual_metadata": {
-      "hair_style": "layered_medium",
-      "accessories": [
-        "glasses"
-      ],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "reviewed",
-      "source": [
-        "visual_review",
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "hair_shape_family corregido de 'long_layered' a 'layered_medium'."
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0033",
     "file": "avatars/avatar_0033.png",
     "traits": {
       "bald": false,
-      "hair_length": "medium",
-      "hair_texture": "curly",
-      "glasses": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "twin_braids",
+      "hair_style_family": "braided_long",
+      "hair_style_variant": "twin_braids_round_glasses",
+      "hair_volume": "low",
+      "bangs": "curtain",
+      "hair_tied": "braids",
+      "braid_count": "double",
+      "braid_style": "twin_braids",
+      "parting": "middle",
+      "face_framing": "medium",
+      "glasses": true,
+      "glasses_style": "round",
       "beard": false,
-      "moustache": true,
-      "facial_hair_style": "moustache",
+      "moustache": false,
+      "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "afro",
-      "hair_style_variant": "afro",
-      "hair_volume": "high",
-      "hair_tied": "none",
-      "parting": "none"
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
-    "visual_metadata": {
-      "hair_style": "afro",
-      "accessories": [],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'afro'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0034",
     "file": "avatars/avatar_0034.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
-      "hair_texture": "wavy",
-      "glasses": true,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "afro",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_curly_afro_moustache",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
-      "moustache": false,
-      "facial_hair_style": "none",
+      "moustache": true,
+      "facial_hair_style": "moustache",
       "freckles": false,
-      "hair_shape_family": "ponytail",
-      "hair_style_variant": "high_ponytail",
-      "hair_tied": "ponytail"
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
-    "visual_metadata": {
-      "hair_style": "high_ponytail",
-      "accessories": [
-        "glasses",
-        "hair_tie"
-      ],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'high_ponytail'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0035",
     "file": "avatars/avatar_0035.png",
     "traits": {
-      "bald": true,
-      "hair_length": "bald",
-      "hair_texture": "none",
-      "glasses": false,
-      "beard": true,
-      "moustache": true,
-      "facial_hair_style": "full_beard",
-      "freckles": false,
-      "hair_shape_family": "none",
-      "hair_style_variant": "bald",
-      "hair_volume": "low",
-      "bangs": "none",
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "wavy_bob_side_part",
+      "hair_volume": "medium",
+      "bangs": "side",
       "hair_tied": "none",
-      "parting": "none",
-      "face_framing": "none"
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
-      "hair": null,
+      "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": null,
+      "glasses": null
     },
-    "visual_metadata": {
-      "hair_style": "bald",
-      "accessories": [],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "bald",
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'bald'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0036",
     "file": "avatars/avatar_0036.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
-      "hair_texture": "braided",
-      "glasses": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "crop",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "curly_crop_rectangular_glasses",
+      "hair_volume": "medium",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "braids",
-      "hair_style_variant": "braids_cornrows"
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
     },
-    "visual_metadata": {
-      "hair_style": "braids_cornrows",
-      "accessories": [],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'braids_cornrows'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0037",
     "file": "avatars/avatar_0037.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
+      "hair_length": "short",
       "hair_texture": "straight",
-      "glasses": true,
+      "hair_shape_family": "pixie",
+      "hair_style_family": "pixie",
+      "hair_style_variant": "pixie_side_sweep_earring",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
       "beard": false,
       "moustache": false,
       "facial_hair_style": "none",
       "freckles": false,
-      "hair_shape_family": "long_loose",
-      "hair_style_variant": "shoulder_length_straight",
-      "hair_tied": "none"
+      "presentation": "feminine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": "yellow",
-      "facial_hair": null
+      "facial_hair": null,
+      "glasses": null
     },
-    "visual_metadata": {
-      "hair_style": "shoulder_length_straight",
-      "accessories": [
-        "glasses"
-      ],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [
+      "stud_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'shoulder_length_straight'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0038",
@@ -1347,90 +2129,3817 @@
       "bald": false,
       "hair_length": "medium",
       "hair_texture": "wavy",
+      "hair_shape_family": "low_ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "low_ponytail_moustache",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
       "glasses": false,
-      "beard": true,
+      "glasses_style": "none",
+      "beard": false,
       "moustache": true,
-      "facial_hair_style": "full_beard",
+      "facial_hair_style": "moustache",
       "freckles": false,
-      "hair_shape_family": "messy_medium",
-      "hair_style_variant": "messy_medium",
-      "hair_tied": "none"
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": "blue"
+      "facial_hair": "blue_violet",
+      "glasses": null
     },
-    "visual_metadata": {
-      "hair_style": "messy_medium",
-      "accessories": [],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'messy_medium'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   },
   {
     "id": "avatar_0039",
     "file": "avatars/avatar_0039.png",
     "traits": {
       "bald": false,
-      "hair_length": "long",
+      "hair_length": "medium",
       "hair_texture": "wavy",
-      "glasses": false,
-      "beard": false,
-      "moustache": false,
-      "facial_hair_style": "none",
-      "freckles": false,
       "hair_shape_family": "bun",
-      "hair_style_variant": "high_bun_ponytail",
-      "hair_tied": "bun"
+      "hair_style_family": "bun",
+      "hair_style_variant": "bun_round_glasses_goatee",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "bun",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "goatee",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
     },
     "template_markers": {
       "skin": "magenta",
       "hair": "green",
       "iris": "cyan",
-      "glasses": null,
-      "facial_hair": null
+      "facial_hair": "blue_violet",
+      "glasses": "yellow_or_dark_neutral"
     },
-    "visual_metadata": {
-      "hair_style": "high_bun_ponytail",
-      "accessories": [
-        "hair_tie",
-        "eyebrow_piercing"
-      ],
-      "orientation": "left",
-      "pose": "left_3_4_or_profile",
-      "recolorable": true,
-      "canvas": [
-        70,
-        70
-      ],
-      "background": "transparent_outside_head_only"
-    },
-    "hair_v2_annotation": {
-      "status": "partial",
-      "source": [
-        "visual_metadata.hair_style"
-      ],
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
       "notes": [
-        "Mapeado desde 'high_bun_ponytail'"
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
       ]
-    }
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0040",
+    "file": "avatars/avatar_0040.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "hair_shape_family": "long_layered",
+      "hair_style_family": "long_curly",
+      "hair_style_variant": "long_curly_round_glasses",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0041",
+    "file": "avatars/avatar_0041.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "wavy",
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_wavy",
+      "hair_style_variant": "short_messy_rectangular_glasses",
+      "hair_volume": "medium",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0042",
+    "file": "avatars/avatar_0042.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "crop",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_textured_crop",
+      "hair_volume": "medium",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0043",
+    "file": "avatars/avatar_0043.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "locs",
+      "hair_shape_family": "locs",
+      "hair_style_family": "locs",
+      "hair_style_variant": "locs_tied_beard_glasses",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "tied_back",
+      "braid_count": "multiple",
+      "braid_style": "locs",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0044",
+    "file": "avatars/avatar_0044.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "locs",
+      "hair_shape_family": "messy_medium",
+      "hair_style_family": "locs",
+      "hair_style_variant": "messy_locs",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "multiple",
+      "braid_style": "locs",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0045",
+    "file": "avatars/avatar_0045.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "locs",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "locs",
+      "hair_style_variant": "locs_ponytail_beard",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "ponytail",
+      "braid_count": "multiple",
+      "braid_style": "locs",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "wide_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0046",
+    "file": "avatars/avatar_0046.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "long_layered",
+      "hair_style_family": "long_wavy",
+      "hair_style_variant": "long_wavy_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "big_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0047",
+    "file": "avatars/avatar_0047.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "side_part",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_side_part_hoop",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hoop_earring"
+    ],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0048",
+    "file": "avatars/avatar_0048.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "long_layered",
+      "hair_style_family": "long_wavy",
+      "hair_style_variant": "long_wavy_hair_clip",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "clip"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hair_clip"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0049",
+    "file": "avatars/avatar_0049.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_curly_moustache_glasses",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": true,
+      "facial_hair_style": "moustache",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "big_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0050",
+    "file": "avatars/avatar_0050.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "long_layered",
+      "hair_style_family": "long_wavy",
+      "hair_style_variant": "long_wavy_loose",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0051",
+    "file": "avatars/avatar_0051.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "wavy",
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_wavy",
+      "hair_style_variant": "short_wavy_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0052",
+    "file": "avatars/avatar_0052.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "straight",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "straight_bob_bangs_clip",
+      "hair_volume": "medium",
+      "bangs": "straight",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "clip"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hair_clip"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0053",
+    "file": "avatars/avatar_0053.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "crop",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "curly_crop_earring",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "stud_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0054",
+    "file": "avatars/avatar_0054.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "wavy_ponytail_glasses",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0055",
+    "file": "avatars/avatar_0055.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "messy_medium",
+      "hair_style_family": "layered_medium",
+      "hair_style_variant": "messy_medium_moustache",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": true,
+      "facial_hair_style": "moustache",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0056",
+    "file": "avatars/avatar_0056.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "wavy",
+      "hair_shape_family": "pixie",
+      "hair_style_family": "pixie",
+      "hair_style_variant": "wavy_pixie",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0057",
+    "file": "avatars/avatar_0057.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "layered_medium",
+      "hair_style_variant": "medium_layered_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0058",
+    "file": "avatars/avatar_0058.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_curly_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0059",
+    "file": "avatars/avatar_0059.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "twin_braids",
+      "hair_style_family": "braided_long",
+      "hair_style_variant": "long_twin_braids",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "braids",
+      "braid_count": "double",
+      "braid_style": "twin_braids",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hair_ties"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0060",
+    "file": "avatars/avatar_0060.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "rounded_crop",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_dense_curls",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0061",
+    "file": "avatars/avatar_0061.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "locs",
+      "hair_shape_family": "sidecut_locs",
+      "hair_style_family": "short_locs",
+      "hair_style_variant": "short_locs_sidecut",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "multiple",
+      "braid_style": "locs",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "stud_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0062",
+    "file": "avatars/avatar_0062.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_curly_moustache",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": true,
+      "facial_hair_style": "moustache",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0063",
+    "file": "avatars/avatar_0063.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "wavy_bob_clip",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "clip"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hair_clip"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0064",
+    "file": "avatars/avatar_0064.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bun",
+      "hair_style_family": "bun",
+      "hair_style_variant": "messy_bun_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "bun",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0065",
+    "file": "avatars/avatar_0065.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "rounded_crop",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_round_curls",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0066",
+    "file": "avatars/avatar_0066.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "hair_shape_family": "long_layered",
+      "hair_style_family": "long_curly",
+      "hair_style_variant": "long_curly_loose",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0067",
+    "file": "avatars/avatar_0067.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "wavy",
+      "hair_shape_family": "side_part",
+      "hair_style_family": "short_wavy",
+      "hair_style_variant": "short_wavy_rectangular_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0068",
+    "file": "avatars/avatar_0068.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "high_ponytail_wavy",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0069",
+    "file": "avatars/avatar_0069.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "high_ponytail_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0070",
+    "file": "avatars/avatar_0070.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "straight",
+      "hair_shape_family": "asymmetric_bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "asymmetric_bob_star_clip",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "cat_eye",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "star_clip"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "star_hair_clip"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0071",
+    "file": "avatars/avatar_0071.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "wavy_ponytail_open_smile",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "open_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0072",
+    "file": "avatars/avatar_0072.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "pixie",
+      "hair_style_family": "pixie",
+      "hair_style_variant": "pixie_side_swept_hoop",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hoop_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0073",
+    "file": "avatars/avatar_0073.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "twin_braids",
+      "hair_style_family": "braided_long",
+      "hair_style_variant": "twin_braids_round_glasses",
+      "hair_volume": "low",
+      "bangs": "curtain",
+      "hair_tied": "braids",
+      "braid_count": "double",
+      "braid_style": "twin_braids",
+      "parting": "middle",
+      "face_framing": "medium",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0074",
+    "file": "avatars/avatar_0074.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "side_braid",
+      "hair_style_family": "braided_long",
+      "hair_style_variant": "side_braid_ribbon",
+      "hair_volume": "low",
+      "bangs": "curtain",
+      "hair_tied": "braids",
+      "braid_count": "single",
+      "braid_style": "side_braid",
+      "parting": "side",
+      "face_framing": "medium",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "ribbon"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "ribbon"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0075",
+    "file": "avatars/avatar_0075.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bun",
+      "hair_style_family": "bun",
+      "hair_style_variant": "bun_round_glasses_full_beard",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "bun",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0076",
+    "file": "avatars/avatar_0076.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "wavy_bob_flower_clip",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "flower_clip"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "flower_hair_clip"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_077",
+    "file": "avatars/avatar_077.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "straight",
+      "hair_shape_family": "long_straight",
+      "hair_style_family": "long_straight",
+      "hair_style_variant": "long_straight_bangs_glasses",
+      "hair_volume": "medium",
+      "bangs": "straight",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0078",
+    "file": "avatars/avatar_0078.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "straight",
+      "hair_shape_family": "long_straight",
+      "hair_style_family": "long_straight",
+      "hair_style_variant": "long_straight_star_clip",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "star_clip"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "star_hair_clip"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0079",
+    "file": "avatars/avatar_0079.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "side_part",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_side_part_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0080",
+    "file": "avatars/avatar_0080.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "undercut",
+      "hair_style_family": "undercut",
+      "hair_style_variant": "undercut_side_sweep_hoop",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hoop_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0081",
+    "file": "avatars/avatar_0081.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "straight",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "straight_bob_bangs_star_clip",
+      "hair_volume": "medium",
+      "bangs": "straight",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "star_clip"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "star_hair_clip"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0082",
+    "file": "avatars/avatar_0082.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "straight",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "straight_bob_center_glasses",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0083",
+    "file": "avatars/avatar_0083.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "straight",
+      "hair_shape_family": "low_ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "straight_low_ponytail_beard",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0084",
+    "file": "avatars/avatar_0084.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "straight",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "straight_bob_cat_eye_earring",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "cat_eye",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "gold_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0085",
+    "file": "avatars/avatar_0085.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "crop",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_straight_fringe_earring",
+      "hair_volume": "medium",
+      "bangs": "straight",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "drop_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0086",
+    "file": "avatars/avatar_0086.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "side_part",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_straight_side_part",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0087",
+    "file": "avatars/avatar_0087.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "straight",
+      "hair_shape_family": "bob",
+      "hair_style_family": "bob",
+      "hair_style_variant": "medium_straight_bob",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0088",
+    "file": "avatars/avatar_0088.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "straight",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "straight_ponytail_glasses",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0089",
+    "file": "avatars/avatar_0089.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "straight",
+      "hair_shape_family": "long_straight",
+      "hair_style_family": "long_straight",
+      "hair_style_variant": "long_straight_center_part",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0090",
+    "file": "avatars/avatar_0090.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "side_part",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_side_part_clean",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0091",
+    "file": "avatars/avatar_0091.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "straight",
+      "hair_shape_family": "crop",
+      "hair_style_family": "short_straight",
+      "hair_style_variant": "short_fringe_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "straight",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [
+      "stud_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0092",
+    "file": "avatars/avatar_0092.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "straight",
+      "hair_shape_family": "curtain_cut",
+      "hair_style_family": "layered_medium",
+      "hair_style_variant": "medium_curtain_cut",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0093",
+    "file": "avatars/avatar_0093.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "layered_medium",
+      "hair_style_variant": "medium_wavy_full_beard",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0094",
+    "file": "avatars/avatar_0094.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "hair_shape_family": "ponytail",
+      "hair_style_family": "ponytail",
+      "hair_style_variant": "curly_high_ponytail",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0095",
+    "file": "avatars/avatar_0095.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "hair_shape_family": "long_layered",
+      "hair_style_family": "long_curly",
+      "hair_style_variant": "long_curly_center_part",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0096",
+    "file": "avatars/avatar_0096.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_short",
+      "hair_style_family": "short_curly",
+      "hair_style_variant": "short_curly_rectangular_glasses",
+      "hair_volume": "high",
+      "bangs": "short",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0097",
+    "file": "avatars/avatar_0097.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "curly",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "medium_curly",
+      "hair_style_variant": "medium_curly_loose",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0098",
+    "file": "avatars/avatar_0098.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "curly",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "medium_curly",
+      "hair_style_variant": "medium_curly_goatee",
+      "hair_volume": "high",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "goatee",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0099",
+    "file": "avatars/avatar_0099.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "hair_shape_family": "twin_braids",
+      "hair_style_family": "braided_long",
+      "hair_style_variant": "curly_twin_braids_round_glasses",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "braids",
+      "braid_count": "double",
+      "braid_style": "twin_braids",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "round",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0100",
+    "file": "avatars/avatar_0100.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "short",
+      "hair_texture": "coily",
+      "hair_shape_family": "afro",
+      "hair_style_family": "afro",
+      "hair_style_variant": "short_tight_afro",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0101",
+    "file": "avatars/avatar_0101.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "curly",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "medium_curly",
+      "hair_style_variant": "medium_curly_soft_bangs",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "feminine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0102",
+    "file": "avatars/avatar_0102.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "curly",
+      "hair_shape_family": "messy_medium",
+      "hair_style_family": "medium_curly",
+      "hair_style_variant": "medium_curly_rectangular_glasses",
+      "hair_volume": "high",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "glasses_style": "rectangular",
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "presentation": "androgynous",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": null,
+      "glasses": "yellow_or_dark_neutral"
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
+  },
+  {
+    "id": "avatar_0103",
+    "file": "avatars/avatar_0103.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "curly",
+      "hair_shape_family": "layered_medium",
+      "hair_style_family": "medium_curly",
+      "hair_style_variant": "medium_curly_moustache",
+      "hair_volume": "high",
+      "bangs": "side",
+      "hair_tied": "none",
+      "braid_count": "none",
+      "braid_style": "none",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "glasses_style": "none",
+      "beard": false,
+      "moustache": true,
+      "facial_hair_style": "moustache",
+      "freckles": false,
+      "presentation": "masculine",
+      "hair_accessory": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "facial_hair": "blue_violet",
+      "glasses": null
+    },
+    "accessories": [],
+    "expression": "calm",
+    "recolorable": true,
+    "source_canvas": [
+      70,
+      70
+    ],
+    "target_canvas": [
+      70,
+      70
+    ],
+    "hair_v3_annotation": {
+      "status": "visual_reviewed",
+      "source": "avatares.zip",
+      "notes": [
+        "Descripción estructural realizada sobre el PNG del lote de 103 avatares.",
+        "Los colores de piel, cabello e iris son marcadores de recoloreado y no rasgos semánticos del personaje."
+      ]
+    },
+    "normalized_from": [
+      1254,
+      1254
+    ]
   }
 ]

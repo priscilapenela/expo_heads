@@ -1,0 +1,569 @@
+[
+  {
+    "id": "avatar_0001",
+    "file": "avatars/avatar_0001.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "braids",
+      "hair_style_variant": "cornrows_tied_back",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "braids",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "braided_long",
+      "braid_count": "multiple",
+      "braid_style": "cornrows"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "yellow",
+      "facial_hair": null
+    },
+    "accessories": [],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0002",
+    "file": "avatars/avatar_0002.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_variant": "high_ponytail_side_bangs",
+      "hair_volume": "medium",
+      "bangs": "side",
+      "hair_tied": "ponytail",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "wink_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0023",
+    "file": "avatars/avatar_0023.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "locs",
+      "hair_style_variant": "locs_ponytail_full_beard",
+      "hair_volume": "high",
+      "bangs": "none",
+      "hair_tied": "ponytail",
+      "parting": "none",
+      "face_framing": "light",
+      "glasses": false,
+      "beard": true,
+      "moustache": true,
+      "facial_hair_style": "full_beard",
+      "freckles": false,
+      "hair_style_family": "locs",
+      "braid_count": "multiple",
+      "braid_style": "locs"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": "blue"
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0025",
+    "file": "avatars/avatar_0025.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "hair_shape_family": "half_up",
+      "hair_style_variant": "curly_half_up_glasses",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "half_up",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "half_up",
+      "braid_count": "none",
+      "braid_style": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "yellow",
+      "facial_hair": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "big_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0028",
+    "file": "avatars/avatar_0028.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_variant": "high_ponytail_glasses",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "yellow",
+      "facial_hair": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "wink_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0040",
+    "file": "avatars/avatar_0040.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "curly",
+      "hair_shape_family": "long_layered",
+      "hair_style_variant": "long_curly_glasses",
+      "hair_volume": "high",
+      "bangs": "curtain",
+      "hair_tied": "none",
+      "parting": "middle",
+      "face_framing": "strong",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "long_curly",
+      "braid_count": "none",
+      "braid_style": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "yellow",
+      "facial_hair": null
+    },
+    "accessories": [],
+    "expression": "smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0054",
+    "file": "avatars/avatar_0054.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_variant": "ponytail_wavy_glasses",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "yellow",
+      "facial_hair": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0059",
+    "file": "avatars/avatar_0059.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "braided",
+      "hair_shape_family": "braids",
+      "hair_style_variant": "long_twin_braids",
+      "hair_volume": "medium",
+      "bangs": "none",
+      "hair_tied": "braids",
+      "parting": "none",
+      "face_framing": "strong",
+      "glasses": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "braided_long",
+      "braid_count": "double",
+      "braid_style": "twin_braids"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0064",
+    "file": "avatars/avatar_0064.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "medium",
+      "hair_texture": "wavy",
+      "hair_shape_family": "bun",
+      "hair_style_variant": "messy_bun_round_glasses",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "bun",
+      "parting": "side",
+      "face_framing": "light",
+      "glasses": true,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "bun",
+      "braid_count": "none",
+      "braid_style": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": "black",
+      "facial_hair": null
+    },
+    "accessories": [
+      "hair_tie"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  },
+  {
+    "id": "avatar_0068",
+    "file": "avatars/avatar_0068.png",
+    "traits": {
+      "bald": false,
+      "hair_length": "long",
+      "hair_texture": "wavy",
+      "hair_shape_family": "ponytail",
+      "hair_style_variant": "long_ponytail_silver_earring",
+      "hair_volume": "medium",
+      "bangs": "curtain",
+      "hair_tied": "ponytail",
+      "parting": "side",
+      "face_framing": "strong",
+      "glasses": false,
+      "beard": false,
+      "moustache": false,
+      "facial_hair_style": "none",
+      "freckles": false,
+      "hair_style_family": "ponytail",
+      "braid_count": "none",
+      "braid_style": "none"
+    },
+    "template_markers": {
+      "skin": "magenta",
+      "hair": "green",
+      "iris": "cyan",
+      "glasses": null,
+      "facial_hair": null
+    },
+    "accessories": [
+      "hair_tie",
+      "hoop_earring"
+    ],
+    "expression": "soft_smile",
+    "recolorable": true,
+    "canvas": [
+      70,
+      70
+    ],
+    "hair_v2_annotation": {
+      "status": "visual_reviewed",
+      "source": [
+        "visual_review_zip_2026-09-16"
+      ],
+      "notes": [
+        "Catalogado visualmente para Hair V2 y matching estructural."
+      ]
+    },
+    "catalog_schema": "hair_v3_test",
+    "hair_v3_annotation": {
+      "status": "manual_sample",
+      "notes": [
+        "Mantiene campos Hair V2 para compatibilidad.",
+        "Agrega estructura de peinado Hair V3."
+      ]
+    }
+  }
+]

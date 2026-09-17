@@ -32,3 +32,6 @@ data/info_files/cijeligame*
 data/info_files/tren_igra_dat.txt
 data/info_files/tren_igra_postavke.txt
 data/replays/recent/*.txt
+
+# Avatar archives
+data/avatars/*.zip
