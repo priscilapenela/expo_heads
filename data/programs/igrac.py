@@ -2,6 +2,42 @@ import pygame
 import random
 vec=pygame.math.Vector2
 
+# -----------------------------------------------------------------------------
+# EXPO HEADS - JOYSTICK CHECK 1
+# P1 puede moverse a izquierda/derecha con el eje horizontal del primer mando.
+# El teclado original sigue funcionando en paralelo.
+# Salto y patada NO se modifican en este check.
+# -----------------------------------------------------------------------------
+JOYSTICK_DEADZONE = 0.35
+_p1_joystick = None
+
+def _p1_gamepad_axis_x():
+    """Devuelve el eje X del joystick 1 o 0.0 si no hay mando disponible.
+
+    Se inicializa de forma perezosa para no afectar el arranque del juego y para
+    permitir conectar el mando incluso después de haber iniciado el proceso.
+    """
+    global _p1_joystick
+
+    try:
+        if not pygame.joystick.get_init():
+            pygame.joystick.init()
+
+        if _p1_joystick is None or not _p1_joystick.get_init():
+            if pygame.joystick.get_count() < 1:
+                return 0.0
+
+            _p1_joystick = pygame.joystick.Joystick(0)
+            _p1_joystick.init()
+            print("[GAMEPAD] P1 detectado:", _p1_joystick.get_name())
+
+        return _p1_joystick.get_axis(0)
+
+    except pygame.error:
+        # Si el mando se desconecta, volvemos al teclado y reintentamos luego.
+        _p1_joystick = None
+        return 0.0
+
 igraci_image={}
 
 for i in range(1,24,1):
@@ -45,6 +81,12 @@ class Igrac1(pygame.sprite.Sprite):
     
     def update_move(self, stipke, koji, nogica1, sutnuo1, nogica2, sutnuo2, skok_zvuk, FRIC, kontrole, platforme, sirina, loptaa, poss, gravitacija, broj_lopti, gol_sirina, lista_igraca):
         jel_skok_zvuk=0
+
+        # CHECK 1: solo movimiento horizontal del P1 con el stick izquierdo.
+        # Eje 0 es el eje horizontal estándar en mandos Xbox/PlayStation vía SDL.
+        p1_axis_x = _p1_gamepad_axis_x() if self.za_koga==1 and not self.bot else 0.0
+        p1_gamepad_left = p1_axis_x < -JOYSTICK_DEADZONE
+        p1_gamepad_right = p1_axis_x > JOYSTICK_DEADZONE
         if(self.invalid>0):
             self.invalid+=1
             if(self.invalid==300):
@@ -52,9 +94,9 @@ class Igrac1(pygame.sprite.Sprite):
 
         if(len(loptaa)==0):
             self.acc=vec(0,gravitacija+0.07)
-            if(not self.invalid and not self.led and ((self.za_koga==2 and stipke[kontrole[0][4]] and not self.bot) or (self.za_koga==1 and not self.bot and stipke[kontrole[0][0]]))):
+            if(not self.invalid and not self.led and ((self.za_koga==2 and stipke[kontrole[0][4]] and not self.bot) or (self.za_koga==1 and not self.bot and (stipke[kontrole[0][0]] or p1_gamepad_left)))):
                 self.acc.x = -self.ACC
-            if(not self.invalid and not self.led and ((self.za_koga==2 and stipke[kontrole[0][5]] and not self.bot) or (self.za_koga==1 and not self.bot and stipke[kontrole[0][1]]))):
+            if(not self.invalid and not self.led and ((self.za_koga==2 and stipke[kontrole[0][5]] and not self.bot) or (self.za_koga==1 and not self.bot and (stipke[kontrole[0][1]] or p1_gamepad_right)))):
                 self.acc.x = self.ACC
             if(not self.invalid and ((self.za_koga==2 and stipke[kontrole[0][6]] and not self.bot) or (self.za_koga==1 and not self.bot and stipke[kontrole[0][2]]))):
                 hits = pygame.sprite.spritecollide(self, platforme, False)
@@ -153,9 +195,9 @@ class Igrac1(pygame.sprite.Sprite):
             
         
         self.acc=vec(0,gravitacija+0.07)
-        if (((self.za_koga==2 and ((stipke[kontrole[0][4]] and not self.bot) or (((lopta.pos.x<self.rect.left-br2 and not nazad2) or (self.pos.x>=sirina-gol_sirina+br7)) and self.bot))) or (self.za_koga==1 and ((stipke[kontrole[0][0]] and not self.bot) or (((lopta.pos.x<self.pos.x-self.radius/4 or nazad1) and not (self.pos.x<gol_sirina-br7)) and self.bot)))) and  not self.led):
+        if (((self.za_koga==2 and ((stipke[kontrole[0][4]] and not self.bot) or (((lopta.pos.x<self.rect.left-br2 and not nazad2) or (self.pos.x>=sirina-gol_sirina+br7)) and self.bot))) or (self.za_koga==1 and (((stipke[kontrole[0][0]] or p1_gamepad_left) and not self.bot) or (((lopta.pos.x<self.pos.x-self.radius/4 or nazad1) and not (self.pos.x<gol_sirina-br7)) and self.bot)))) and  not self.led):
             if(not self.invalid):self.acc.x = -self.ACC
-        if (((self.za_koga==2 and ((stipke[kontrole[0][5]] and not self.bot) or (((lopta.pos.x>self.pos.x+self.radius/4 or nazad2) and not (self.pos.x>sirina-gol_sirina+br7)) and self.bot))) or (self.za_koga==1 and ((stipke[kontrole[0][1]] and not self.bot) or (((lopta.pos.x>self.rect.right+br4 and not nazad1) or (self.pos.x<=gol_sirina-br7)) and self.bot)))) and  not self.led):
+        if (((self.za_koga==2 and ((stipke[kontrole[0][5]] and not self.bot) or (((lopta.pos.x>self.pos.x+self.radius/4 or nazad2) and not (self.pos.x>sirina-gol_sirina+br7)) and self.bot))) or (self.za_koga==1 and (((stipke[kontrole[0][1]] or p1_gamepad_right) and not self.bot) or (((lopta.pos.x>self.rect.right+br4 and not nazad1) or (self.pos.x<=gol_sirina-br7)) and self.bot)))) and  not self.led):
             if(not self.invalid):self.acc.x = self.ACC
 
         
